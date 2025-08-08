@@ -7,13 +7,17 @@ export default function LiveFeed({ ads, onLoadMore, loading }: { ads: AdItem[]; 
 
   useEffect(() => {
     const el = sentinel.current;
-    if (!el) return;
+    if (!el || ads.length === 0) return; // don't start IO until we have initial results
     const io = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !loading) onLoadMore();
     }, { rootMargin: "800px" });
     io.observe(el);
     return () => io.disconnect();
-  }, [loading, onLoadMore]);
+  }, [loading, onLoadMore, ads.length]);
+
+  if (loading && ads.length === 0) {
+    return <div className="text-sm text-muted-foreground">Loading ads…</div>;
+  }
 
   return (
     <div className="space-y-4">

@@ -1,36 +1,40 @@
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Zap } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLiveAds, fetchAnalytics, SearchFilters, AdItem } from "@/services/adSignal";
+import { fetchLiveAds, SearchFilters, AdItem } from "@/services/adSignal";
 import { FilterBar, LiveFeed, AnalyticsDashboard, ExportControls } from "@/components/ad-signal-hijack";
 
 export default function AdSignalHijack() {
   const [filters, setFilters] = useState<SearchFilters>({ platforms: ["meta"] });
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [ads, setAds] = useState<AdItem[]>([]);
+  const [hasApplied, setHasApplied] = useState(false);
 
-  const { isFetching, refetch } = useQuery({
+  const { isFetching, refetch, isError, error } = useQuery({
     queryKey: ["ad-feed", filters, cursor],
     queryFn: async () => {
+      if (!hasApplied) return { ads: [], nextCursor: undefined };
       const res = await fetchLiveAds(filters, cursor);
       setAds((prev) => (cursor ? [...prev, ...res.ads] : res.ads));
       if (res.nextCursor) setCursor(res.nextCursor);
       return res;
     },
+    enabled: false,
   });
 
   const handleApplyFilters = useCallback((f: SearchFilters) => {
     setCursor(undefined);
     setAds([]);
     setFilters(f);
+    setHasApplied(true);
     void refetch();
   }, [refetch]);
 
   const loadMore = useCallback(() => {
-    if (!isFetching) void refetch();
-  }, [isFetching, refetch]);
+    if (!isFetching && hasApplied) void refetch();
+  }, [isFetching, hasApplied, refetch]);
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -55,9 +59,17 @@ export default function AdSignalHijack() {
                   </div>
                   <div className="flex items-center gap-2 px-3 py-1 bg-success/10 rounded-full">
                     <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                    <span className="text-xs font-medium text-success">LIVE</span>
+                    <span className="text-xs font-medium text-success">{isFetching ? 'LOADING' : hasApplied ? 'READY' : 'IDLE'}</span>
                   </div>
                 </div>
+
+                {!hasApplied && (
+                  <div className="text-sm text-muted-foreground">Set filters and click Apply to load ads.</div>
+                )}
+                {isError && (
+                  <div className="text-sm text-destructive">{(error as Error)?.message || 'Failed to load ads'}</div>
+                )}
+
                 <LiveFeed ads={ads} onLoadMore={loadMore} loading={isFetching} />
               </CardContent>
             </Card>
