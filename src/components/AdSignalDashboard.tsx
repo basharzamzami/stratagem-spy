@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdSignalSearch from '@/components/AdSignalSearch';
 import LiveAdFeed from '@/components/LiveAdFeed';
@@ -6,9 +7,20 @@ import AdAnalyticsDashboard from '@/components/AdAnalyticsDashboard';
 import AdExportTools from '@/components/AdExportTools';
 import CompetitorMetrics from '@/components/CompetitorMetrics';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Zap } from 'lucide-react';
+import { Eye, Zap, BarChart3, Download } from 'lucide-react';
 
 const AdSignalDashboard = () => {
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [currentFilters, setCurrentFilters] = useState<any>({});
+
+  const handleSearchResults = (results: any[]) => {
+    setSearchResults(results);
+  };
+
+  const handleFiltersChange = (filters: any) => {
+    setCurrentFilters(filters);
+  };
+
   return (
     <div className="flex-1 space-y-6 p-8">
       {/* Header */}
@@ -26,7 +38,10 @@ const AdSignalDashboard = () => {
       </div>
 
       {/* Search Component - Always Visible */}
-      <AdSignalSearch />
+      <AdSignalSearch 
+        onSearchResults={handleSearchResults}
+        onFiltersChange={handleFiltersChange}
+      />
 
       {/* Metrics Overview */}
       <CompetitorMetrics />
@@ -39,13 +54,15 @@ const AdSignalDashboard = () => {
             Live Ad Feed
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <Zap className="w-4 h-4" />
+            <BarChart3 className="w-4 h-4" />
             Analytics
           </TabsTrigger>
           <TabsTrigger value="export" className="flex items-center gap-2">
+            <Download className="w-4 h-4" />
             Export & Reports
           </TabsTrigger>
           <TabsTrigger value="insights" className="flex items-center gap-2">
+            <Zap className="w-4 h-4" />
             AI Insights
           </TabsTrigger>
         </TabsList>

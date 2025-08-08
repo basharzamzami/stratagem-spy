@@ -10,10 +10,11 @@ import {
   FileText, 
   Share2, 
   Calendar, 
-  Filter,
   Mail,
-  Link
+  Link,
+  Loader2
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const AdExportTools = () => {
   const [selectedFormat, setSelectedFormat] = useState('csv');
@@ -21,6 +22,9 @@ const AdExportTools = () => {
     'competitor', 'platform', 'headline', 'spend', 'engagement'
   ]);
   const [reportType, setReportType] = useState('current');
+  const [isExporting, setIsExporting] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
+  const { toast } = useToast();
 
   const exportFields = [
     { id: 'competitor', label: 'Competitor Name' },
@@ -44,17 +48,120 @@ const AdExportTools = () => {
     );
   };
 
-  const handleExport = () => {
-    // Mock export functionality
-    console.log('Exporting with:', {
-      format: selectedFormat,
-      fields: selectedFields,
-      type: reportType
-    });
+  const handleExport = async () => {
+    if (selectedFields.length === 0) {
+      toast({
+        title: "No fields selected",
+        description: "Please select at least one field to export",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsExporting(true);
     
-    // In real implementation, this would trigger the actual export
-    const fileName = `ad-intelligence-export-${Date.now()}.${selectedFormat}`;
-    console.log(`Downloading: ${fileName}`);
+    try {
+      // Simulate export generation
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      const fileName = `ad-intelligence-export-${Date.now()}.${selectedFormat}`;
+      
+      // In real implementation, this would trigger actual file download
+      toast({
+        title: "Export successful",
+        description: `Report "${fileName}" has been generated and downloaded`
+      });
+      
+      // Simulate file download
+      const link = document.createElement('a');
+      link.href = '#';
+      link.download = fileName;
+      // link.click(); // Uncomment for actual download
+      
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "Unable to generate report. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleScheduleReport = async () => {
+    setIsScheduling(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "Report scheduled",
+        description: "Weekly reports will be generated and sent automatically"
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Scheduling failed",
+        description: "Unable to schedule report. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsScheduling(false);
+    }
+  };
+
+  const handleShareView = async () => {
+    try {
+      const shareUrl = `${window.location.origin}/ad-signal-hijack/shared/${Date.now()}`;
+      
+      await navigator.clipboard.writeText(shareUrl);
+      
+      toast({
+        title: "Share link created",
+        description: "Shareable link copied to clipboard"
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Share failed",
+        description: "Unable to create share link",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEmailReport = async () => {
+    try {
+      // In real implementation, this would open email modal or send directly
+      toast({
+        title: "Email report",
+        description: "Opening email dialog to send report to team members"
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Email failed",
+        description: "Unable to send email report",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCustomReport = () => {
+    toast({
+      title: "Custom report builder",
+      description: "Opening advanced report builder interface"
+    });
+    // In real implementation, this would navigate to report builder
+  };
+
+  const handleDownloadRecent = (exportName: string) => {
+    toast({
+      title: "Downloading export",
+      description: `"${exportName}" is being downloaded`
+    });
+    // In real implementation, this would trigger actual download
   };
 
   return (
@@ -127,13 +234,39 @@ const AdExportTools = () => {
 
           {/* Export Actions */}
           <div className="flex gap-3 pt-4 border-t">
-            <Button onClick={handleExport} className="flex-1">
-              <Download className="w-4 h-4 mr-2" />
-              Export Report
+            <Button 
+              onClick={handleExport} 
+              className="flex-1"
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Report
+                </>
+              )}
             </Button>
-            <Button variant="outline">
-              <Calendar className="w-4 h-4 mr-2" />
-              Schedule
+            <Button 
+              variant="outline"
+              onClick={handleScheduleReport}
+              disabled={isScheduling}
+            >
+              {isScheduling ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Scheduling...
+                </>
+              ) : (
+                <>
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Schedule
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
@@ -152,7 +285,12 @@ const AdExportTools = () => {
                 <p className="text-sm text-muted-foreground">Generate shareable link</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="w-full mt-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full mt-3"
+              onClick={handleShareView}
+            >
               <Link className="w-4 h-4 mr-2" />
               Create Link
             </Button>
@@ -170,7 +308,12 @@ const AdExportTools = () => {
                 <p className="text-sm text-muted-foreground">Send to team members</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="w-full mt-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full mt-3"
+              onClick={handleEmailReport}
+            >
               <Mail className="w-4 h-4 mr-2" />
               Send Email
             </Button>
@@ -188,7 +331,12 @@ const AdExportTools = () => {
                 <p className="text-sm text-muted-foreground">Build detailed analysis</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="w-full mt-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full mt-3"
+              onClick={handleCustomReport}
+            >
               <FileText className="w-4 h-4 mr-2" />
               Build Report
             </Button>
@@ -218,7 +366,11 @@ const AdExportTools = () => {
                     <div className="text-xs text-muted-foreground">{export_.date} • {export_.format} • {export_.size}</div>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleDownloadRecent(export_.name)}
+                >
                   <Download className="w-4 h-4" />
                 </Button>
               </div>

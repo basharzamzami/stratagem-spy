@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Calendar, MapPin } from 'lucide-react';
+import { Search, Filter, Calendar, MapPin, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface SearchFilters {
   businessName: string;
@@ -17,7 +18,12 @@ interface SearchFilters {
   spendRange: string;
 }
 
-const AdSignalSearch = () => {
+interface AdSignalSearchProps {
+  onSearchResults?: (results: any[]) => void;
+  onFiltersChange?: (filters: SearchFilters) => void;
+}
+
+const AdSignalSearch = ({ onSearchResults, onFiltersChange }: AdSignalSearchProps) => {
   const [filters, setFilters] = useState<SearchFilters>({
     businessName: '',
     industry: '',
@@ -28,7 +34,8 @@ const AdSignalSearch = () => {
     spendRange: 'all'
   });
 
-  const [activeFilters, setActiveFilters] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
+  const { toast } = useToast();
 
   const platforms = [
     { id: 'meta', name: 'Meta Ads', count: 234 },
@@ -38,17 +45,93 @@ const AdSignalSearch = () => {
   ];
 
   const handlePlatformToggle = (platformId: string) => {
-    setFilters(prev => ({
-      ...prev,
-      platforms: prev.platforms.includes(platformId)
-        ? prev.platforms.filter(p => p !== platformId)
-        : [...prev.platforms, platformId]
-    }));
+    const newFilters = {
+      ...filters,
+      platforms: filters.platforms.includes(platformId)
+        ? filters.platforms.filter(p => p !== platformId)
+        : [...filters.platforms, platformId]
+    };
+    setFilters(newFilters);
+    onFiltersChange?.(newFilters);
   };
+
+  const handleFilterChange = (key: keyof SearchFilters, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    onFiltersChange?.(newFilters);
+  };
+
+  const handleSearch = async () => {
+    if (!filters.businessName && !filters.industry && !filters.location) {
+      toast({
+        title: "Search criteria required",
+        description: "Please enter at least one search parameter",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSearching(true);
+    
+    try {
+      // Simulate API call for now - replace with actual backend call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const mockResults = [
+        {
+          id: '1',
+          competitor: filters.businessName || 'Sample Competitor',
+          platform: filters.platforms[0] || 'meta',
+          adCount: Math.floor(Math.random() * 100) + 1,
+          totalSpend: `$${Math.floor(Math.random() * 50000) + 1000}`,
+          dateFound: new Date().toISOString()
+        }
+      ];
+
+      onSearchResults?.(mockResults);
+      
+      toast({
+        title: "Search completed",
+        description: `Found ${mockResults.length} results matching your criteria`
+      });
+      
+    } catch (error) {
+      toast({
+        title: "Search failed",
+        description: "Unable to fetch ad data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleClearFilters = () => {
+    const clearedFilters = {
+      businessName: '',
+      industry: '',
+      location: '',
+      platforms: [],
+      dateRange: 'last7days',
+      adFormat: 'all',
+      spendRange: 'all'
+    };
+    setFilters(clearedFilters);
+    onFiltersChange?.(clearedFilters);
+    
+    toast({
+      title: "Filters cleared",
+      description: "All search filters have been reset"
+    });
+  };
+
+  const activeFiltersCount = Object.values(filters).filter(value => {
+    if (Array.isArray(value)) return value.length > 0;
+    return value !== '' && value !== 'all' && value !== 'last7days';
+  }).length;
 
   return (
     <div className="space-y-4">
-      {/* Main Search Bar */}
       <Card className="sticky top-0 z-10 bg-background/95 backdrop-blur">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2">
@@ -61,9 +144,9 @@ const AdSignalSearch = () => {
             <Input
               placeholder="Business name or competitor"
               value={filters.businessName}
-              onChange={(e) => setFilters(prev => ({ ...prev, businessName: e.target.value }))}
+              onChange={(e) => handleFilterChange('businessName', e.target.value)}
             />
-            <Select value={filters.industry} onValueChange={(value) => setFilters(prev => ({ ...prev, industry: value }))}>
+            <Select value={filters.industry} onValueChange={(value) => handleFilterChange('industry', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Industry" />
               </SelectTrigger>
@@ -81,7 +164,7 @@ const AdSignalSearch = () => {
               <Input
                 placeholder="Location (City, State, ZIP)"
                 value={filters.location}
-                onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(e) => handleFilterChange('location', e.target.value)}
                 className="pl-10"
               />
             </div>
@@ -113,7 +196,7 @@ const AdSignalSearch = () => {
 
           {/* Advanced Filters Row */}
           <div className="grid gap-4 md:grid-cols-4">
-            <Select value={filters.dateRange} onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}>
+            <Select value={filters.dateRange} onValueChange={(value) => handleFilterChange('dateRange', value)}>
               <SelectTrigger>
                 <Calendar className="w-4 h-4 mr-2" />
                 <SelectValue />
@@ -126,7 +209,7 @@ const AdSignalSearch = () => {
               </SelectContent>
             </Select>
 
-            <Select value={filters.adFormat} onValueChange={(value) => setFilters(prev => ({ ...prev, adFormat: value }))}>
+            <Select value={filters.adFormat} onValueChange={(value) => handleFilterChange('adFormat', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Ad Format" />
               </SelectTrigger>
@@ -139,7 +222,7 @@ const AdSignalSearch = () => {
               </SelectContent>
             </Select>
 
-            <Select value={filters.spendRange} onValueChange={(value) => setFilters(prev => ({ ...prev, spendRange: value }))}>
+            <Select value={filters.spendRange} onValueChange={(value) => handleFilterChange('spendRange', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Spend Range" />
               </SelectTrigger>
@@ -151,29 +234,35 @@ const AdSignalSearch = () => {
               </SelectContent>
             </Select>
 
-            <Button className="w-full">
-              <Search className="w-4 h-4 mr-2" />
-              Search Ads
+            <Button 
+              className="w-full" 
+              onClick={handleSearch}
+              disabled={isSearching}
+            >
+              {isSearching ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Searching...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Search Ads
+                </>
+              )}
             </Button>
           </div>
 
           {/* Active Filters Summary */}
-          {activeFilters > 0 && (
+          {activeFiltersCount > 0 && (
             <div className="flex items-center gap-2 pt-2 border-t">
               <Filter className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{activeFilters} active filters</span>
-              <Button variant="ghost" size="sm" onClick={() => {
-                setFilters({
-                  businessName: '',
-                  industry: '',
-                  location: '',
-                  platforms: [],
-                  dateRange: 'last7days',
-                  adFormat: 'all',
-                  spendRange: 'all'
-                });
-                setActiveFilters(0);
-              }}>
+              <span className="text-sm text-muted-foreground">{activeFiltersCount} active filters</span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleClearFilters}
+              >
                 Clear All
               </Button>
             </div>

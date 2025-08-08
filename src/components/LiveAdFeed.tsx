@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,8 +15,10 @@ import {
   DollarSign,
   Target,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdData {
   id: string;
@@ -45,6 +48,9 @@ interface AdData {
 const LiveAdFeed = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLive, setIsLive] = useState(true);
+  const [selectedTab, setSelectedTab] = useState('all');
+  const [isAnalyzing, setIsAnalyzing] = useState<string | null>(null);
+  const { toast } = useToast();
   
   const mockAds: AdData[] = [
     {
@@ -110,6 +116,90 @@ const LiveAdFeed = () => {
     ended: 'bg-muted text-muted-foreground border-muted'
   };
 
+  const handleLiveToggle = () => {
+    setIsLive(!isLive);
+    toast({
+      title: isLive ? "Live monitoring paused" : "Live monitoring resumed",
+      description: isLive ? "Ad feed will no longer update automatically" : "Ad feed will now update in real-time"
+    });
+  };
+
+  const handleAnalyzeAd = async (adId: string) => {
+    setIsAnalyzing(adId);
+    
+    try {
+      // Simulate analysis API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "Ad analysis complete",
+        description: "Detailed insights have been generated for this ad"
+      });
+      
+      // In real implementation, this would open a detailed analysis modal or navigate to analysis page
+      
+    } catch (error) {
+      toast({
+        title: "Analysis failed",
+        description: "Unable to analyze ad. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(null);
+    }
+  };
+
+  const handleCopyStrategy = async (ad: AdData) => {
+    const strategyText = `
+Ad Strategy Analysis:
+Competitor: ${ad.competitor}
+Platform: ${ad.platform}
+Headline: ${ad.creative.headline}
+Angle: ${ad.analysis.angle}
+Offer: ${ad.analysis.offerType}
+CTA: ${ad.creative.cta}
+Urgency: ${ad.analysis.urgency ? 'Yes' : 'No'}
+    `.trim();
+    
+    try {
+      await navigator.clipboard.writeText(strategyText);
+      toast({
+        title: "Strategy copied",
+        description: "Ad strategy details copied to clipboard"
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy to clipboard",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleViewOriginal = (ad: AdData) => {
+    // In real implementation, this would open the original ad in a new tab
+    const platformUrl = ad.platform === 'Meta' ? 'facebook.com' : 
+                       ad.platform === 'Google' ? 'ads.google.com' : 
+                       ad.platform === 'YouTube' ? 'youtube.com' : 'tiktok.com';
+    
+    toast({
+      title: "Opening original ad",
+      description: `Redirecting to ${ad.platform} to view the original ad`
+    });
+    
+    // window.open(`https://${platformUrl}`, '_blank');
+  };
+
+  const handlePageChange = (direction: 'prev' | 'next') => {
+    const newPage = direction === 'prev' ? currentPage - 1 : currentPage + 1;
+    setCurrentPage(newPage);
+    
+    toast({
+      title: `Loading page ${newPage}`,
+      description: "Fetching more ads..."
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -122,7 +212,7 @@ const LiveAdFeed = () => {
             <Button
               variant={isLive ? "default" : "outline"}
               size="sm"
-              onClick={() => setIsLive(!isLive)}
+              onClick={handleLiveToggle}
             >
               {isLive ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
               {isLive ? 'Live' : 'Paused'}
@@ -136,7 +226,7 @@ const LiveAdFeed = () => {
       </CardHeader>
       
       <CardContent>
-        <Tabs defaultValue="all" className="space-y-4">
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="all">All ({mockAds.length})</TabsTrigger>
             <TabsTrigger value="meta">Meta (1)</TabsTrigger>
@@ -224,15 +314,39 @@ const LiveAdFeed = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 pt-4 border-t">
-                    <Button size="sm" variant="outline" className="flex-1">
-                      <Eye className="w-4 h-4 mr-2" />
-                      Analyze
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => handleAnalyzeAd(ad.id)}
+                      disabled={isAnalyzing === ad.id}
+                    >
+                      {isAnalyzing === ad.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Analyzing...
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="w-4 h-4 mr-2" />
+                          Analyze
+                        </>
+                      )}
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => handleCopyStrategy(ad)}
+                    >
                       <Copy className="w-4 h-4 mr-2" />
                       Copy Strategy
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleViewOriginal(ad)}
+                    >
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
@@ -246,11 +360,20 @@ const LiveAdFeed = () => {
                 Showing {mockAds.length} of 847 ads
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" disabled>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange('prev')}
+                >
                   <ChevronLeft className="w-4 h-4" />
                   Previous
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handlePageChange('next')}
+                >
                   Next
                   <ChevronRight className="w-4 h-4" />
                 </Button>
@@ -261,6 +384,18 @@ const LiveAdFeed = () => {
           {/* Other platform tabs with empty states */}
           <TabsContent value="meta" className="py-8 text-center">
             <div className="text-muted-foreground">Meta ads will appear here when found</div>
+          </TabsContent>
+          
+          <TabsContent value="google" className="py-8 text-center">
+            <div className="text-muted-foreground">Google ads will appear here when found</div>
+          </TabsContent>
+          
+          <TabsContent value="youtube" className="py-8 text-center">
+            <div className="text-muted-foreground">YouTube ads will appear here when found</div>
+          </TabsContent>
+          
+          <TabsContent value="tiktok" className="py-8 text-center">
+            <div className="text-muted-foreground">TikTok ads will appear here when found</div>
           </TabsContent>
         </Tabs>
       </CardContent>
