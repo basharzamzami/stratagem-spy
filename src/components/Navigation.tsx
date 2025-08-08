@@ -70,14 +70,14 @@ const Navigation = () => {
             <Shield className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gradient">Specter Nexus</h1>
+            <h1 className="text-xl font-bold text-foreground">Specter Nexus</h1>
             <p className="text-xs text-muted-foreground">Intelligence Platform</p>
           </div>
         </div>
         
-        <div className="saas-card p-3">
+        <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Active Targets</span>
+            <span className="text-card-foreground/70">Active Targets</span>
             <span className="font-semibold text-primary">847</span>
           </div>
         </div>
@@ -94,17 +94,29 @@ const Navigation = () => {
         {modules.map((module, index) => (
           <button
             key={index}
-            className={module.active ? 'nav-item-active w-full' : 'nav-item w-full text-left'}
+            className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+              module.active 
+                ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
+                : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+            }`}
           >
             <module.icon className="w-5 h-5 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">{module.name}</div>
-              <div className="text-xs text-muted-foreground truncate">
+              <div className={`text-xs truncate ${
+                module.active 
+                  ? 'text-primary-foreground/70' 
+                  : 'text-muted-foreground'
+              }`}>
                 {module.description}
               </div>
             </div>
             {module.badge && (
-              <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md font-medium">
+              <span className={`text-xs px-2 py-1 rounded-md font-medium ${
+                module.active 
+                  ? 'bg-primary-foreground/20 text-primary-foreground' 
+                  : 'bg-primary text-primary-foreground'
+              }`}>
                 {module.badge}
               </span>
             )}
@@ -114,25 +126,25 @@ const Navigation = () => {
       
       {/* Settings */}
       <div className="p-4 border-t border-border">
-        <button className="nav-item w-full text-left">
+        <button className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-200">
           <Settings className="w-5 h-5" />
           <span className="font-medium">Settings</span>
         </button>
         
-        <div className="mt-4 saas-card p-3">
+        <div className="mt-4 bg-card border border-border rounded-xl p-3 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
-            <div className="status-indicator bg-success animate-pulse"></div>
-            <span className="text-sm font-medium">System Status</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-success animate-pulse"></div>
+            <span className="text-sm font-medium text-card-foreground">System Status</span>
           </div>
           
-          <div className="space-y-1 text-xs text-muted-foreground">
+          <div className="space-y-1 text-xs">
             <div className="flex justify-between">
-              <span>Uptime</span>
-              <span className="text-success">99.9%</span>
+              <span className="text-card-foreground/70">Uptime</span>
+              <span className="text-success font-medium">99.9%</span>
             </div>
             <div className="flex justify-between">
-              <span>Last Sync</span>
-              <span>32s ago</span>
+              <span className="text-card-foreground/70">Last Sync</span>
+              <span className="text-card-foreground">32s ago</span>
             </div>
           </div>
         </div>
