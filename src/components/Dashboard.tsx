@@ -1,6 +1,5 @@
 
-import { Target, Zap, Users, Map, AlertTriangle, TrendingUp, Bell, Eye } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Target, Zap, Users, Map, AlertTriangle, TrendingUp, Bell, Activity, ArrowUp, ArrowDown } from 'lucide-react';
 
 const Dashboard = () => {
   const metrics = [
@@ -8,97 +7,91 @@ const Dashboard = () => {
       title: "Active Targets",
       value: "847",
       change: "+23",
+      changeType: "increase",
       icon: Target,
-      trend: "up"
+      description: "Monitored competitors"
     },
     {
-      title: "Ad Hijacks",
+      title: "Ad Hijacks Detected",
       value: "34",
       change: "+12",
+      changeType: "increase",
       icon: Zap,
-      trend: "up"
+      description: "This week"
     },
     {
       title: "Warm Leads",
       value: "156",
       change: "+89",
+      changeType: "increase",
       icon: Users,
-      trend: "up"
+      description: "High-intent prospects"
     },
     {
-      title: "Coverage",
+      title: "Market Coverage",
       value: "78%",
-      change: "+5",
+      change: "+5%",
+      changeType: "increase",
       icon: Map,
-      trend: "up"
+      description: "Territory dominance"
     },
     {
-      title: "Threats",
+      title: "Critical Alerts",
       value: "3",
-      change: "HIGH",
+      change: "High Priority",
+      changeType: "warning",
       icon: AlertTriangle,
-      trend: "critical"
+      description: "Requires attention"
     },
     {
-      title: "Campaigns",
+      title: "Active Campaigns",
       value: "12",
-      change: "8 ready",
+      change: "8 optimizing",
+      changeType: "neutral",
       icon: TrendingUp,
-      trend: "neutral"
+      description: "Campaign status"
     }
   ];
 
   const alerts = [
     {
-      competitor: "TechFlow Solutions",
-      action: "New AI automation campaign - 47% CTR spike",
-      time: "14m ago",
+      title: "TechFlow Solutions launched AI automation campaign",
+      description: "47% CTR spike detected across multiple ad sets",
+      time: "14 minutes ago",
       severity: "critical",
       confidence: 94
     },
     {
-      competitor: "DataSync Pro", 
-      action: "25% price reduction + 90-day guarantee",
-      time: "2h ago",
-      severity: "high",
+      title: "DataSync Pro reduced pricing by 25%",
+      description: "Added 90-day money-back guarantee",
+      time: "2 hours ago",
+      severity: "high", 
       confidence: 89
     },
     {
-      competitor: "CloudMax Systems",
-      action: "Austin office opened - targeting healthcare",
-      time: "6h ago",
+      title: "CloudMax Systems opened Austin office",
+      description: "Targeting healthcare vertical with local campaigns",
+      time: "6 hours ago",
       severity: "medium",
       confidence: 76
     },
     {
-      competitor: "Innovate Labs",
-      action: "Lead theft from project management keywords",
-      time: "12h ago",
+      title: "Innovate Labs bidding on your brand keywords",
+      description: "Detected bid increases on 12 branded terms",
+      time: "12 hours ago",
       severity: "medium",
       confidence: 82
     }
   ];
 
-  const actions = [
-    { 
-      title: "Counter AI Campaign",
-      urgency: "critical"
-    },
-    { 
-      title: "Price Match Analysis", 
-      urgency: "high"
-    },
-    { 
-      title: "Austin Defense",
-      urgency: "medium"
-    },
-    { 
-      title: "Keyword Protection",
-      urgency: "low"
-    }
+  const quickActions = [
+    { title: "Deploy Counter Campaign", urgency: "critical", action: "Create response to AI campaign" },
+    { title: "Price Analysis", urgency: "high", action: "Compare pricing strategy" },
+    { title: "Expand to Austin", urgency: "medium", action: "Evaluate market entry" },
+    { title: "Brand Protection", urgency: "low", action: "Increase brand keyword bids" }
   ];
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityStyles = (severity: string) => {
     switch(severity) {
       case 'critical': return 'border-l-destructive bg-destructive/5';
       case 'high': return 'border-l-warning bg-warning/5';  
@@ -107,114 +100,147 @@ const Dashboard = () => {
     }
   };
 
-  const getTrendColor = (trend: string) => {
-    switch(trend) {
-      case 'critical': return 'text-destructive';
-      case 'up': return 'text-success';
-      default: return 'text-foreground-secondary';
+  const getUrgencyStyles = (urgency: string) => {
+    switch(urgency) {
+      case 'critical': return 'bg-destructive/10 text-destructive border-destructive/20';
+      case 'high': return 'bg-warning/10 text-warning border-warning/20';
+      case 'medium': return 'bg-primary/10 text-primary border-primary/20';
+      default: return 'bg-success/10 text-success border-success/20';
     }
   };
 
   return (
-    <div className="p-6 space-y-8">
-      {/* Clean Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-gradient">
-          Intelligence Command
-        </h1>
-        <div className="flex items-center gap-6 text-sm text-foreground-secondary">
-          <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4" />
-            <span>847 targets monitored</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="status-dot bg-success animate-pulse"></div>
-            <span>All systems operational</span>
-          </div>
-          <div className="flex items-center gap-2 px-2 py-1 rounded bg-destructive/10 border border-destructive/20">
-            <AlertTriangle className="w-4 h-4 text-destructive" />
-            <span className="text-destructive font-medium">3 Critical</span>
+    <div className="flex-1 bg-background-secondary">
+      <div className="p-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                Intelligence Command
+              </h1>
+              <p className="text-muted-foreground">
+                Real-time competitive intelligence dashboard
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-border">
+                <Activity className="w-4 h-4 text-success" />
+                <span className="text-sm font-medium">Live Monitoring</span>
+              </div>
+              
+              <div className="flex items-center gap-2 px-3 py-2 bg-destructive/5 border border-destructive/20 rounded-lg">
+                <AlertTriangle className="w-4 h-4 text-destructive" />
+                <span className="text-sm font-medium text-destructive">3 Critical Alerts</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Clean Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-        {metrics.map((metric, index) => (
-          <Card key={index} className="metric-card animate-fadeIn" style={{animationDelay: `${index * 50}ms`}}>
-            <div className="flex items-start justify-between mb-4">
-              <metric.icon className="w-5 h-5 text-primary" />
-              <span className={`text-xs font-medium ${getTrendColor(metric.trend)}`}>
-                {metric.change}
-              </span>
-            </div>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold">{metric.value}</div>
-              <div className="text-sm text-foreground-secondary">{metric.title}</div>
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      {/* Clean Layout */}
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Intelligence Feed */}
-        <Card className="lg:col-span-2 clean-card p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-semibold">Intelligence Feed</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="status-dot bg-success animate-pulse"></div>
-              <span className="text-xs text-success">LIVE</span>
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            {alerts.map((alert, index) => (
-              <div key={index} className={`alert-item border-l-4 ${getSeverityColor(alert.severity)}`}>
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-sm">{alert.competitor}</h4>
-                  <div className="flex items-center gap-3 text-xs text-foreground-secondary">
-                    <span>{alert.confidence}%</span>
-                    <span>{alert.time}</span>
-                  </div>
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {metrics.map((metric, index) => (
+            <div 
+              key={index} 
+              className="metric-card animate-slideInUp"
+              style={{animationDelay: `${index * 100}ms`}}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <metric.icon className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-sm text-foreground-secondary">{alert.action}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card className="clean-card p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Zap className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">Quick Actions</h2>
-          </div>
-          
-          <div className="space-y-3">
-            {actions.map((action, index) => (
-              <button
-                key={index}
-                className="w-full p-4 rounded-lg border border-border hover:border-primary/20 text-left transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{action.title}</span>
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    action.urgency === 'critical' ? 'bg-destructive/10 text-destructive' :
-                    action.urgency === 'high' ? 'bg-warning/10 text-warning' :
-                    action.urgency === 'medium' ? 'bg-primary/10 text-primary' :
-                    'bg-success/10 text-success'
+                
+                <div className="flex items-center gap-1 text-sm">
+                  {metric.changeType === 'increase' && (
+                    <ArrowUp className="w-4 h-4 text-success" />
+                  )}
+                  {metric.changeType === 'decrease' && (
+                    <ArrowDown className="w-4 h-4 text-destructive" />
+                  )}
+                  <span className={`font-medium ${
+                    metric.changeType === 'increase' ? 'text-success' :
+                    metric.changeType === 'decrease' ? 'text-destructive' :
+                    metric.changeType === 'warning' ? 'text-warning' :
+                    'text-muted-foreground'
                   }`}>
-                    {action.urgency}
+                    {metric.change}
                   </span>
                 </div>
-              </button>
-            ))}
+              </div>
+              
+              <div className="space-y-2">
+                <div className="text-3xl font-bold text-foreground">{metric.value}</div>
+                <div className="text-sm font-medium text-foreground">{metric.title}</div>
+                <div className="text-xs text-muted-foreground">{metric.description}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Content */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Intelligence Feed */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="saas-card p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Bell className="w-6 h-6 text-primary" />
+                  <h2 className="text-xl font-semibold">Intelligence Feed</h2>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1 bg-success/10 rounded-full">
+                  <div className="status-indicator bg-success animate-pulse"></div>
+                  <span className="text-xs font-medium text-success">LIVE</span>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                {alerts.map((alert, index) => (
+                  <div 
+                    key={index} 
+                    className={`alert-card border-l-4 ${getSeverityStyles(alert.severity)}`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <h4 className="font-semibold text-foreground">{alert.title}</h4>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span className="bg-muted px-2 py-1 rounded">{alert.confidence}% confidence</span>
+                        <span>{alert.time}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{alert.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </Card>
+
+          {/* Quick Actions */}
+          <div className="space-y-6">
+            <div className="saas-card p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <Zap className="w-6 h-6 text-primary" />
+                <h2 className="text-xl font-semibold">Quick Actions</h2>
+              </div>
+              
+              <div className="space-y-3">
+                {quickActions.map((action, index) => (
+                  <button
+                    key={index}
+                    className="w-full p-4 rounded-lg border border-border hover:border-primary/30 text-left transition-all duration-200 hover:shadow-sm"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-foreground">{action.title}</span>
+                      <span className={`text-xs px-2 py-1 rounded border ${getUrgencyStyles(action.urgency)}`}>
+                        {action.urgency}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{action.action}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

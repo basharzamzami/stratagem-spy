@@ -3,48 +3,45 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Specter Intelligence Platform - Minimalist Design System */
+/* Modern SaaS Design System */
 @layer base {
   :root {
-    /* Core Colors - Clean HSL Values */
-    --background: 220 13% 4%;
-    --background-secondary: 220 13% 8%;
-    --background-tertiary: 220 13% 12%;
-    --foreground: 220 9% 98%;
-    --foreground-secondary: 220 9% 70%;
-    --foreground-muted: 220 9% 50%;
+    /* Modern SaaS Color Palette */
+    --background: 0 0% 100%;
+    --background-secondary: 0 0% 98%;
+    --background-tertiary: 0 0% 96%;
+    --foreground: 240 10% 3.9%;
+    --foreground-secondary: 240 5% 26%;
+    --foreground-muted: 240 4% 46%;
 
-    /* Brand - Single Primary */
-    --primary: 217 91% 60%;
-    --primary-foreground: 220 13% 4%;
-    --primary-hover: 217 91% 55%;
+    /* Primary Brand */
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 221 83% 48%;
     
-    /* Status Colors - Minimal Set */
-    --success: 142 76% 36%;
-    --success-foreground: 220 9% 98%;
+    /* Status Colors */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
-    --warning-foreground: 220 13% 4%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 220 9% 98%;
+    --warning-foreground: 240 10% 3.9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
     
-    /* UI Elements - Simplified */
-    --card: 220 13% 8%;
-    --card-foreground: 220 9% 98%;
-    --border: 220 13% 15%;
-    --input: 220 13% 15%;
-    --ring: 217 91% 60%;
-    --muted: 220 13% 15%;
-    --muted-foreground: 220 9% 70%;
-    --accent: 220 13% 15%;
-    --accent-foreground: 220 9% 98%;
+    /* UI Elements */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 221 83% 53%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 240 9% 9%;
 
-    /* Minimal Animations */
-    --transition-fast: 150ms;
-    --transition-normal: 300ms;
-    
-    /* Clean Radius */
+    /* Modern Spacing */
     --radius: 8px;
     --radius-lg: 12px;
+    --radius-xl: 16px;
   }
 }
 
@@ -55,11 +52,12 @@
   
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
   
-  /* Clean Scrollbar */
+  /* Modern Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
   }
   
   ::-webkit-scrollbar-track {
@@ -67,47 +65,65 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-muted rounded-full;
+    @apply bg-muted-foreground/20 rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary/30;
+    @apply bg-muted-foreground/30;
   }
 }
 
 @layer components {
-  .clean-card {
-    @apply bg-card border border-border rounded-lg shadow-sm;
+  .saas-card {
+    @apply bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
   }
   
   .metric-card {
-    @apply clean-card p-6 hover:border-primary/20 transition-colors duration-300;
+    @apply saas-card p-6 hover:border-primary/20 transition-all duration-300;
   }
   
-  .status-dot {
-    @apply w-2 h-2 rounded-full;
+  .status-indicator {
+    @apply w-2.5 h-2.5 rounded-full;
   }
   
-  .alert-item {
-    @apply p-4 rounded-lg border border-border/50 hover:border-border transition-colors;
+  .alert-card {
+    @apply saas-card p-4 hover:shadow-md transition-all duration-200;
+  }
+  
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-accent hover:text-accent-foreground;
+  }
+  
+  .nav-item-active {
+    @apply nav-item bg-primary text-primary-foreground hover:bg-primary/90;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-sm;
+  }
 }
 
-/* Minimal Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Smooth animations */
+@keyframes slideInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
+.animate-slideInUp {
+  animation: slideInUp 0.4s ease-out forwards;
 }

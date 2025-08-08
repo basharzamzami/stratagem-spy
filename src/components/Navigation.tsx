@@ -1,6 +1,5 @@
 
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 
 const Navigation = () => {
   const modules = [
@@ -8,125 +7,137 @@ const Navigation = () => {
       name: "Command Center", 
       icon: Shield, 
       active: true, 
-      badge: null
+      badge: null,
+      description: "Intelligence dashboard"
     },
     { 
       name: "Ad Signal Hijack", 
       icon: Zap, 
       active: false, 
-      badge: "34"
+      badge: "34",
+      description: "Competitor ad tracking"
     },
     { 
       name: "Lead Locator", 
       icon: Users, 
       active: false, 
-      badge: "156"
+      badge: "156",
+      description: "Prospect identification"
     },
     { 
       name: "Dominance Map", 
       icon: Map, 
       active: false, 
-      badge: null
+      badge: null,
+      description: "Territory analysis"
     },
     { 
       name: "Task Generator", 
       icon: Target, 
       active: false, 
-      badge: null
+      badge: null,
+      description: "Action recommendations"
     },
     { 
       name: "Change Alerts", 
       icon: Bell, 
       active: false, 
-      badge: "3"
+      badge: "3",
+      description: "Real-time monitoring"
     },
     { 
       name: "Campaign Manager", 
       icon: TrendingUp, 
       active: false, 
-      badge: null
+      badge: null,
+      description: "Campaign automation"
     },
     { 
       name: "Competitive CRM", 
       icon: Database, 
       active: false, 
-      badge: null
-    },
-    { 
-      name: "Settings", 
-      icon: Settings, 
-      active: false, 
-      badge: null
+      badge: null,
+      description: "Lead management"
     }
   ];
 
   return (
-    <Card className="w-64 h-screen border-r border-border bg-card/50 backdrop-blur-sm">
-      <div className="p-6 space-y-8">
-        {/* Clean Brand */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <Shield className="w-8 h-8 text-primary" />
-            <h1 className="text-xl font-bold text-gradient">Specter Nexus</h1>
+    <div className="w-72 h-screen bg-background-secondary border-r border-border flex flex-col">
+      {/* Header */}
+      <div className="p-6 border-b border-border">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+            <Shield className="w-5 h-5 text-primary-foreground" />
           </div>
-          <div className="p-3 rounded-lg bg-background-secondary border border-border">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-foreground-secondary">Targets</span>
-              <span className="font-mono text-primary">847</span>
-            </div>
+          <div>
+            <h1 className="text-xl font-bold text-gradient">Specter Nexus</h1>
+            <p className="text-xs text-muted-foreground">Intelligence Platform</p>
           </div>
         </div>
         
-        {/* Clean Navigation */}
-        <nav className="space-y-1">
-          {modules.map((module, index) => (
-            <button
-              key={index}
-              className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-colors ${
-                module.active 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'hover:bg-background-secondary text-foreground-secondary hover:text-foreground'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <module.icon className="w-5 h-5" />
-                <span className="font-medium">{module.name}</span>
-              </div>
-              {module.badge && (
-                <span className="text-xs px-2 py-1 rounded bg-background-secondary text-foreground-secondary">
-                  {module.badge}
-                </span>
-              )}
-            </button>
-          ))}
-        </nav>
+        <div className="saas-card p-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Active Targets</span>
+            <span className="font-semibold text-primary">847</span>
+          </div>
+        </div>
       </div>
       
-      {/* Clean Status */}
-      <div className="absolute bottom-6 left-6 right-6">
-        <div className="p-4 rounded-lg bg-background-secondary border border-border">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="status-dot bg-success animate-pulse"></div>
+      {/* Navigation */}
+      <div className="flex-1 p-4 space-y-2">
+        <div className="mb-4">
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Intelligence Modules
+          </h2>
+        </div>
+        
+        {modules.map((module, index) => (
+          <button
+            key={index}
+            className={module.active ? 'nav-item-active w-full' : 'nav-item w-full text-left'}
+          >
+            <module.icon className="w-5 h-5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="font-medium truncate">{module.name}</div>
+              <div className="text-xs text-muted-foreground truncate">
+                {module.description}
+              </div>
+            </div>
+            {module.badge && (
+              <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-md font-medium">
+                {module.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+      
+      {/* Settings */}
+      <div className="p-4 border-t border-border">
+        <button className="nav-item w-full text-left">
+          <Settings className="w-5 h-5" />
+          <span className="font-medium">Settings</span>
+        </button>
+        
+        <div className="mt-4 saas-card p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="status-indicator bg-success animate-pulse"></div>
             <span className="text-sm font-medium">System Status</span>
           </div>
           
-          <div className="space-y-2 text-xs text-foreground-secondary">
+          <div className="space-y-1 text-xs text-muted-foreground">
+            <div className="flex justify-between">
+              <span>Uptime</span>
+              <span className="text-success">99.9%</span>
+            </div>
             <div className="flex justify-between">
               <span>Last Sync</span>
-              <span className="font-mono">32s ago</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Health</span>
-              <span className="text-success">Optimal</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Data Points</span>
-              <span className="font-mono text-primary">2.3M</span>
+              <span>32s ago</span>
             </div>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 
