@@ -1,10 +1,37 @@
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLiveAds, fetchAnalytics, SearchFilters, AdItem } from "@/services/adSignal";
+import { FilterBar, LiveFeed, AnalyticsDashboard, ExportControls } from "@/components/ad-signal-hijack";
 
 export default function AdSignalHijack() {
+  const [filters, setFilters] = useState<SearchFilters>({ platforms: ["meta"] });
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [ads, setAds] = useState<AdItem[]>([]);
+
+  const { isFetching, refetch } = useQuery({
+    queryKey: ["ad-feed", filters, cursor],
+    queryFn: async () => {
+      const res = await fetchLiveAds(filters, cursor);
+      setAds((prev) => (cursor ? [...prev, ...res.ads] : res.ads));
+      if (res.nextCursor) setCursor(res.nextCursor);
+      return res;
+    },
+  });
+
+  const handleApplyFilters = useCallback((f: SearchFilters) => {
+    setCursor(undefined);
+    setAds([]);
+    setFilters(f);
+    void refetch();
+  }, [refetch]);
+
+  const loadMore = useCallback(() => {
+    if (!isFetching) void refetch();
+  }, [isFetching, refetch]);
+
   return (
     <div className="min-h-screen bg-background flex">
       <Navigation />
@@ -15,12 +42,7 @@ export default function AdSignalHijack() {
               <h1 className="text-3xl font-bold text-foreground">Ad Signal Hijack</h1>
               <p className="text-muted-foreground">Real-time competitor ad tracking & decoding</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center py-4">
-              <Input placeholder="Business name" />
-              <Input placeholder="Industry" />
-              <Input placeholder="Location (city/state/zip)" />
-              <Button variant="outline">Filters</Button>
-            </div>
+            <FilterBar onChange={handleApplyFilters} />
           </div>
 
           <div className="space-y-6">
@@ -36,27 +58,19 @@ export default function AdSignalHijack() {
                     <span className="text-xs font-medium text-success">LIVE</span>
                   </div>
                 </div>
-                <div className="text-sm text-muted-foreground">Coming next: real ads loaded here.</div>
+                <LiveFeed ads={ads} onLoadMore={loadMore} loading={isFetching} />
               </CardContent>
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <Card className="saas-card p-6">
-                  <CardContent>
-                    <h3 className="text-xl font-semibold mb-4">Ad Analysis Dashboard</h3>
-                    <div>Charts and insights will render here.</div>
-                  </CardContent>
-                </Card>
+                <AnalyticsDashboard />
               </div>
               <div>
                 <Card className="saas-card p-6">
                   <CardContent>
                     <h3 className="text-xl font-semibold mb-4">Export & Reporting</h3>
-                    <div className="flex gap-3">
-                      <Button>CSV</Button>
-                      <Button variant="outline">PDF</Button>
-                    </div>
+                    <ExportControls filters={filters} />
                   </CardContent>
                 </Card>
               </div>
