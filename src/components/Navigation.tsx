@@ -1,63 +1,74 @@
-
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Navigation = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const modules = [
     { 
       name: "Command Center", 
       icon: Shield, 
-      active: true, 
+      active: location.pathname === '/', 
       badge: null,
-      description: "Intelligence dashboard"
+      description: "Intelligence dashboard",
+      path: "/"
     },
     { 
       name: "Ad Signal Hijack", 
       icon: Zap, 
-      active: false, 
+      active: location.pathname === '/ad-signal-hijack', 
       badge: "34",
-      description: "Competitor ad tracking"
+      description: "Competitor ad tracking",
+      path: "/ad-signal-hijack"
     },
     { 
       name: "Lead Locator", 
       icon: Users, 
       active: false, 
       badge: "156",
-      description: "Prospect identification"
+      description: "Prospect identification",
+      path: "/lead-locator"
     },
     { 
       name: "Dominance Map", 
       icon: Map, 
       active: false, 
       badge: null,
-      description: "Territory analysis"
+      description: "Territory analysis",
+      path: "/dominance-map"
     },
     { 
       name: "Task Generator", 
       icon: Target, 
       active: false, 
       badge: null,
-      description: "Action recommendations"
+      description: "Action recommendations",
+      path: "/task-generator"
     },
     { 
       name: "Change Alerts", 
       icon: Bell, 
       active: false, 
       badge: "3",
-      description: "Real-time monitoring"
+      description: "Real-time monitoring",
+      path: "/change-alerts"
     },
     { 
       name: "Campaign Manager", 
       icon: TrendingUp, 
       active: false, 
       badge: null,
-      description: "Campaign automation"
+      description: "Campaign automation",
+      path: "/campaign-manager"
     },
     { 
       name: "Competitive CRM", 
       icon: Database, 
       active: false, 
       badge: null,
-      description: "Lead management"
+      description: "Lead management",
+      path: "/competitive-crm"
     }
   ];
 
@@ -94,6 +105,7 @@ const Navigation = () => {
         {modules.map((module, index) => (
           <button
             key={index}
+            onClick={() => navigate(module.path)}
             className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
               module.active 
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
