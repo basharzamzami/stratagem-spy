@@ -3,56 +3,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Specter Intelligence Platform Design System */
+/* Specter Intelligence Platform - Minimalist Design System */
 @layer base {
   :root {
-    /* Core Colors - HSL */
-    --background: 222 84% 4.9%;
-    --background-secondary: 217 32% 8%;
-    --background-tertiary: 217 32% 12%;
-    --foreground: 210 40% 98%;
-    --foreground-secondary: 215 20% 65%;
-    --foreground-muted: 215 16% 47%;
+    /* Core Colors - Clean HSL Values */
+    --background: 220 13% 4%;
+    --background-secondary: 220 13% 8%;
+    --background-tertiary: 220 13% 12%;
+    --foreground: 220 9% 98%;
+    --foreground-secondary: 220 9% 70%;
+    --foreground-muted: 220 9% 50%;
 
-    /* Brand Colors */
+    /* Brand - Single Primary */
     --primary: 217 91% 60%;
-    --primary-foreground: 222 84% 4.9%;
+    --primary-foreground: 220 13% 4%;
     --primary-hover: 217 91% 55%;
     
-    /* Status Colors */
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    /* Status Colors - Minimal Set */
+    --success: 142 76% 36%;
+    --success-foreground: 220 9% 98%;
     --warning: 38 92% 50%;
-    --warning-foreground: 222 84% 4.9%;
-    --danger: 0 84% 60%;
-    --danger-foreground: 210 40% 98%;
+    --warning-foreground: 220 13% 4%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 220 9% 98%;
     
-    /* UI Elements */
-    --card: 217 32% 8%;
-    --card-foreground: 210 40% 98%;
-    --border: 217 32% 17%;
-    --input: 217 32% 17%;
+    /* UI Elements - Simplified */
+    --card: 220 13% 8%;
+    --card-foreground: 220 9% 98%;
+    --border: 220 13% 15%;
+    --input: 220 13% 15%;
     --ring: 217 91% 60%;
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 32% 17%;
-    --accent-foreground: 210 40% 98%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 70%;
+    --accent: 220 13% 15%;
+    --accent-foreground: 220 9% 98%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(217 91% 45%) 100%);
-    --gradient-danger: linear-gradient(135deg, hsl(0 84% 60%) 0%, hsl(0 84% 50%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(142 71% 40%) 100%);
-    
-    /* Animation Values */
-    --pulse-duration: 2s;
+    /* Minimal Animations */
     --transition-fast: 150ms;
     --transition-normal: 300ms;
-    --transition-slow: 500ms;
     
-    /* Border Radius */
+    /* Clean Radius */
     --radius: 8px;
     --radius-lg: 12px;
-    --radius-xl: 16px;
   }
 }
 
@@ -63,20 +55,15 @@
   
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background-image: 
-      radial-gradient(circle at 25% 25%, hsl(217 91% 60% / 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, hsl(217 91% 60% / 0.05) 0%, transparent 50%),
-      linear-gradient(135deg, transparent 0%, hsl(217 91% 60% / 0.02) 50%, transparent 100%);
   }
   
-  /* Enhanced scrollbar */
+  /* Clean Scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-background-secondary;
+    @apply bg-background;
   }
   
   ::-webkit-scrollbar-thumb {
@@ -84,136 +71,43 @@
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary/50;
+    @apply bg-primary/30;
   }
 }
 
 @layer components {
-  .glass-panel {
-    @apply bg-card/50 backdrop-blur-xl border border-border/50;
-    background-image: linear-gradient(135deg, hsl(217 32% 8% / 0.8) 0%, hsl(217 32% 8% / 0.4) 100%);
-  }
-  
-  .command-grid {
-    @apply grid gap-6 p-6;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  .clean-card {
+    @apply bg-card border border-border rounded-lg shadow-sm;
   }
   
   .metric-card {
-    @apply glass-panel rounded-lg p-6 hover:bg-card/70 transition-all duration-300 relative overflow-hidden;
+    @apply clean-card p-6 hover:border-primary/20 transition-colors duration-300;
   }
   
-  .metric-card::before {
-    content: '';
-    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-    background: linear-gradient(135deg, hsl(217 91% 60% / 0.05) 0%, transparent 100%);
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
   }
   
-  .metric-card:hover::before {
-    @apply opacity-100;
-  }
-  
-  .status-indicator {
-    @apply w-2 h-2 rounded-full animate-pulse;
-  }
-  
-  .data-stream {
-    animation: dataStream 3s ease-in-out infinite;
-  }
-  
-  .alert-pulse {
-    animation: alertPulse 2s ease-in-out infinite;
-  }
-  
-  .intelligence-feed-item {
-    @apply p-4 rounded-lg border transition-all duration-300 hover:scale-[1.02];
-    background: linear-gradient(135deg, hsl(217 32% 8% / 0.3) 0%, hsl(217 32% 8% / 0.1) 100%);
-  }
-  
-  .threat-indicator {
-    animation: threatPulse 1.5s ease-in-out infinite;
+  .alert-item {
+    @apply p-4 rounded-lg border border-border/50 hover:border-border transition-colors;
   }
 }
 
 @layer utilities {
-  .text-gradient-primary {
-    background: var(--gradient-primary);
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
-  .bg-gradient-primary {
-    background: var(--gradient-primary);
-  }
-  
-  .bg-gradient-danger {
-    background: var(--gradient-danger);
-  }
-  
-  .bg-gradient-success {
-    background: var(--gradient-success);
-  }
 }
 
-@keyframes dataStream {
-  0%, 100% { opacity: 0.5; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(-4px); }
+/* Minimal Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes alertPulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 hsl(var(--danger)); }
-  50% { opacity: 0.8; box-shadow: 0 0 0 8px hsl(var(--danger) / 0); }
-}
-
-@keyframes threatPulse {
-  0%, 100% { 
-    opacity: 1; 
-    transform: scale(1);
-    box-shadow: 0 0 0 0 hsl(var(--danger) / 0.4);
-  }
-  50% { 
-    opacity: 0.9; 
-    transform: scale(1.05);
-    box-shadow: 0 0 0 4px hsl(var(--danger) / 0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-fadeInUp {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.animate-slideInRight {
-  animation: slideInRight 0.8s ease-out forwards;
-}
-
-/* Competitive Intelligence specific animations */
-.animate-threat-detected {
-  animation: threatPulse 1.5s ease-in-out infinite;
-}
-
-.animate-data-flow {
-  animation: dataStream 2s ease-in-out infinite;
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
 }

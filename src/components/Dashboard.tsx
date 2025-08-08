@@ -1,5 +1,5 @@
 
-import { Shield, Target, Map, Bell, TrendingUp, Activity, Eye, Zap, Users, AlertTriangle } from 'lucide-react';
+import { Target, Zap, Users, Map, AlertTriangle, TrendingUp, Bell, Eye } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 const Dashboard = () => {
@@ -7,286 +7,210 @@ const Dashboard = () => {
     {
       title: "Active Targets",
       value: "847",
-      change: "+23 today",
+      change: "+23",
       icon: Target,
-      status: "success"
+      trend: "up"
     },
     {
-      title: "Ad Hijacks Detected",
+      title: "Ad Hijacks",
       value: "34",
-      change: "+12 this week",
+      change: "+12",
       icon: Zap,
-      status: "primary"
+      trend: "up"
     },
     {
-      title: "Warm Leads Located",
+      title: "Warm Leads",
       value: "156",
-      change: "+89 this week",
+      change: "+89",
       icon: Users,
-      status: "warning"
+      trend: "up"
     },
     {
-      title: "Territory Coverage",
-      value: "78.3%",
-      change: "+5.2% growth",
+      title: "Coverage",
+      value: "78%",
+      change: "+5",
       icon: Map,
-      status: "success"
+      trend: "up"
     },
     {
-      title: "Threat Level",
-      value: "HIGH",
-      change: "3 new moves",
+      title: "Threats",
+      value: "3",
+      change: "HIGH",
       icon: AlertTriangle,
-      status: "danger"
+      trend: "critical"
     },
     {
-      title: "Campaign Pipeline",
+      title: "Campaigns",
       value: "12",
-      change: "8 ready to deploy",
+      change: "8 ready",
       icon: TrendingUp,
-      status: "primary"
+      trend: "neutral"
     }
   ];
 
-  const intelligenceAlerts = [
+  const alerts = [
     {
-      type: "ad-hijack",
       competitor: "TechFlow Solutions",
-      action: "Launched new campaign targeting 'AI automation' - 47% CTR spike detected",
-      location: "San Francisco Bay Area",
+      action: "New AI automation campaign - 47% CTR spike",
       time: "14m ago",
       severity: "critical",
       confidence: 94
     },
     {
-      type: "pricing-war",
       competitor: "DataSync Pro", 
-      action: "Reduced enterprise pricing by 25% + added 90-day guarantee",
-      location: "Nationwide",
+      action: "25% price reduction + 90-day guarantee",
       time: "2h ago",
       severity: "high",
       confidence: 89
     },
     {
-      type: "territory-invasion",
       competitor: "CloudMax Systems",
-      action: "Opened new office in Austin TX - targeting healthcare vertical",
-      location: "Austin, TX",
+      action: "Austin office opened - targeting healthcare",
       time: "6h ago",
       severity: "medium",
       confidence: 76
     },
     {
-      type: "lead-poach",
       competitor: "Innovate Labs",
-      action: "Stealing leads from 'project management software' keyword cluster",
-      location: "Denver, CO",
-      time: "12h ago", 
+      action: "Lead theft from project management keywords",
+      time: "12h ago",
       severity: "medium",
       confidence: 82
-    },
-    {
-      type: "creative-theft",
-      competitor: "NextGen Solutions",
-      action: "Copied our 'seamless integration' angle - using similar visuals",
-      location: "Seattle, WA",
-      time: "1d ago",
-      severity: "low",
-      confidence: 67
     }
   ];
 
-  const quickActions = [
+  const actions = [
     { 
-      title: "Deploy Counter-Strike",
-      desc: "Launch response campaign to TechFlow's AI automation push",
-      variant: "danger",
+      title: "Counter AI Campaign",
       urgency: "critical"
     },
     { 
-      title: "Price Match Protocol", 
-      desc: "Analyze DataSync's pricing strategy + recommend counter-move",
-      variant: "warning",
+      title: "Price Match Analysis", 
       urgency: "high"
     },
     { 
-      title: "Territory Defense",
-      desc: "Secure Austin healthcare leads before CloudMax establishes dominance", 
-      variant: "primary",
+      title: "Austin Defense",
       urgency: "medium"
     },
     { 
-      title: "Creative Protection",
-      desc: "File takedown notice + develop new differentiated angles",
-      variant: "success", 
+      title: "Keyword Protection",
       urgency: "low"
     }
   ];
 
   const getSeverityColor = (severity: string) => {
     switch(severity) {
-      case 'critical': return 'text-danger border-danger/50 bg-danger/5';
-      case 'high': return 'text-warning border-warning/50 bg-warning/5';  
-      case 'medium': return 'text-primary border-primary/50 bg-primary/5';
-      case 'low': return 'text-success border-success/50 bg-success/5';
-      default: return 'text-foreground-secondary border-border bg-background-secondary/30';
+      case 'critical': return 'border-l-destructive bg-destructive/5';
+      case 'high': return 'border-l-warning bg-warning/5';  
+      case 'medium': return 'border-l-primary bg-primary/5';
+      default: return 'border-l-success bg-success/5';
     }
   };
 
-  const getActionVariant = (variant: string, urgency: string) => {
-    const baseClasses = 'w-full p-4 rounded-lg text-left transition-all hover:scale-105 relative overflow-hidden';
-    const urgencyIndicator = urgency === 'critical' ? 'before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-danger before:animate-pulse' : '';
-    
-    switch(variant) {
-      case 'danger': return `${baseClasses} ${urgencyIndicator} bg-gradient-danger hover:shadow-lg hover:shadow-danger/25`;
-      case 'warning': return `${baseClasses} ${urgencyIndicator} bg-warning/10 hover:bg-warning/20 border border-warning/20`;
-      case 'primary': return `${baseClasses} ${urgencyIndicator} bg-gradient-primary hover:shadow-lg hover:shadow-primary/25`;
-      case 'success': return `${baseClasses} ${urgencyIndicator} bg-success/10 hover:bg-success/20 border border-success/20`;
-      default: return `${baseClasses} ${urgencyIndicator} bg-background-secondary/50 hover:bg-background-secondary`;
+  const getTrendColor = (trend: string) => {
+    switch(trend) {
+      case 'critical': return 'text-destructive';
+      case 'up': return 'text-success';
+      default: return 'text-foreground-secondary';
     }
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-6">
-      {/* Enhanced Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-gradient-primary mb-2">
-            Intelligence Command Center
-          </h1>
-          <p className="text-foreground-secondary flex items-center space-x-4">
-            <span>Real-time competitive surveillance & market domination</span>
-            <span className="flex items-center space-x-2">
-              <Eye className="w-4 h-4 animate-pulse" />
-              <span className="text-xs">847 targets monitored</span>
-            </span>
-          </p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className="status-indicator bg-success"></div>
-            <span className="text-sm text-foreground-secondary">All systems operational</span>
+    <div className="p-6 space-y-8">
+      {/* Clean Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold text-gradient">
+          Intelligence Command
+        </h1>
+        <div className="flex items-center gap-6 text-sm text-foreground-secondary">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4" />
+            <span>847 targets monitored</span>
           </div>
-          <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-danger/10 border border-danger/20">
-            <AlertTriangle className="w-4 h-4 text-danger animate-pulse" />
-            <span className="text-xs text-danger font-medium">3 CRITICAL ALERTS</span>
+          <div className="flex items-center gap-2">
+            <div className="status-dot bg-success animate-pulse"></div>
+            <span>All systems operational</span>
+          </div>
+          <div className="flex items-center gap-2 px-2 py-1 rounded bg-destructive/10 border border-destructive/20">
+            <AlertTriangle className="w-4 h-4 text-destructive" />
+            <span className="text-destructive font-medium">3 Critical</span>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Clean Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {metrics.map((metric, index) => (
-          <Card key={index} className="metric-card animate-fadeInUp" style={{animationDelay: `${index * 100}ms`}}>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="text-sm text-foreground-secondary mb-1">{metric.title}</p>
-                <h3 className="text-3xl font-bold mb-2">{metric.value}</h3>
-                <div className={`flex items-center text-sm ${
-                  metric.status === 'success' ? 'text-success' :
-                  metric.status === 'danger' ? 'text-danger' :
-                  metric.status === 'warning' ? 'text-warning' :
-                  'text-primary'
-                }`}>
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  {metric.change}
-                </div>
-              </div>
-              <div className={`p-3 rounded-lg ${
-                metric.status === 'success' ? 'bg-success/10' :
-                metric.status === 'danger' ? 'bg-danger/10' :
-                metric.status === 'warning' ? 'bg-warning/10' :
-                'bg-primary/10'
-              }`}>
-                <metric.icon className={`w-6 h-6 ${
-                  metric.status === 'success' ? 'text-success' :
-                  metric.status === 'danger' ? 'text-danger' :
-                  metric.status === 'warning' ? 'text-warning' :
-                  'text-primary'
-                }`} />
-              </div>
+          <Card key={index} className="metric-card animate-fadeIn" style={{animationDelay: `${index * 50}ms`}}>
+            <div className="flex items-start justify-between mb-4">
+              <metric.icon className="w-5 h-5 text-primary" />
+              <span className={`text-xs font-medium ${getTrendColor(metric.trend)}`}>
+                {metric.change}
+              </span>
+            </div>
+            <div className="space-y-1">
+              <div className="text-2xl font-bold">{metric.value}</div>
+              <div className="text-sm text-foreground-secondary">{metric.title}</div>
             </div>
           </Card>
         ))}
       </div>
 
-      {/* Intelligence Feed & Actions */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <Card className="xl:col-span-2 glass-panel rounded-xl p-6">
+      {/* Clean Layout */}
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Intelligence Feed */}
+        <Card className="lg:col-span-2 clean-card p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold flex items-center">
-              <Bell className="w-5 h-5 text-primary animate-pulse mr-2" />
-              Live Intelligence Feed
-            </h2>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+            <div className="flex items-center gap-3">
+              <Bell className="w-5 h-5 text-primary" />
+              <h2 className="text-lg font-semibold">Intelligence Feed</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="status-dot bg-success animate-pulse"></div>
               <span className="text-xs text-success">LIVE</span>
             </div>
           </div>
+          
           <div className="space-y-4">
-            {intelligenceAlerts.map((alert, index) => (
-              <div key={index} className={`flex items-start space-x-4 p-4 rounded-lg border transition-all hover:scale-[1.02] ${getSeverityColor(alert.severity)}`}>
-                <div className="flex flex-col items-center">
-                  <div className={`w-3 h-3 rounded-full ${
-                    alert.severity === 'critical' ? 'bg-danger animate-pulse' :
-                    alert.severity === 'high' ? 'bg-warning animate-pulse' :
-                    alert.severity === 'medium' ? 'bg-primary' :
-                    'bg-success'
-                  }`}></div>
-                  <div className="text-xs text-foreground-secondary mt-1">{alert.confidence}%</div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm flex items-center">
-                      <Target className="w-4 h-4 mr-2" />
-                      {alert.competitor}
-                    </h4>
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xs text-foreground-secondary">{alert.location}</span>
-                      <span className="text-xs text-foreground-secondary">{alert.time}</span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-foreground-secondary mb-2">{alert.action}</p>
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      alert.severity === 'critical' ? 'bg-danger/20 text-danger' :
-                      alert.severity === 'high' ? 'bg-warning/20 text-warning' :
-                      alert.severity === 'medium' ? 'bg-primary/20 text-primary' :
-                      'bg-success/20 text-success'
-                    }`}>
-                      {alert.severity.toUpperCase()}
-                    </span>
-                    <span className="text-xs text-foreground-secondary">#{alert.type}</span>
+            {alerts.map((alert, index) => (
+              <div key={index} className={`alert-item border-l-4 ${getSeverityColor(alert.severity)}`}>
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-medium text-sm">{alert.competitor}</h4>
+                  <div className="flex items-center gap-3 text-xs text-foreground-secondary">
+                    <span>{alert.confidence}%</span>
+                    <span>{alert.time}</span>
                   </div>
                 </div>
+                <p className="text-sm text-foreground-secondary">{alert.action}</p>
               </div>
             ))}
           </div>
         </Card>
 
-        <Card className="glass-panel rounded-xl p-6">
-          <h2 className="text-xl font-semibold mb-6 flex items-center">
-            <Zap className="w-5 h-5 text-primary mr-2" />
-            Rapid Response
-          </h2>
+        {/* Quick Actions */}
+        <Card className="clean-card p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <Zap className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-semibold">Quick Actions</h2>
+          </div>
+          
           <div className="space-y-3">
-            {quickActions.map((action, index) => (
+            {actions.map((action, index) => (
               <button
                 key={index}
-                className={getActionVariant(action.variant, action.urgency)}
+                className="w-full p-4 rounded-lg border border-border hover:border-primary/20 text-left transition-colors"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-sm">{action.title}</h4>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    action.urgency === 'critical' ? 'bg-danger/20 text-danger' :
-                    action.urgency === 'high' ? 'bg-warning/20 text-warning' :
-                    action.urgency === 'medium' ? 'bg-primary/20 text-primary' :
-                    'bg-success/20 text-success'
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{action.title}</span>
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    action.urgency === 'critical' ? 'bg-destructive/10 text-destructive' :
+                    action.urgency === 'high' ? 'bg-warning/10 text-warning' :
+                    action.urgency === 'medium' ? 'bg-primary/10 text-primary' :
+                    'bg-success/10 text-success'
                   }`}>
                     {action.urgency}
                   </span>
                 </div>
-                <p className="text-sm text-foreground-secondary">{action.desc}</p>
               </button>
             ))}
           </div>
