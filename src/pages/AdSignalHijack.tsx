@@ -1,4 +1,3 @@
-
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,6 +41,7 @@ interface AdItem {
   impressions: number;
   clicks: number;
   ctr: number;
+  creative_type: 'image' | 'video' | 'carousel';
   active: boolean;
 }
 
@@ -60,7 +60,7 @@ const convertToServiceAdItem = (backendAd: AdItem): ServiceAdItem => ({
   platform: backendAd.platform.toLowerCase() as "meta" | "google" | "youtube" | "tiktok",
   competitor_name: backendAd.competitor,
   creative_url: backendAd.image,
-  creative_type: "image",
+  creative_type: backendAd.creative_type,
   headline: backendAd.title,
   primary_text: backendAd.description,
   cta: backendAd.cta,
