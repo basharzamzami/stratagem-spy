@@ -71,11 +71,7 @@ export default function RefinedAutoPitchGenerator() {
       source_data: {
         recent_activity: 'Liked posts about competitive intelligence',
         engagement_history: ['Downloaded whitepaper on market analysis']
-      },
-      last_search_activity: '2024-01-08T10:30:00Z',
-      status: 'active',
-      created_at: '2024-01-08T09:00:00Z',
-      updated_at: '2024-01-08T10:30:00Z'
+      }
     }
   ];
 
