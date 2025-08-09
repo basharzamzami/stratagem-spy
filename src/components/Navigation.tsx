@@ -42,7 +42,7 @@ const Navigation = () => {
     { 
       name: "Task Generator", 
       icon: Target, 
-      active: false, 
+      active: location.pathname === '/task-generator', 
       badge: null,
       description: "Action recommendations",
       path: "/task-generator"
@@ -50,7 +50,7 @@ const Navigation = () => {
     { 
       name: "Change Alerts", 
       icon: Bell, 
-      active: false, 
+      active: location.pathname === '/change-alerts', 
       badge: "17",
       description: "Real-time monitoring",
       path: "/change-alerts"
@@ -58,7 +58,7 @@ const Navigation = () => {
     { 
       name: "Campaign Manager", 
       icon: TrendingUp, 
-      active: false, 
+      active: location.pathname === '/campaign-manager', 
       badge: null,
       description: "Campaign automation",
       path: "/campaign-manager"

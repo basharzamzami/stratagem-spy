@@ -11,6 +11,7 @@ import LeadLocator from "./pages/LeadLocator";
 import DominanceMap from "./pages/DominanceMap";
 import TaskGeneratorPage from "./pages/TaskGenerator";
 import ChangeAlerts from "./pages/ChangeAlerts";
+import CampaignManager from "./pages/CampaignManager";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/dominance-map" element={<DominanceMap />} />
           <Route path="/task-generator" element={<TaskGeneratorPage />} />
           <Route path="/change-alerts" element={<ChangeAlerts />} />
+          <Route path="/campaign-manager" element={<CampaignManager />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
