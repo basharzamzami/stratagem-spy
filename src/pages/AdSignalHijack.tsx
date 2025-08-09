@@ -1,9 +1,10 @@
+
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Zap } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLiveAds, SearchFilters, AdItem } from "@/services/adSignal";
+import { fetchLiveAds, SearchFilters, AdItem, fetchAnalytics } from "@/services/adSignal";
 import { FilterBar, LiveFeed, ExportControls } from "@/components/ad-signal-hijack";
 import AnalyticsDashboard from "@/components/ad-signal-hijack/AnalyticsDashboard";
 
@@ -23,6 +24,12 @@ export default function AdSignalHijack() {
       return res;
     },
     enabled: false,
+  });
+
+  const analyticsQuery = useQuery({
+    queryKey: ["ad-analytics", filters],
+    queryFn: () => fetchAnalytics(filters),
+    enabled: hasApplied,
   });
 
   const handleApplyFilters = useCallback((f: SearchFilters) => {
@@ -77,7 +84,11 @@ export default function AdSignalHijack() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <AnalyticsDashboard filters={filters} />
+                <AnalyticsDashboard 
+                  filters={filters} 
+                  data={analyticsQuery.data} 
+                  isLoading={analyticsQuery.isFetching} 
+                />
               </div>
               <div>
                 <Card className="saas-card p-6">
