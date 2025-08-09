@@ -20,12 +20,16 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
 
   const { data, isLoading, refetch, isError, error } = useQuery({
     queryKey: ['database-ads', searchQuery],
-    queryFn: () => searchQuery ? searchAds(searchQuery) : fetchAdsFromDatabase(50),
+    queryFn: () => {
+      console.log('Fetching ads with query:', searchQuery);
+      return searchQuery ? searchAds(searchQuery) : fetchAdsFromDatabase(50);
+    },
     refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
 
   useEffect(() => {
     if (data) {
+      console.log('Received ads data:', data);
       setAds(data);
     }
   }, [data]);
@@ -61,6 +65,7 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
   };
 
   if (isError) {
+    console.error('Database error:', error);
     return (
       <div className="text-center py-12">
         <Database className="w-12 h-12 text-destructive mx-auto mb-4" />
@@ -128,8 +133,16 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
         })}
       </div>
 
+      {/* Loading State */}
+      {isLoading && ads.length === 0 && (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <span className="ml-2 text-muted-foreground">Loading ads from database...</span>
+        </div>
+      )}
+
       {/* Ads Grid */}
-      {ads.length === 0 && !isLoading ? (
+      {!isLoading && ads.length === 0 ? (
         <div className="text-center py-12">
           <Database className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-foreground mb-2">
@@ -151,7 +164,7 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
             </Button>
           )}
         </div>
-      ) : (
+      ) : ads.length > 0 ? (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr">
           {ads.map((ad) => (
             <DatabaseAdCard
@@ -162,15 +175,7 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
             />
           ))}
         </div>
-      )}
-
-      {/* Loading State */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-          <span className="ml-2 text-muted-foreground">Loading ads from database...</span>
-        </div>
-      )}
+      ) : null}
     </div>
   );
 }
