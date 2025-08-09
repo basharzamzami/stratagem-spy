@@ -361,12 +361,19 @@ export async function matchAndDeduplicateLeads(newLead: EnhancedLead) {
 
   const matchedLead = existingLeads[0];
   
+  // Type-safe enrichment data merging
+  const existingEnrichment = typeof matchedLead.enrichment_data === 'object' && matchedLead.enrichment_data !== null
+    ? matchedLead.enrichment_data as Record<string, any>
+    : {};
+  
+  const newEnrichment = newLead.enrichment_data || {};
+  
   // Enhance existing lead with new data
   const enhancedEnrichment = {
-    ...matchedLead.enrichment_data,
-    ...newLead.enrichment_data,
+    ...existingEnrichment,
+    ...newEnrichment,
     sources: [
-      ...(matchedLead.enrichment_data?.sources || []),
+      ...(existingEnrichment.sources as string[] || []),
       newLead.source
     ],
     last_updated: new Date().toISOString()
