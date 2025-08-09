@@ -6,7 +6,7 @@ import { TrendingUp, Target, Eye, Bell, Zap, Users, DollarSign, Activity } from 
 
 const Dashboard = () => {
   return (
-    <div className="h-full w-full p-6 space-y-6 overflow-auto">
+    <div className="min-h-screen w-full p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col space-y-2">
         <h1 className="text-3xl font-bold text-foreground">Specter Insights Dashboard</h1>

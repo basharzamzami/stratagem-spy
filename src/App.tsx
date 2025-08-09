@@ -24,7 +24,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <div className="min-h-screen h-screen w-full bg-background text-foreground overflow-hidden">
+        <div className="min-h-screen min-w-full bg-background text-foreground">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/ad-signal-hijack" element={<EnhancedAdSignalHijack />} />

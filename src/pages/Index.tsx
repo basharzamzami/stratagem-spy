@@ -4,9 +4,9 @@ import Dashboard from '@/components/Dashboard';
 
 const Index = () => {
   return (
-    <div className="h-screen w-full bg-background flex overflow-hidden">
+    <div className="min-h-screen w-screen bg-background flex">
       <Navigation />
-      <div className="flex-1 w-full h-full overflow-auto">
+      <div className="flex-1 min-h-screen w-full">
         <Dashboard />
       </div>
     </div>
