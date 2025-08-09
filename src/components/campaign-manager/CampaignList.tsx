@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ApiClient } from '@/services/api';
+import type { Campaign } from '@/backend/types';
 
 interface CampaignListProps {
   onCampaignSelect?: (campaignId: string) => void;
@@ -25,7 +25,7 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
     queryFn: () => ApiClient.getCampaigns(),
   });
 
-  const campaigns = campaignsResponse?.data || [];
+  const campaigns: Campaign[] = Array.isArray(campaignsResponse?.data) ? campaignsResponse.data : [];
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -122,7 +122,7 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {campaigns.map((campaign: any) => (
+              {campaigns.map((campaign: Campaign) => (
                 <TableRow key={campaign.id} className="cursor-pointer hover:bg-muted/50">
                   <TableCell>
                     <div className="font-medium text-card-foreground">{campaign.name}</div>
@@ -211,6 +211,43 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
       </CardContent>
     </Card>
   );
+};
+
+const getStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'active':
+      return 'bg-success/20 text-success border-success/30';
+    case 'paused':
+      return 'bg-warning/20 text-warning border-warning/30';
+    case 'draft':
+      return 'bg-muted/20 text-muted-foreground border-muted/30';
+    default:
+      return 'bg-muted/20 text-muted-foreground border-muted/30';
+  }
+};
+
+const getPlatformColor = (channel: string) => {
+  switch (channel?.toLowerCase()) {
+    case 'google':
+      return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    case 'meta':
+      return 'bg-blue-600/20 text-blue-400 border-blue-600/30';
+    case 'youtube':
+      return 'bg-red-500/20 text-red-400 border-red-500/30';
+    case 'tiktok':
+      return 'bg-pink-500/20 text-pink-400 border-pink-500/30';
+    default:
+      return 'bg-muted/20 text-muted-foreground border-muted/30';
+  }
+};
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
 
 export default CampaignList;

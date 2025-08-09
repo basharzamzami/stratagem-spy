@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Zap, Settings, BarChart3, Play, Pause, Plus } from 'lucide-react';
 import { ApiClient } from '@/services/api';
+import type { Campaign } from '@/backend/types';
 import CampaignList from './CampaignList';
 import CampaignAutomation from './CampaignAutomation';
 import CampaignAnalytics from './CampaignAnalytics';
@@ -22,12 +23,12 @@ const CampaignDashboard = () => {
     queryFn: () => ApiClient.getCampaigns(),
   });
 
-  // Calculate metrics from the actual data
-  const campaigns = campaignsResponse?.data || [];
-  const activeCampaigns = campaigns.filter((c: any) => c.status === 'active').length;
-  const totalSpend = campaigns.reduce((sum: number, c: any) => sum + (c.spent || 0), 0);
+  // Calculate metrics from the actual data with proper type checking
+  const campaigns: Campaign[] = Array.isArray(campaignsResponse?.data) ? campaignsResponse.data : [];
+  const activeCampaigns = campaigns.filter((c: Campaign) => c.status === 'active').length;
+  const totalSpend = campaigns.reduce((sum: number, c: Campaign) => sum + (c.spent || 0), 0);
   const averageRoas = campaigns.length > 0 
-    ? campaigns.reduce((sum: number, c: any) => sum + (c.kpis?.roas || 0), 0) / campaigns.length 
+    ? campaigns.reduce((sum: number, c: Campaign) => sum + (c.kpis?.roas || 0), 0) / campaigns.length 
     : 0;
 
   const handleCampaignSelect = (campaignId: string) => {
@@ -149,7 +150,6 @@ const CampaignDashboard = () => {
         </Button>
       </div>
 
-      {/* Main Content Tabs */}
       <div className="flex-1">
         <Tabs defaultValue="campaigns" className="h-full flex flex-col">
           <TabsList className="grid w-full grid-cols-4 mb-6">
