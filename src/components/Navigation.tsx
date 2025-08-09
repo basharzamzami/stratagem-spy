@@ -34,7 +34,7 @@ const Navigation = () => {
     { 
       name: "Dominance Map", 
       icon: Map, 
-      active: false, 
+      active: location.pathname === '/dominance-map', 
       badge: null,
       description: "Territory analysis",
       path: "/dominance-map"

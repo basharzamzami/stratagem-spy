@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import AdSignalHijack from "./pages/AdSignalHijack";
 import SpecterNetDashboard from "./pages/SpecterNetDashboard";
 import LeadLocator from "./pages/LeadLocator";
+import DominanceMap from "./pages/DominanceMap";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/" element={<SpecterNetDashboard />} />
           <Route path="/ad-signal-hijack" element={<AdSignalHijack />} />
           <Route path="/lead-locator" element={<LeadLocator />} />
+          <Route path="/dominance-map" element={<DominanceMap />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
