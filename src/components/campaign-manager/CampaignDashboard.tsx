@@ -9,11 +9,31 @@ import CampaignList from './CampaignList';
 import CampaignAutomation from './CampaignAutomation';
 import CampaignAnalytics from './CampaignAnalytics';
 import CampaignSettings from './CampaignSettings';
+import CampaignDetailView from './CampaignDetailView';
 
 const CampaignDashboard = () => {
   const [activeCampaigns, setActiveCampaigns] = useState(12);
   const [totalSpend, setTotalSpend] = useState(24850);
   const [averageRoas, setAverageRoas] = useState(3.2);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
+
+  const handleCampaignSelect = (campaignId: string) => {
+    setSelectedCampaignId(campaignId);
+  };
+
+  const handleBackToList = () => {
+    setSelectedCampaignId(null);
+  };
+
+  // If a campaign is selected, show the detail view
+  if (selectedCampaignId) {
+    return (
+      <CampaignDetailView 
+        campaignId={selectedCampaignId} 
+        onBack={handleBackToList}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -117,7 +137,7 @@ const CampaignDashboard = () => {
         </TabsList>
 
         <TabsContent value="campaigns" className="space-y-6">
-          <CampaignList />
+          <CampaignList onCampaignSelect={handleCampaignSelect} />
         </TabsContent>
 
         <TabsContent value="automation" className="space-y-6">

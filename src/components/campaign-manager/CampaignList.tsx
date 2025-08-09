@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Play, Pause, Edit, MoreHorizontal, TrendingUp, TrendingDown } from 'lucide-react';
+import { Play, Pause, Edit, MoreHorizontal, TrendingUp, TrendingDown, Eye } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,7 +68,11 @@ const mockCampaigns: Campaign[] = [
   }
 ];
 
-const CampaignList = () => {
+interface CampaignListProps {
+  onCampaignSelect?: (campaignId: string) => void;
+}
+
+const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
   const [campaigns] = useState<Campaign[]>(mockCampaigns);
 
   const getStatusColor = (status: string) => {
@@ -117,12 +121,12 @@ const CampaignList = () => {
               <TableHead>Clicks</TableHead>
               <TableHead>Conversions</TableHead>
               <TableHead>ROAS</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="w-[100px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {campaigns.map((campaign) => (
-              <TableRow key={campaign.id}>
+              <TableRow key={campaign.id} className="cursor-pointer hover:bg-muted/50">
                 <TableCell>
                   <div className="font-medium text-card-foreground">{campaign.name}</div>
                 </TableCell>
@@ -159,32 +163,43 @@ const CampaignList = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
+                  <div className="flex items-center gap-2">
+                    {onCampaignSelect && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => onCampaignSelect(campaign.id)}
+                      >
+                        <Eye className="h-4 w-4" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-popover border-border">
-                      <DropdownMenuItem className="text-popover-foreground hover:bg-accent">
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Campaign
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-popover-foreground hover:bg-accent">
-                        {campaign.status === 'Active' ? (
-                          <>
-                            <Pause className="mr-2 h-4 w-4" />
-                            Pause Campaign
-                          </>
-                        ) : (
-                          <>
-                            <Play className="mr-2 h-4 w-4" />
-                            Start Campaign
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-popover border-border">
+                        <DropdownMenuItem className="text-popover-foreground hover:bg-accent">
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit Campaign
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-popover-foreground hover:bg-accent">
+                          {campaign.status === 'Active' ? (
+                            <>
+                              <Pause className="mr-2 h-4 w-4" />
+                              Pause Campaign
+                            </>
+                          ) : (
+                            <>
+                              <Play className="mr-2 h-4 w-4" />
+                              Start Campaign
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
