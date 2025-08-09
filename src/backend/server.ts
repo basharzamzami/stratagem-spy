@@ -1,10 +1,6 @@
 
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Import all route files
 import adSignalHijackRoutes from './routes/adSignalHijack.js';
 import leadLocatorRoutes from './routes/leadLocator.js';
 import dominanceMapRoutes from './routes/dominanceMap.js';
@@ -17,20 +13,22 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://be73f8d5-ef94-4c53-92cf-c284a3b1cc3e.lovableproject.com'],
+  credentials: true
+}));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint
-app.get('/api/health', (_req, res) => {
+// Health check
+app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    service: 'Specter Net API'
+    message: 'Specter Net API is running'
   });
 });
 
-// Mount route modules
+// Routes
 app.use('/api/ad-signal-hijack', adSignalHijackRoutes);
 app.use('/api/lead-locator', leadLocatorRoutes);
 app.use('/api/dominance-map', dominanceMapRoutes);
@@ -44,8 +42,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   console.error('API Error:', err);
   res.status(500).json({
     status: 'error',
-    message: 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { error: err.message })
+    message: 'Internal server error'
   });
 });
 
@@ -53,11 +50,11 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 app.use('*', (req, res) => {
   res.status(404).json({
     status: 'error',
-    message: 'API endpoint not found'
+    message: 'Endpoint not found'
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Specter Net API running on http://localhost:${PORT}`);
-  console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🚀 Specter Net API server running on http://localhost:${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });
