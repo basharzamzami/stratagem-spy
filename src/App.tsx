@@ -9,6 +9,7 @@ import AdSignalHijack from "./pages/AdSignalHijack";
 import SpecterNetDashboard from "./pages/SpecterNetDashboard";
 import LeadLocator from "./pages/LeadLocator";
 import DominanceMap from "./pages/DominanceMap";
+import TaskGeneratorPage from "./pages/TaskGenerator";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/ad-signal-hijack" element={<AdSignalHijack />} />
           <Route path="/lead-locator" element={<LeadLocator />} />
           <Route path="/dominance-map" element={<DominanceMap />} />
+          <Route path="/task-generator" element={<TaskGeneratorPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
