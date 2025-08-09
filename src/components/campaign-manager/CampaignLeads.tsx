@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Phone, Mail, MapPin, TrendingUp, Sync } from 'lucide-react';
+import { Users, Phone, Mail, MapPin, TrendingUp, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Lead {
@@ -215,7 +215,7 @@ const CampaignLeads = ({ campaignId }: CampaignLeadsProps) => {
             <CardTitle className="text-card-foreground">Campaign Leads</CardTitle>
             <div className="flex gap-2">
               <Button variant="outline" onClick={syncWithCRM}>
-                <Sync className="w-4 h-4 mr-2" />
+                <RefreshCw className="w-4 h-4 mr-2" />
                 Sync with CRM
               </Button>
             </div>
