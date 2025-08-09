@@ -208,28 +208,28 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex-1 bg-background-secondary">
-      <div className="p-8">
+    <div className="min-h-screen w-full bg-background">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="space-y-2">
+              <h1 className="text-4xl font-bold text-foreground tracking-tight">
                 Intelligence Command
               </h1>
-              <p className="text-muted-foreground">
-                Real-time competitive intelligence dashboard
+              <p className="text-lg text-muted-foreground max-w-2xl">
+                Real-time competitive intelligence dashboard for strategic market dominance
               </p>
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-border">
-                <Activity className="w-4 h-4 text-success" />
-                <span className="text-sm font-medium">Live Monitoring</span>
+              <div className="flex items-center gap-3 px-4 py-2 bg-success/10 border border-success/20 rounded-xl">
+                <Activity className="w-5 h-5 text-success" />
+                <span className="text-sm font-medium text-success">Live Monitoring</span>
               </div>
               
-              <div className="flex items-center gap-2 px-3 py-2 bg-destructive/5 border border-destructive/20 rounded-lg">
-                <AlertTriangle className="w-4 h-4 text-destructive" />
+              <div className="flex items-center gap-3 px-4 py-2 bg-destructive/10 border border-destructive/20 rounded-xl">
+                <AlertTriangle className="w-5 h-5 text-destructive" />
                 <span className="text-sm font-medium text-destructive">3 Critical Alerts</span>
               </div>
             </div>
@@ -237,26 +237,26 @@ const Dashboard = () => {
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
           {metrics.map((metric, index) => (
             <div 
               key={index} 
-              className="metric-card animate-slideInUp"
+              className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/20"
               style={{animationDelay: `${index * 100}ms`}}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <metric.icon className="w-6 h-6 text-primary" />
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+                  <metric.icon className="w-7 h-7 text-primary" />
                 </div>
                 
-                <div className="flex items-center gap-1 text-sm">
+                <div className="flex items-center gap-2 text-sm">
                   {metric.changeType === 'increase' && (
                     <ArrowUp className="w-4 h-4 text-success" />
                   )}
                   {metric.changeType === 'decrease' && (
                     <ArrowDown className="w-4 h-4 text-destructive" />
                   )}
-                  <span className={`font-medium ${
+                  <span className={`font-semibold ${
                     metric.changeType === 'increase' ? 'text-success' :
                     metric.changeType === 'decrease' ? 'text-destructive' :
                     metric.changeType === 'warning' ? 'text-warning' :
@@ -267,28 +267,28 @@ const Dashboard = () => {
                 </div>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="text-3xl font-bold text-foreground">{metric.value}</div>
-                <div className="text-sm font-medium text-foreground">{metric.title}</div>
-                <div className="text-xs text-muted-foreground">{metric.description}</div>
+                <div className="text-base font-semibold text-foreground">{metric.title}</div>
+                <div className="text-sm text-muted-foreground">{metric.description}</div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-8">
+        <div className="grid lg:grid-cols-3 gap-8 mb-10">
           {/* Intelligence Feed */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="saas-card p-6">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <Bell className="w-6 h-6 text-primary" />
-                  <h2 className="text-xl font-semibold">Intelligence Feed</h2>
+                  <h2 className="text-2xl font-bold text-foreground">Intelligence Feed</h2>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1 bg-success/10 rounded-full">
-                  <div className="status-indicator bg-success animate-pulse"></div>
-                  <span className="text-xs font-medium text-success">LIVE</span>
+                <div className="flex items-center gap-3 px-3 py-1 bg-success/10 rounded-full border border-success/20">
+                  <div className="w-2.5 h-2.5 rounded-full bg-success animate-pulse"></div>
+                  <span className="text-sm font-medium text-success">LIVE</span>
                 </div>
               </div>
               
@@ -296,16 +296,16 @@ const Dashboard = () => {
                 {alerts.map((alert, index) => (
                   <div 
                     key={index} 
-                    className={`alert-card border-l-4 ${getSeverityStyles(alert.severity)}`}
+                    className={`p-5 rounded-xl border-l-4 transition-all duration-200 hover:shadow-sm ${getSeverityStyles(alert.severity)}`}
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-semibold text-foreground">{alert.title}</h4>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span className="bg-muted px-2 py-1 rounded">{alert.confidence}% confidence</span>
-                        <span>{alert.time}</span>
+                      <h4 className="font-semibold text-foreground text-base leading-relaxed">{alert.title}</h4>
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <span className="bg-muted/60 px-3 py-1 rounded-lg font-medium">{alert.confidence}% confidence</span>
+                        <span className="font-medium">{alert.time}</span>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">{alert.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{alert.description}</p>
                   </div>
                 ))}
               </div>
@@ -314,25 +314,25 @@ const Dashboard = () => {
 
           {/* Quick Actions */}
           <div className="space-y-6">
-            <div className="saas-card p-6">
-              <div className="flex items-center gap-3 mb-6">
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center gap-4 mb-6">
                 <Zap className="w-6 h-6 text-primary" />
-                <h2 className="text-xl font-semibold">Quick Actions</h2>
+                <h2 className="text-2xl font-bold text-foreground">Quick Actions</h2>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {quickActions.map((action, index) => (
                   <button
                     key={index}
-                    className="w-full p-4 rounded-lg border border-border hover:border-primary/30 text-left transition-all duration-200 hover:shadow-sm"
+                    className="w-full p-5 rounded-xl border border-border hover:border-primary/30 text-left transition-all duration-200 hover:shadow-sm hover:bg-muted/20"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-foreground">{action.title}</span>
-                      <span className={`text-xs px-2 py-1 rounded border ${getUrgencyStyles(action.urgency)}`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-semibold text-foreground text-base">{action.title}</span>
+                      <span className={`text-xs px-3 py-1 rounded-lg border font-medium ${getUrgencyStyles(action.urgency)}`}>
                         {action.urgency}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground">{action.action}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{action.action}</p>
                   </button>
                 ))}
               </div>
@@ -343,34 +343,34 @@ const Dashboard = () => {
         {/* Competitors & Ad Intelligence */}
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Top Competitors */}
-          <div className="saas-card p-6">
-            <div className="flex items-center gap-3 mb-6">
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center gap-4 mb-6">
               <Shield className="w-6 h-6 text-primary" />
-              <h2 className="text-xl font-semibold">Top Competitors</h2>
+              <h2 className="text-2xl font-bold text-foreground">Top Competitors</h2>
             </div>
             
             <div className="space-y-4">
               {topCompetitors.map((competitor, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-5 bg-muted/20 rounded-xl border border-muted/30 hover:border-muted/50 transition-all duration-200">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                      <Target className="w-5 h-5 text-primary" />
+                    <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
+                      <Target className="w-6 h-6 text-primary" />
                     </div>
-                    <div>
-                      <div className="font-medium text-foreground">{competitor.name}</div>
+                    <div className="space-y-1">
+                      <div className="font-semibold text-foreground text-base">{competitor.name}</div>
                       <div className="text-sm text-muted-foreground">
                         {competitor.adCount} ads • {competitor.spend}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-foreground">{competitor.dominance}%</div>
-                      <div className={`text-xs ${competitor.change.startsWith('+') ? 'text-success' : 'text-destructive'}`}>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right space-y-1">
+                      <div className="text-base font-bold text-foreground">{competitor.dominance}%</div>
+                      <div className={`text-sm font-medium ${competitor.change.startsWith('+') ? 'text-success' : 'text-destructive'}`}>
                         {competitor.change}
                       </div>
                     </div>
-                    <div className={`text-xs px-2 py-1 rounded border ${getThreatColor(competitor.threatLevel)}`}>
+                    <div className={`text-sm px-3 py-1 rounded-lg border font-medium ${getThreatColor(competitor.threatLevel)}`}>
                       {competitor.threatLevel}
                     </div>
                   </div>
@@ -380,33 +380,33 @@ const Dashboard = () => {
           </div>
 
           {/* Recent Ad Intelligence */}
-          <div className="saas-card p-6">
-            <div className="flex items-center gap-3 mb-6">
+          <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center gap-4 mb-6">
               <Eye className="w-6 h-6 text-primary" />
-              <h2 className="text-xl font-semibold">Ad Intelligence</h2>
+              <h2 className="text-2xl font-bold text-foreground">Ad Intelligence</h2>
             </div>
             
             <div className="space-y-4">
               {recentAds.map((ad) => (
-                <div key={ad.id} className="p-4 bg-muted/20 rounded-lg">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="font-medium text-foreground text-sm">{ad.headline}</div>
-                      <div className="text-xs text-muted-foreground">{ad.competitor} • {ad.platform}</div>
+                <div key={ad.id} className="p-5 bg-muted/20 rounded-xl border border-muted/30">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="space-y-2">
+                      <div className="font-semibold text-foreground text-base leading-relaxed">{ad.headline}</div>
+                      <div className="text-sm text-muted-foreground">{ad.competitor} • {ad.platform}</div>
                     </div>
-                    <div className={`text-xs px-2 py-1 rounded border bg-muted/20 ${getPerformanceColor(ad.performance)} border-muted`}>
+                    <div className={`text-sm px-3 py-1 rounded-lg border bg-muted/20 font-medium ${getPerformanceColor(ad.performance)} border-muted`}>
                       {ad.performance}
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <button className="text-xs bg-primary/20 text-primary px-2 py-1 rounded">
+                    <div className="flex items-center gap-3">
+                      <button className="text-sm bg-primary/20 text-primary px-3 py-1 rounded-lg font-medium hover:bg-primary/30 transition-colors">
                         {ad.cta}
                       </button>
-                      <span className="text-xs text-muted-foreground">{ad.engagement} engagement</span>
+                      <span className="text-sm text-muted-foreground font-medium">{ad.engagement.toLocaleString()} engagement</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">{ad.firstSeen}</span>
+                    <span className="text-sm text-muted-foreground font-medium">{ad.firstSeen}</span>
                   </div>
                 </div>
               ))}

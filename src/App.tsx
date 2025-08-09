@@ -1,3 +1,4 @@
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -23,7 +24,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen w-full bg-background text-foreground">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/ad-signal-hijack" element={<EnhancedAdSignalHijack />} />
