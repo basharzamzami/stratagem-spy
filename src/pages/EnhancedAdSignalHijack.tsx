@@ -42,10 +42,10 @@ export default function EnhancedAdSignalHijack() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen w-screen bg-background flex">
       <Navigation />
-      <div className="flex-1 overflow-auto">
-        <div className="p-8 space-y-6">
+      <div className="flex-1 min-h-screen w-full overflow-auto">
+        <div className="p-8 space-y-6 min-h-full">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
@@ -108,10 +108,10 @@ export default function EnhancedAdSignalHijack() {
           </div>
 
           {/* Main Content Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-1">
             {/* Main Content - 3 columns */}
             <div className="lg:col-span-3 space-y-6">
-              <Tabs defaultValue="feed" className="space-y-6">
+              <Tabs defaultValue="feed" className="space-y-6 h-full">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="feed" className="flex items-center gap-2">
                     <Zap className="w-4 h-4" />
@@ -127,9 +127,9 @@ export default function EnhancedAdSignalHijack() {
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="feed">
-                  <Card className="p-6">
-                    <CardContent className="p-0">
+                <TabsContent value="feed" className="h-full">
+                  <Card className="p-6 h-full">
+                    <CardContent className="p-0 h-full">
                       {isError && (
                         <div className="text-center py-8">
                           <div className="text-destructive font-medium mb-2">
@@ -151,12 +151,12 @@ export default function EnhancedAdSignalHijack() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="analytics">
+                <TabsContent value="analytics" className="h-full">
                   <AnalyticsDashboard />
                 </TabsContent>
 
-                <TabsContent value="export">
-                  <Card className="p-6">
+                <TabsContent value="export" className="h-full">
+                  <Card className="p-6 h-full">
                     <CardContent>
                       <h3 className="text-xl font-semibold mb-4">Export & Reporting</h3>
                       <ExportControls filters={filters} />
