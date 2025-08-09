@@ -1,10 +1,12 @@
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Play, Pause, Edit, MoreHorizontal, TrendingUp, TrendingDown, Eye } from 'lucide-react';
+import { Search, MoreVertical, Play, Pause, Edit, Trash2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +21,8 @@ interface CampaignListProps {
 }
 
 const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
-  // Fetch campaigns from backend
+  const [searchTerm, setSearchTerm] = useState('');
+
   const { data: campaignsResponse, isLoading, error } = useQuery({
     queryKey: ['campaigns'],
     queryFn: () => ApiClient.getCampaigns(),
@@ -64,15 +67,18 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
     }).format(amount);
   };
 
+  const filteredCampaigns = campaigns.filter(campaign =>
+    campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    campaign.channel?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (isLoading) {
     return (
       <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-card-foreground">Active Campaigns</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
+        <CardContent className="p-8">
+          <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <span className="ml-3 text-card-foreground/70">Loading campaigns...</span>
           </div>
         </CardContent>
       </Card>
@@ -82,13 +88,26 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
   if (error) {
     return (
       <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-card-foreground">Active Campaigns</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <div className="text-destructive font-medium mb-2">Failed to load campaigns</div>
-            <p className="text-card-foreground/70">Unable to fetch campaign data from server.</p>
+        <CardContent className="p-8">
+          <div className="text-center">
+            <div className="text-destructive font-medium mb-2">Error loading campaigns</div>
+            <p className="text-card-foreground/70">Failed to fetch campaign data</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!campaigns.length) {
+    return (
+      <Card className="bg-card border-border">
+        <CardContent className="p-8">
+          <div className="text-center">
+            <div className="text-card-foreground font-medium mb-2">No campaigns found</div>
+            <p className="text-card-foreground/70 mb-4">Get started by creating your first campaign</p>
+            <Button className="bg-primary hover:bg-primary/90">
+              Create Campaign
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -96,158 +115,104 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
   }
 
   return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="text-card-foreground">Active Campaigns</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {campaigns.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-card-foreground/70">No campaigns found</p>
+    <Card className="bg-card border-border h-full flex flex-col">
+      <CardHeader className="pb-4 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold text-card-foreground">
+            Active Campaigns ({campaigns.length})
+          </CardTitle>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search campaigns..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 w-64"
+            />
           </div>
-        ) : (
+        </div>
+      </CardHeader>
+      
+      <CardContent className="flex-1 min-h-0 p-0">
+        <div className="overflow-auto h-full">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Campaign</TableHead>
-                <TableHead>Platform</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Budget</TableHead>
-                <TableHead>Spend</TableHead>
-                <TableHead>Impressions</TableHead>
-                <TableHead>Clicks</TableHead>
-                <TableHead>Conversions</TableHead>
-                <TableHead>ROAS</TableHead>
-                <TableHead className="w-[100px]"></TableHead>
+              <TableRow className="border-border">
+                <TableHead className="text-card-foreground/70">Campaign</TableHead>
+                <TableHead className="text-card-foreground/70">Status</TableHead>
+                <TableHead className="text-card-foreground/70">Platform</TableHead>
+                <TableHead className="text-card-foreground/70 text-right">Spent</TableHead>
+                <TableHead className="text-card-foreground/70 text-right">ROAS</TableHead>
+                <TableHead className="text-card-foreground/70 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {campaigns.map((campaign: Campaign) => (
-                <TableRow key={campaign.id} className="cursor-pointer hover:bg-muted/50">
+              {filteredCampaigns.map((campaign: Campaign) => (
+                <TableRow 
+                  key={campaign.id} 
+                  className="cursor-pointer hover:bg-muted/50 border-border"
+                  onClick={() => onCampaignSelect?.(campaign.id)}
+                >
                   <TableCell>
                     <div className="font-medium text-card-foreground">{campaign.name}</div>
+                    <div className="text-xs text-card-foreground/60">{campaign.objective}</div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={getPlatformColor(campaign.channel)}>
-                      {campaign.channel}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(campaign.status)}>
+                    <Badge className={getStatusColor(campaign.status)}>
                       {campaign.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-card-foreground">
-                    {formatCurrency(campaign.budget)}
-                  </TableCell>
-                  <TableCell className="text-card-foreground">
-                    {formatCurrency(campaign.spent)}
-                  </TableCell>
-                  <TableCell className="text-card-foreground">
-                    {campaign.kpis?.impressions?.toLocaleString() || '0'}
-                  </TableCell>
-                  <TableCell className="text-card-foreground">
-                    {campaign.kpis?.clicks?.toLocaleString() || '0'}
-                  </TableCell>
-                  <TableCell className="text-card-foreground">
-                    {campaign.kpis?.conversions || 0}
-                  </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="text-card-foreground">
-                        {campaign.kpis?.roas?.toFixed(1) || '0.0'}x
-                      </span>
-                      {campaign.kpis?.roas > 3 ? (
-                        <TrendingUp className="w-4 h-4 text-success" />
-                      ) : campaign.kpis?.roas < 2 ? (
-                        <TrendingDown className="w-4 h-4 text-destructive" />
-                      ) : null}
-                    </div>
+                    <Badge className={getPlatformColor(campaign.channel)}>
+                      {campaign.channel}
+                    </Badge>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {onCampaignSelect && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => onCampaignSelect(campaign.id.toString())}
-                        >
-                          <Eye className="h-4 w-4" />
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(campaign.spent || 0)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {campaign.kpis?.roas?.toFixed(1) || '0.0'}x
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                          <MoreVertical className="w-4 h-4" />
                         </Button>
-                      )}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-popover border-border">
-                          <DropdownMenuItem className="text-popover-foreground hover:bg-accent">
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Campaign
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-popover-foreground hover:bg-accent">
-                            {campaign.status === 'active' ? (
-                              <>
-                                <Pause className="mr-2 h-4 w-4" />
-                                Pause Campaign
-                              </>
-                            ) : (
-                              <>
-                                <Play className="mr-2 h-4 w-4" />
-                                Start Campaign
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-card border-border">
+                        <DropdownMenuItem className="text-card-foreground hover:bg-muted">
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-card-foreground hover:bg-muted">
+                          {campaign.status === 'active' ? (
+                            <>
+                              <Pause className="w-4 h-4 mr-2" />
+                              Pause
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-4 h-4 mr-2" />
+                              Start
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
-};
-
-const getStatusColor = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'active':
-      return 'bg-success/20 text-success border-success/30';
-    case 'paused':
-      return 'bg-warning/20 text-warning border-warning/30';
-    case 'draft':
-      return 'bg-muted/20 text-muted-foreground border-muted/30';
-    default:
-      return 'bg-muted/20 text-muted-foreground border-muted/30';
-  }
-};
-
-const getPlatformColor = (channel: string) => {
-  switch (channel?.toLowerCase()) {
-    case 'google':
-      return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-    case 'meta':
-      return 'bg-blue-600/20 text-blue-400 border-blue-600/30';
-    case 'youtube':
-      return 'bg-red-500/20 text-red-400 border-red-500/30';
-    case 'tiktok':
-      return 'bg-pink-500/20 text-pink-400 border-pink-500/30';
-    default:
-      return 'bg-muted/20 text-muted-foreground border-muted/30';
-  }
-};
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
 };
 
 export default CampaignList;

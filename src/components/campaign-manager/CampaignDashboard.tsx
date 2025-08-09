@@ -71,9 +71,9 @@ const CampaignDashboard = () => {
   }
 
   return (
-    <div className="space-y-6 h-full">
+    <div className="space-y-6 max-w-full">
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-card border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-card-foreground/70">Active Campaigns</CardTitle>
@@ -135,7 +135,7 @@ const CampaignDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <Button className="bg-primary hover:bg-primary/90">
           <Plus className="w-4 h-4 mr-2" />
           New Campaign
@@ -150,46 +150,52 @@ const CampaignDashboard = () => {
         </Button>
       </div>
 
-      <div className="flex-1">
-        <Tabs defaultValue="campaigns" className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="campaigns" className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Campaigns
-            </TabsTrigger>
-            <TabsTrigger value="automation" className="flex items-center gap-2">
-              <Zap className="w-4 h-4" />
-              Automation
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="campaigns" className="flex flex-col min-h-0">
+        <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsTrigger value="campaigns" className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4" />
+            Campaigns
+          </TabsTrigger>
+          <TabsTrigger value="automation" className="flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            Automation
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Settings className="w-4 h-4" />
+            Settings
+          </TabsTrigger>
+        </TabsList>
 
-          <div className="flex-1">
-            <TabsContent value="campaigns" className="h-full">
+        <div className="flex-1 min-h-0">
+          <TabsContent value="campaigns" className="mt-0 h-full">
+            <div className="h-full overflow-auto">
               <CampaignList onCampaignSelect={handleCampaignSelect} />
-            </TabsContent>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="automation" className="h-full">
+          <TabsContent value="automation" className="mt-0 h-full">
+            <div className="h-full overflow-auto">
               <CampaignAutomation />
-            </TabsContent>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="analytics" className="h-full">
+          <TabsContent value="analytics" className="mt-0 h-full">
+            <div className="h-full overflow-auto">
               <CampaignAnalytics />
-            </TabsContent>
+            </div>
+          </TabsContent>
 
-            <TabsContent value="settings" className="h-full">
+          <TabsContent value="settings" className="mt-0 h-full">
+            <div className="h-full overflow-auto">
               <CampaignSettings />
-            </TabsContent>
-          </div>
-        </Tabs>
-      </div>
+            </div>
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   );
 };
