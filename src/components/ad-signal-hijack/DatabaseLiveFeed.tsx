@@ -18,23 +18,42 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
+  console.log('DatabaseLiveFeed: Component mounted');
+
   const { data, isLoading, refetch, isError, error } = useQuery({
     queryKey: ['database-ads', searchQuery],
-    queryFn: () => {
-      console.log('Fetching ads with query:', searchQuery);
-      return searchQuery ? searchAds(searchQuery) : fetchAdsFromDatabase(50);
+    queryFn: async () => {
+      console.log('DatabaseLiveFeed: Fetching ads with query:', searchQuery);
+      try {
+        const result = searchQuery ? await searchAds(searchQuery) : await fetchAdsFromDatabase(50);
+        console.log('DatabaseLiveFeed: Successfully fetched ads:', result);
+        return result;
+      } catch (err) {
+        console.error('DatabaseLiveFeed: Error fetching ads:', err);
+        throw err;
+      }
     },
     refetchInterval: 30000, // Auto-refresh every 30 seconds
+    retry: 3,
+    retryDelay: 1000,
   });
 
   useEffect(() => {
-    if (data) {
-      console.log('Received ads data:', data);
+    if (data && Array.isArray(data)) {
+      console.log('DatabaseLiveFeed: Setting ads data:', data);
       setAds(data);
+    } else if (data) {
+      console.warn('DatabaseLiveFeed: Data is not an array:', data);
+      setAds([]);
     }
   }, [data]);
 
+  useEffect(() => {
+    console.log('DatabaseLiveFeed: Current ads state:', ads);
+  }, [ads]);
+
   const handleRefresh = () => {
+    console.log('DatabaseLiveFeed: Manual refresh triggered');
     refetch();
     toast({
       title: "Refreshing ads",
@@ -43,10 +62,12 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
   };
 
   const handleSearch = (query: string) => {
+    console.log('DatabaseLiveFeed: Search query changed:', query);
     setSearchQuery(query);
   };
 
   const handleAnalyze = (id: string) => {
+    console.log('DatabaseLiveFeed: Analyzing ad:', id);
     toast({
       title: "Analyzing ad",
       description: "Generating insights for this ad..."
@@ -65,7 +86,7 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
   };
 
   if (isError) {
-    console.error('Database error:', error);
+    console.error('DatabaseLiveFeed: Query error:', error);
     return (
       <div className="text-center py-12">
         <Database className="w-12 h-12 text-destructive mx-auto mb-4" />
@@ -133,6 +154,11 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
         })}
       </div>
 
+      {/* Debug Info */}
+      <div className="bg-yellow-100 dark:bg-yellow-900/20 p-2 rounded text-xs">
+        Debug: isLoading={String(isLoading)}, ads.length={ads.length}, error={error ? 'yes' : 'no'}
+      </div>
+
       {/* Loading State */}
       {isLoading && ads.length === 0 && (
         <div className="flex items-center justify-center py-8">
@@ -151,7 +177,7 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
           <p className="text-muted-foreground">
             {searchQuery 
               ? `Try searching for different keywords`
-              : 'The database is empty. Add some sample ads to get started.'
+              : 'The database appears empty. Check the service connection.'
             }
           </p>
           {searchQuery && (
@@ -163,6 +189,9 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
               Clear Search
             </Button>
           )}
+          <div className="mt-4 text-xs text-muted-foreground">
+            Debug: This component is trying to fetch ads from the database service.
+          </div>
         </div>
       ) : ads.length > 0 ? (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr">

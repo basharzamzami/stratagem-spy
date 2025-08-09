@@ -255,29 +255,38 @@ const sampleAds: DatabaseAdItem[] = [
 ];
 
 export async function fetchAdsFromDatabase(limit: number = 50): Promise<DatabaseAdItem[]> {
-  console.log('fetchAdsFromDatabase called with limit:', limit);
+  console.log('adDatabase.ts: fetchAdsFromDatabase called with limit:', limit);
+  console.log('adDatabase.ts: sampleAds length:', sampleAds.length);
   
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  // Return sample ads with some randomization
-  const shuffled = [...sampleAds].sort(() => 0.5 - Math.random());
-  const result = shuffled.slice(0, Math.min(limit, shuffled.length));
-  
-  console.log('Returning ads:', result);
-  return result;
+  try {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Return sample ads with some randomization
+    const shuffled = [...sampleAds].sort(() => 0.5 - Math.random());
+    const result = shuffled.slice(0, Math.min(limit, shuffled.length));
+    
+    console.log('adDatabase.ts: Returning ads:', result.length, 'ads');
+    console.log('adDatabase.ts: First ad:', result[0]);
+    return result;
+  } catch (error) {
+    console.error('adDatabase.ts: Error in fetchAdsFromDatabase:', error);
+    throw error;
+  }
 }
 
 export async function getAdById(id: string): Promise<DatabaseAdItem | null> {
-  console.log('getAdById called with id:', id);
+  console.log('adDatabase.ts: getAdById called with id:', id);
   const ad = sampleAds.find(ad => ad.id === id);
+  console.log('adDatabase.ts: Found ad:', ad ? 'yes' : 'no');
   return ad || null;
 }
 
 export async function searchAds(query: string): Promise<DatabaseAdItem[]> {
-  console.log('searchAds called with query:', query);
+  console.log('adDatabase.ts: searchAds called with query:', query);
   
   if (!query.trim()) {
+    console.log('adDatabase.ts: Empty query, returning all ads');
     return fetchAdsFromDatabase();
   }
   
@@ -288,6 +297,6 @@ export async function searchAds(query: string): Promise<DatabaseAdItem[]> {
     ad.platform.toLowerCase().includes(query.toLowerCase())
   );
   
-  console.log('Search results:', filtered);
+  console.log('adDatabase.ts: Search results:', filtered.length, 'ads');
   return filtered;
 }
