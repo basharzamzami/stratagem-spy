@@ -207,7 +207,8 @@ class HotAdMonitoring {
 
   private async simulateAdSpike(): Promise<{ alert_generated: boolean; velocity_score: number }> {
     // Import the detector dynamically to avoid circular deps
-    const { hotAdDetector, EngagementSnapshot } = await import('./hotAdDetector');
+    const { hotAdDetector } = await import('./hotAdDetector');
+    const { EngagementSnapshot } = await import('./hotAdDetector');
     
     // Create baseline data
     const baselineSnapshots: EngagementSnapshot[] = [];
