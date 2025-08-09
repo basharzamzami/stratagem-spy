@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Filter, MoreHorizontal, Play, Pause, Edit, Trash2 } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Play, Pause, Edit, Trash2, Plus } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ApiClient } from '@/services/api';
 import type { Campaign } from '@/backend/types';
@@ -99,7 +99,7 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
   }
 
   return (
-    <div className="w-full max-w-full space-y-4 overflow-hidden">
+    <div className="w-full space-y-4">
       {/* Filters */}
       <Card className="bg-card border-border">
         <CardHeader className="pb-3">
@@ -134,10 +134,10 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Channels</SelectItem>
-                  <SelectItem value="google ads">Google Ads</SelectItem>
-                  <SelectItem value="facebook">Facebook</SelectItem>
-                  <SelectItem value="linkedin">LinkedIn</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="google">Google Ads</SelectItem>
+                  <SelectItem value="meta">Facebook</SelectItem>
+                  <SelectItem value="youtube">YouTube</SelectItem>
+                  <SelectItem value="tiktok">TikTok</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -157,7 +157,7 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                   <TableHead className="text-card-foreground font-medium">Channel</TableHead>
                   <TableHead className="text-card-foreground font-medium text-right">Spent</TableHead>
                   <TableHead className="text-card-foreground font-medium text-right">ROAS</TableHead>
-                  <TableHead className="text-card-foreground font-medium text-right">Leads</TableHead>
+                  <TableHead className="text-card-foreground font-medium text-right">Conversions</TableHead>
                   <TableHead className="text-card-foreground font-medium w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -189,7 +189,7 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                       {campaign.kpis?.roas ? `${campaign.kpis.roas.toFixed(1)}x` : '-'}
                     </TableCell>
                     <TableCell className="text-right font-mono">
-                      {campaign.kpis?.leads || 0}
+                      {campaign.kpis?.conversions || 0}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
