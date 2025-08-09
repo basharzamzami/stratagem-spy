@@ -1,488 +1,430 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import { 
-  Sparkles, 
+  Brain, 
   Target, 
+  MessageSquare, 
   Copy, 
   RefreshCw, 
-  Eye, 
-  ThumbsUp, 
-  ThumbsDown,
   Zap,
-  BarChart3,
-  MessageSquare,
+  User,
+  Building,
   Mail,
   Phone,
-  Globe
+  MapPin,
+  TrendingUp
 } from 'lucide-react';
-import { EnhancedLead } from '@/services/specterNetIntegration';
+import type { EnhancedLead } from '@/services/specterNetIntegration';
 
-interface AutoPitch {
+interface RefinedPitch {
   id: string;
-  lead_id: string;
-  subject_lines: string[];
-  opening_hooks: string[];
-  pain_point_references: string[];
-  value_propositions: string[];
-  cta_options: string[];
-  personalization_tokens: Record<string, string>;
-  engagement_score: number;
-  created_at: string;
-  channel: 'email' | 'linkedin' | 'phone' | 'ad';
-  tone: 'professional' | 'casual' | 'urgent' | 'friendly';
-}
-
-interface PitchPerformanceData {
   subject_line: string;
-  open_rate: number;
-  response_rate: number;
-  samples: number;
+  opening_hook: string;
+  pain_point_reference: string;
+  value_proposition: string;
+  social_proof: string;
+  call_to_action: string;
+  personalization_score: number;
+  estimated_response_rate: number;
 }
 
 export default function RefinedAutoPitchGenerator() {
-  const [selectedLead, setSelectedLead] = useState<EnhancedLead | null>(null);
-  const [generatedPitches, setGeneratedPitches] = useState<AutoPitch[]>([]);
+  const [selectedLead, setSelectedLead] = useState<string>('');
+  const [pitchType, setPitchType] = useState<string>('');
+  const [generatedPitch, setGeneratedPitch] = useState<RefinedPitch | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedChannel, setSelectedChannel] = useState<'email' | 'linkedin' | 'phone' | 'ad'>('email');
-  const [selectedTone, setSelectedTone] = useState<'professional' | 'casual' | 'urgent' | 'friendly'>('professional');
-  const [customPrompt, setCustomPrompt] = useState('');
 
+  // Mock leads data with complete EnhancedLead properties
   const mockLeads: EnhancedLead[] = [
     {
-      id: '1',
+      id: 'lead_1',
       name: 'Sarah Chen',
-      email: 'sarah.chen@techflow.com',
-      company: 'TechFlow Solutions',
+      email: 'sarah.chen@techcorp.com',
+      company: 'TechCorp Solutions',
       title: 'VP of Marketing',
-      intent_score: 94,
-      geo_context: { city: 'San Francisco', state: 'CA', zip: '94105' },
-      source: 'linkedin_intent',
+      phone: '(555) 123-4567',
+      location_city: 'San Francisco',
+      location_state: 'CA',
+      location_zip: '94105',
+      intent_score: 92,
+      source: 'lead_locator',
       source_data: {
-        recent_activity: 'Liked posts about competitive intelligence',
-        engagement_history: ['Downloaded whitepaper on market analysis']
+        recent_activity: 'Downloaded competitive analysis whitepaper',
+        engagement_history: ['website_visit', 'whitepaper_download', 'pricing_page_view']
+      },
+      enrichment_data: {
+        company_size: '100-500 employees',
+        industry: 'Technology',
+        revenue_estimate: '$10M-50M'
+      },
+      status: 'new',
+      tags: ['high-intent', 'competitive-analysis'],
+      notes: 'Strong buying signals detected',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      intent_keywords: ['competitive analysis', 'market intelligence', 'growth strategies'],
+      search_patterns: ['pricing comparison', 'competitor research', 'market analysis tools'],
+      competitor_references: ['SimilarWeb', 'SEMrush'],
+      urgency_score: 88,
+      last_search_activity: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      geo_context: {
+        city: 'San Francisco',
+        state: 'CA',
+        zip: '94105'
       }
     }
   ];
 
-  const performanceData: PitchPerformanceData[] = [
-    { subject_line: "Quick question about {company}'s growth strategy", open_rate: 34, response_rate: 12, samples: 150 },
-    { subject_line: "How {similar_company} increased leads by 40%", open_rate: 28, response_rate: 9, samples: 200 },
-    { subject_line: "{first_name}, solving {pain_point} for {industry} teams", open_rate: 42, response_rate: 15, samples: 120 },
-    { subject_line: "5-minute solution to your {pain_point}", open_rate: 38, response_rate: 11, samples: 180 }
+  const pitchTypes = [
+    { value: 'cold_outreach', label: 'Cold Outreach' },
+    { value: 'warm_follow_up', label: 'Warm Follow-up' },
+    { value: 'competitor_hijack', label: 'Competitor Hijack' },
+    { value: 'urgency_based', label: 'Urgency-Based' },
+    { value: 'value_focused', label: 'Value-Focused' }
   ];
 
-  useEffect(() => {
-    if (mockLeads.length > 0) {
-      setSelectedLead(mockLeads[0]);
-    }
-  }, []);
-
   const generatePitch = async () => {
-    if (!selectedLead) return;
+    if (!selectedLead || !pitchType) return;
 
     setIsGenerating(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      const newPitch: AutoPitch = {
-        id: `pitch_${Date.now()}`,
-        lead_id: selectedLead.id,
-        channel: selectedChannel,
-        tone: selectedTone,
-        engagement_score: Math.floor(Math.random() * 30) + 70,
-        created_at: new Date().toISOString(),
-        personalization_tokens: {
-          '{first_name}': selectedLead.name?.split(' ')[0] || 'there',
-          '{company}': selectedLead.company || 'your company',
-          '{industry}': 'Technology', // Default industry
-          '{pain_point}': 'operational challenges', // Default pain point
-          '{location}': `${selectedLead.geo_context?.city}, ${selectedLead.geo_context?.state}`,
-          '{similar_company}': 'TechCorp'
-        },
-        subject_lines: generateSubjectLines(selectedLead, selectedTone, selectedChannel),
-        opening_hooks: generateOpeningHooks(selectedLead, selectedTone),
-        pain_point_references: generatePainPointRefs(selectedLead),
-        value_propositions: generateValueProps(selectedLead),
-        cta_options: generateCTAs(selectedChannel, selectedTone)
-      };
-
-      setGeneratedPitches([newPitch, ...generatedPitches.slice(0, 4)]);
-      setIsGenerating(false);
-    }, 2000);
-  };
-
-  const generateSubjectLines = (lead: EnhancedLead, tone: string, channel: string): string[] => {
-    const company = lead.company || 'your company';
-    const name = lead.name?.split(' ')[0] || 'there';
-    const industry = 'Technology'; // Default since business_context doesn't exist
+    // Simulate AI pitch generation
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    if (channel === 'email') {
-      switch (tone) {
-        case 'professional':
-          return [
-            `Strategic intelligence opportunity for ${company}`,
-            `${name}, competitive insights for ${industry} leaders`,
-            `Market intelligence solution - ${company}`,
-            `Enhancing ${company}'s competitive advantage`
-          ];
-        case 'casual':
-          return [
-            `Hey ${name}, quick question about ${company}`,
-            `${name} - saw your recent activity on competitive analysis`,
-            `Quick chat about ${company}'s market position?`,
-            `${name}, this might interest you`
-          ];
-        case 'urgent':
-          return [
-            `URGENT: ${company} competitors gaining ground`,
-            `${name}, your competitors are making moves`,
-            `Time-sensitive: ${company} market opportunity`,
-            `Action needed: ${company} competitive gap`
-          ];
-        case 'friendly':
-          return [
-            `${name}, exciting opportunity for ${company}`,
-            `Hope you're doing well, ${name}`,
-            `${name}, thought you'd find this valuable`,
-            `Great to connect with ${industry} leaders like you`
-          ];
-        default:
-          return [`Professional opportunity for ${company}`];
-      }
-    }
-    return [`LinkedIn message for ${company}`];
-  };
+    const lead = mockLeads.find(l => l.id === selectedLead);
+    if (!lead) return;
 
-  const generateOpeningHooks = (lead: EnhancedLead, tone: string): string[] => {
-    return [
-      `I noticed ${lead.company} is in a competitive space...`,
-      `Many companies like ${lead.company} are facing similar challenges...`,
-      `Your recent activity suggests you're exploring competitive intelligence solutions...`,
-      `${lead.company} has impressive growth, but I noticed a potential blind spot...`
-    ];
-  };
+    const mockPitch: RefinedPitch = {
+      id: `pitch_${Date.now()}`,
+      subject_line: `${lead.name}, quick question about ${lead.company}'s competitive strategy`,
+      opening_hook: `Hi ${lead.name?.split(' ')[0]}, I noticed ${lead.company} has been researching competitive analysis solutions...`,
+      pain_point_reference: `Like many ${lead.enrichment_data?.industry} companies, you're probably dealing with fragmented market intelligence`,
+      value_proposition: `We've helped 200+ companies like ${lead.company} increase their competitive advantage by 40% within 30 days`,
+      social_proof: `Companies like TechFlow and GrowthLabs saw immediate ROI improvements after switching to our platform`,
+      call_to_action: `Worth a 15-minute conversation to see how this applies to ${lead.company}?`,
+      personalization_score: Math.floor(Math.random() * 20) + 80,
+      estimated_response_rate: Math.floor(Math.random() * 15) + 15
+    };
 
-  const generatePainPointRefs = (lead: EnhancedLead): string[] => {
-    return [
-      `The lead generation challenges you're likely experiencing...`,
-      `Competitor analysis gaps that many companies face...`,
-      `Market intelligence blind spots affecting growth...`,
-      `The difficulty in tracking competitor moves in real-time...`
-    ];
-  };
-
-  const generateValueProps = (lead: EnhancedLead): string[] => {
-    return [
-      `Specifically built for growing companies like ${lead.company}`,
-      `ROI typically seen within 30 days of deployment`,
-      `Reduce competitive research time by 80%`,
-      `Used by industry leaders in ${lead.geo_context?.city}`
-    ];
-  };
-
-  const generateCTAs = (channel: string, tone: string): string[] => {
-    if (channel === 'email') {
-      switch (tone) {
-        case 'professional':
-          return [
-            'Worth a 15-minute strategic conversation?',
-            'Should I send our competitive analysis framework?',
-            'Would you like to see how similar companies benefit?',
-            'Interested in a brief demonstration?'
-          ];
-        case 'casual':
-          return [
-            'Want to hop on a quick call?',
-            'Should I send you some examples?',
-            'Interested in learning more?',
-            'Worth a chat?'
-          ];
-        case 'urgent':
-          return [
-            'Can we schedule an emergency briefing?',
-            'Immediate action recommended - call today?',
-            'Time-critical opportunity - respond ASAP',
-            'Urgent consultation needed'
-          ];
-        case 'friendly':
-          return [
-            'Would love to chat about this!',
-            'Happy to share more details',
-            'Let me know if you\'d like to connect',
-            'Would be great to discuss further'
-          ];
-        default:
-          return ['Worth discussing?'];
-      }
-    }
-    return ['Connect on this?'];
+    setGeneratedPitch(mockPitch);
+    setIsGenerating(false);
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
-  const replacePlaceholders = (text: string, tokens: Record<string, string>): string => {
-    let result = text;
-    Object.entries(tokens).forEach(([key, value]) => {
-      result = result.replace(new RegExp(key, 'g'), value);
-    });
-    return result;
-  };
+  const selectedLeadData = mockLeads.find(l => l.id === selectedLead);
 
   return (
     <div className="space-y-6">
-      {/* Controls */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            AI Pitch Generator
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Target Lead</label>
-              <Select value={selectedLead?.id} onValueChange={(id) => setSelectedLead(mockLeads.find(l => l.id === id) || null)}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+            <Brain className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">AI Pitch Generator</h2>
+            <p className="text-sm text-muted-foreground">Generate personalized outreach messages</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Configuration Panel */}
+        <div className="space-y-6">
+          {/* Lead Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                Select Lead
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Select value={selectedLead} onValueChange={setSelectedLead}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Choose a lead..." />
                 </SelectTrigger>
                 <SelectContent>
                   {mockLeads.map(lead => (
                     <SelectItem key={lead.id} value={lead.id}>
-                      {lead.name} - {lead.company}
+                      <div className="flex items-center gap-2">
+                        <div>
+                          <div className="font-medium">{lead.name}</div>
+                          <div className="text-xs text-muted-foreground">{lead.company}</div>
+                        </div>
+                        <Badge variant="secondary" className="ml-auto">
+                          {lead.intent_score}
+                        </Badge>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Channel</label>
-              <Select value={selectedChannel} onValueChange={setSelectedChannel as any}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="linkedin">LinkedIn</SelectItem>
-                  <SelectItem value="phone">Phone Script</SelectItem>
-                  <SelectItem value="ad">Ad Copy</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Tone</label>
-              <Select value={selectedTone} onValueChange={setSelectedTone as any}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="casual">Casual</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                  <SelectItem value="friendly">Friendly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Generate</label>
-              <Button 
-                onClick={generatePitch} 
-                disabled={isGenerating || !selectedLead}
-                className="w-full"
-              >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 mr-2" />
-                    Generate Pitch
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Custom Instructions (Optional)</label>
-            <Textarea 
-              placeholder="e.g., Focus on ROI, mention recent funding, emphasize urgency..."
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              rows={2}
-            />
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Generated Pitches */}
-      {generatedPitches.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {generatedPitches.map((pitch) => (
-            <Card key={pitch.id} className="h-fit">
+              {selectedLeadData && (
+                <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <User className="w-3 h-3" />
+                    {selectedLeadData.name} - {selectedLeadData.title}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Building className="w-3 h-3" />
+                    {selectedLeadData.company}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="w-3 h-3" />
+                    {selectedLeadData.geo_context.city}, {selectedLeadData.geo_context.state}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <TrendingUp className="w-3 h-3" />
+                    Intent Score: {selectedLeadData.intent_score}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Pitch Type Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Pitch Type
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={pitchType} onValueChange={setPitchType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select pitch type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {pitchTypes.map(type => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          {/* Generate Button */}
+          <Button 
+            onClick={generatePitch}
+            disabled={!selectedLead || !pitchType || isGenerating}
+            className="w-full"
+            size="lg"
+          >
+            {isGenerating ? (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                Generating Pitch...
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4 mr-2" />
+                Generate AI Pitch
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Generated Pitch */}
+        <div className="space-y-6">
+          {generatedPitch ? (
+            <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    {selectedChannel === 'email' && <Mail className="w-4 h-4" />}
-                    {selectedChannel === 'linkedin' && <MessageSquare className="w-4 h-4" />}
-                    {selectedChannel === 'phone' && <Phone className="w-4 h-4" />}
-                    {selectedChannel === 'ad' && <Globe className="w-4 h-4" />}
-                    {selectedChannel.charAt(0).toUpperCase() + selectedChannel.slice(1)} Pitch
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="w-4 h-4" />
+                    Generated Pitch
                   </CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-primary/10 text-primary">
-                      {pitch.tone}
+                  <div className="flex gap-2">
+                    <Badge variant="outline">
+                      {generatedPitch.personalization_score}% Personalized
                     </Badge>
-                    <div className="flex items-center gap-1">
-                      <BarChart3 className="w-3 h-3" />
-                      <span className="text-xs font-medium">{pitch.engagement_score}%</span>
-                    </div>
+                    <Badge variant="outline">
+                      {generatedPitch.estimated_response_rate}% Response Rate
+                    </Badge>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="subject-lines">
-                  <TabsList className="grid grid-cols-4 w-full text-xs">
-                    <TabsTrigger value="subject-lines">Subjects</TabsTrigger>
-                    <TabsTrigger value="hooks">Hooks</TabsTrigger>
-                    <TabsTrigger value="body">Body</TabsTrigger>
-                    <TabsTrigger value="ctas">CTAs</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="subject-lines" className="space-y-3 mt-4">
-                    {pitch.subject_lines.map((subject, idx) => (
-                      <div key={idx} className="p-3 bg-muted/30 rounded-lg">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <span className="text-sm font-medium flex-1">
-                            {replacePlaceholders(subject, pitch.personalization_tokens)}
-                          </span>
-                          <Button size="sm" variant="ghost" onClick={() => copyToClipboard(replacePlaceholders(subject, pitch.personalization_tokens))}>
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                        </div>
-                        {/* Performance prediction */}
-                        <div className="flex gap-4 text-xs text-muted-foreground">
-                          <span>Est. Open Rate: 32%</span>
-                          <span>Est. Response: 8%</span>
-                        </div>
-                      </div>
-                    ))}
-                  </TabsContent>
-                  
-                  <TabsContent value="hooks" className="space-y-3 mt-4">
-                    {pitch.opening_hooks.map((hook, idx) => (
-                      <div key={idx} className="p-3 bg-muted/30 rounded-lg">
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="text-sm flex-1">
-                            {replacePlaceholders(hook, pitch.personalization_tokens)}
-                          </span>
-                          <Button size="sm" variant="ghost" onClick={() => copyToClipboard(replacePlaceholders(hook, pitch.personalization_tokens))}>
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </TabsContent>
-                  
-                  <TabsContent value="body" className="space-y-3 mt-4">
-                    <div className="space-y-3">
-                      <div>
-                        <h4 className="text-xs font-medium text-muted-foreground mb-2">Pain Point References</h4>
-                        {pitch.pain_point_references.slice(0, 2).map((pain, idx) => (
-                          <div key={idx} className="p-2 bg-red-500/10 rounded text-xs mb-1">
-                            {replacePlaceholders(pain, pitch.personalization_tokens)}
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div>
-                        <h4 className="text-xs font-medium text-muted-foreground mb-2">Value Propositions</h4>
-                        {pitch.value_propositions.slice(0, 2).map((value, idx) => (
-                          <div key={idx} className="p-2 bg-green-500/10 rounded text-xs mb-1">
-                            {replacePlaceholders(value, pitch.personalization_tokens)}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="ctas" className="space-y-3 mt-4">
-                    {pitch.cta_options.map((cta, idx) => (
-                      <div key={idx} className="p-3 bg-muted/30 rounded-lg">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-sm flex-1">
-                            {replacePlaceholders(cta, pitch.personalization_tokens)}
-                          </span>
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="ghost">
-                              <ThumbsUp className="w-3 h-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost">
-                              <ThumbsDown className="w-3 h-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => copyToClipboard(replacePlaceholders(cta, pitch.personalization_tokens))}>
-                              <Copy className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </TabsContent>
-                </Tabs>
+              <CardContent className="space-y-4">
+                {/* Subject Line */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Subject Line</label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(generatedPitch.subject_line)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={generatedPitch.subject_line}
+                    readOnly
+                    className="resize-none"
+                    rows={1}
+                  />
+                </div>
+
+                {/* Opening Hook */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Opening Hook</label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(generatedPitch.opening_hook)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={generatedPitch.opening_hook}
+                    readOnly
+                    className="resize-none"
+                    rows={2}
+                  />
+                </div>
+
+                {/* Pain Point Reference */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Pain Point Reference</label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(generatedPitch.pain_point_reference)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={generatedPitch.pain_point_reference}
+                    readOnly
+                    className="resize-none"
+                    rows={2}
+                  />
+                </div>
+
+                {/* Value Proposition */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Value Proposition</label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(generatedPitch.value_proposition)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={generatedPitch.value_proposition}
+                    readOnly
+                    className="resize-none"
+                    rows={2}
+                  />
+                </div>
+
+                {/* Social Proof */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Social Proof</label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(generatedPitch.social_proof)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={generatedPitch.social_proof}
+                    readOnly
+                    className="resize-none"
+                    rows={2}
+                  />
+                </div>
+
+                {/* Call to Action */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Call to Action</label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(generatedPitch.call_to_action)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={generatedPitch.call_to_action}
+                    readOnly
+                    className="resize-none"
+                    rows={1}
+                  />
+                </div>
+
+                {/* Full Pitch */}
+                <div className="space-y-2 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Complete Pitch</label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const fullPitch = `Subject: ${generatedPitch.subject_line}
+
+${generatedPitch.opening_hook}
+
+${generatedPitch.pain_point_reference}
+
+${generatedPitch.value_proposition}
+
+${generatedPitch.social_proof}
+
+${generatedPitch.call_to_action}`;
+                        copyToClipboard(fullPitch);
+                      }}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={`${generatedPitch.opening_hook}\n\n${generatedPitch.pain_point_reference}\n\n${generatedPitch.value_proposition}\n\n${generatedPitch.social_proof}\n\n${generatedPitch.call_to_action}`}
+                    readOnly
+                    className="resize-none"
+                    rows={8}
+                  />
+                </div>
               </CardContent>
             </Card>
-          ))}
+          ) : (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <Brain className="w-12 h-12 text-muted-foreground mb-4" />
+                <h3 className="font-medium mb-2">No Pitch Generated</h3>
+                <p className="text-sm text-muted-foreground">
+                  Select a lead and pitch type, then click "Generate AI Pitch" to create a personalized outreach message.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      )}
-
-      {/* Performance Analytics */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-primary" />
-            Pitch Performance Analytics
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {performanceData.map((perf, idx) => (
-              <div key={idx} className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg">
-                <div className="flex-1">
-                  <div className="text-sm font-medium mb-1">
-                    {replacePlaceholders(perf.subject_line, {'{company}': 'TechCorp', '{similar_company}': 'GrowthCo', '{first_name}': 'John', '{pain_point}': 'lead generation', '{industry}': 'SaaS'})}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {perf.samples} samples
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-primary">{perf.open_rate}%</div>
-                  <div className="text-xs text-muted-foreground">open rate</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-success">{perf.response_rate}%</div>
-                  <div className="text-xs text-muted-foreground">response</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }
