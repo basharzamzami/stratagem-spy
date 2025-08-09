@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Index from "./pages/Index";
 import AdSignalHijack from "./pages/AdSignalHijack";
 import EnhancedAdSignalHijack from "./pages/EnhancedAdSignalHijack";
+import HotAdWarRoom from "./pages/HotAdWarRoom";
 import LeadLocator from "./pages/LeadLocator";
 import DominanceMap from "./pages/DominanceMap";
 import TaskGenerator from "./pages/TaskGenerator";
@@ -28,6 +29,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/ad-signal-hijack" element={<EnhancedAdSignalHijack />} />
+            <Route path="/hot-ad-war-room" element={<HotAdWarRoom />} />
             <Route path="/lead-locator" element={<LeadLocator />} />
             <Route path="/dominance-map" element={<DominanceMap />} />
             <Route path="/task-generator" element={<TaskGenerator />} />
