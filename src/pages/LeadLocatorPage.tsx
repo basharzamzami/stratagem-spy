@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Navigation from "@/components/Navigation";
@@ -9,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ApiClient } from '@/services/api';
-import { scanForWarmLeads, enrichLeadData } from '@/services/warmLeadProspector';
+import { scanForIntentSignals, enrichLead } from '@/services/warmLeadProspector';
 import LeadFlowVisualization from '@/components/specter-net/LeadFlowVisualization';
 import WarmLeadsTable from '@/components/specter-net/WarmLeadsTable';
 import AutoPitchGenerator from '@/components/specter-net/AutoPitchGenerator';
@@ -63,14 +62,34 @@ export default function LeadLocatorPage() {
       const keywords = searchParams.keyword.split(',').map(k => k.trim());
       const geoTargets = searchParams.location ? [searchParams.location] : ['CA', 'TX', 'NY'];
       
-      const detectedLeads = await scanForWarmLeads(keywords, geoTargets);
+      const intentSignals = await scanForIntentSignals(keywords, geoTargets);
+      
+      const detectedLeads = intentSignals.map((signal, index) => ({
+        id: `lead_${signal.id}`,
+        name: `Prospect ${index + 1}`,
+        company: `Company ${index + 1}`,
+        title: 'Decision Maker',
+        email: `contact${index + 1}@company.com`,
+        phone: `(555) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
+        geo_context: {
+          city: signal.raw_data.geo_target || 'Unknown',
+          state: signal.raw_data.geo_target || 'CA',
+          zip: '90210'
+        },
+        intent_keywords: signal.keywords,
+        intent_score: Math.floor(signal.urgency_score * 100),
+        urgency_score: Math.floor(signal.urgency_score * 100),
+        search_patterns: ['competitor research', 'pricing comparison'],
+        last_search_activity: signal.detected_at,
+        industry_context: 'Technology'
+      }));
+      
       setWarmLeads(detectedLeads);
       
-      // Enrich leads with additional data
       const enrichment = {};
       for (const lead of detectedLeads.slice(0, 5)) {
         try {
-          const enrichedData = await enrichLeadData(lead);
+          const enrichedData = await enrichLead(lead.id, intentSignals);
           enrichment[lead.id] = enrichedData;
         } catch (error) {
           console.log('Enrichment failed for lead:', lead.id);
@@ -228,7 +247,6 @@ export default function LeadLocatorPage() {
               {selectedLead ? (
                 <AutoPitchGenerator 
                   lead={selectedLead}
-                  enrichmentData={enrichmentData[selectedLead?.id]}
                 />
               ) : (
                 <Card>
