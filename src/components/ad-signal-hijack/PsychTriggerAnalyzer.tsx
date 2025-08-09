@@ -294,7 +294,7 @@ export default function PsychTriggerAnalyzer() {
                 
                 <div className="p-4 bg-muted/30 rounded-lg border border-muted">
                   <div className="text-lg font-bold text-muted-foreground">Hold</div>
-                  <div className="text-sm text-muted-foreground">Low Velocity (<60%)</div>
+                  <div className="text-sm text-muted-foreground">Low Velocity (&lt;60%)</div>
                   <div className="text-xs text-muted-foreground">Wait for spike</div>
                 </div>
               </div>
