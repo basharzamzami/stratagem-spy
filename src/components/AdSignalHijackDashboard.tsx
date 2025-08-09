@@ -29,13 +29,13 @@ const AdSignalHijackDashboard = () => {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header - Fixed */}
-      <div className="flex-shrink-0 p-6 border-b border-border bg-background">
-        <div className="flex items-center justify-between mb-6">
+      <div className="flex-shrink-0 p-4 border-b border-border bg-background">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+            <h1 className="text-xl font-bold text-foreground mb-1">
               Specter Net: Production HotAd Detection System
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Real-time engagement velocity monitoring with acceptance criteria tracking
             </p>
           </div>
@@ -47,6 +47,7 @@ const AdSignalHijackDashboard = () => {
             <Button 
               onClick={() => window.open('/ad-signal-hijack-2', '_blank')}
               className="bg-orange-600 hover:bg-orange-700"
+              size="sm"
             >
               <Zap className="w-4 h-4 mr-2" />
               Legacy Version
@@ -55,67 +56,67 @@ const AdSignalHijackDashboard = () => {
         </div>
 
         {/* Key Metrics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Detection Precision</p>
-                  <p className="text-xl font-bold text-foreground">94.2%</p>
+                  <p className="text-xs font-medium text-muted-foreground">Detection Precision</p>
+                  <p className="text-lg font-bold text-foreground">94.2%</p>
                   <p className="text-xs text-success flex items-center gap-1 mt-1">
                     <TrendingUp className="w-3 h-3" />
                     Target: 85%
                   </p>
                 </div>
-                <Eye className="w-6 h-6 text-primary opacity-60" />
+                <Eye className="w-5 h-5 text-primary opacity-60" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-orange-500/5 to-orange-500/10 border-orange-500/20">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Avg Deploy Latency</p>
-                  <p className="text-xl font-bold text-foreground">8.4min</p>
+                  <p className="text-xs font-medium text-muted-foreground">Avg Deploy Latency</p>
+                  <p className="text-lg font-bold text-foreground">8.4min</p>
                   <p className="text-xs text-success flex items-center gap-1 mt-1">
                     <Activity className="w-3 h-3" />
                     Target: 15min
                   </p>
                 </div>
-                <Zap className="w-6 h-6 text-orange-500 opacity-60" />
+                <Zap className="w-5 h-5 text-orange-500 opacity-60" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Classification Accuracy</p>
-                  <p className="text-xl font-bold text-foreground">91.8%</p>
+                  <p className="text-xs font-medium text-muted-foreground">Classification Accuracy</p>
+                  <p className="text-lg font-bold text-foreground">91.8%</p>
                   <p className="text-xs text-success flex items-center gap-1 mt-1">
                     <Brain className="w-3 h-3" />
                     Target: 90%
                   </p>
                 </div>
-                <Target className="w-6 h-6 text-blue-500 opacity-60" />
+                <Target className="w-5 h-5 text-blue-500 opacity-60" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-success/5 to-success/10 border-success/20">
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">System Health</p>
-                  <p className="text-xl font-bold text-foreground">Healthy</p>
+                  <p className="text-xs font-medium text-muted-foreground">System Health</p>
+                  <p className="text-lg font-bold text-foreground">Healthy</p>
                   <p className="text-xs text-success flex items-center gap-1 mt-1">
                     <DollarSign className="w-3 h-3" />
                     All criteria passing
                   </p>
                 </div>
-                <Activity className="w-6 h-6 text-success opacity-60" />
+                <Activity className="w-5 h-5 text-success opacity-60" />
               </div>
             </CardContent>
           </Card>
@@ -125,7 +126,7 @@ const AdSignalHijackDashboard = () => {
       {/* Main Production System - Fills remaining space */}
       <div className="flex-1 min-h-0 overflow-hidden">
         <Tabs defaultValue="hotad-detection" className="h-full flex flex-col">
-          <div className="flex-shrink-0 px-6 pt-4 bg-background">
+          <div className="flex-shrink-0 px-4 py-2 bg-background">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="hotad-detection" className="flex items-center gap-2 text-sm">
                 <Zap className="w-3 h-3" />
@@ -155,33 +156,33 @@ const AdSignalHijackDashboard = () => {
             </TabsList>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-auto">
+          <div className="flex-1 min-h-0 overflow-hidden">
             <TabsContent value="hotad-detection" className="h-full m-0 p-0">
-              <div className="h-full overflow-auto p-6">
+              <div className="h-full overflow-auto p-4">
                 <RealTimeHotAdDetector />
               </div>
             </TabsContent>
 
             <TabsContent value="warm-leads" className="h-full m-0 p-0">
-              <div className="h-full overflow-auto p-6">
+              <div className="h-full overflow-auto p-4">
                 <WarmLeadDetector />
               </div>
             </TabsContent>
 
             <TabsContent value="ad-hijack" className="h-full m-0 p-0">
-              <div className="h-full overflow-auto p-6">
+              <div className="h-full overflow-auto p-4">
                 <CompetitorHijackAnalysis />
               </div>
             </TabsContent>
 
             <TabsContent value="campaign-gen" className="h-full m-0 p-0">
-              <div className="h-full overflow-auto p-6">
+              <div className="h-full overflow-auto p-4">
                 <CampaignGenerator />
               </div>
             </TabsContent>
 
             <TabsContent value="precision-target" className="h-full m-0 p-0">
-              <div className="h-full overflow-auto p-6">
+              <div className="h-full overflow-auto p-4">
                 <PrecisionTargeting />
               </div>
             </TabsContent>

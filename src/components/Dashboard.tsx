@@ -20,13 +20,13 @@ const Dashboard = () => {
   return (
     <div className="h-screen w-full overflow-hidden flex flex-col bg-background">
       {/* Header - Fixed */}
-      <div className="flex-shrink-0 p-6 border-b border-border bg-background">
+      <div className="flex-shrink-0 p-4 border-b border-border bg-background">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-1">
               Specter Insights Dashboard Nexus
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Competitive intelligence & reverse engineering platform
             </p>
           </div>
@@ -40,11 +40,11 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content - Scrollable */}
-      <div className="flex-1 min-h-0 overflow-auto">
+      <div className="flex-1 min-h-0 overflow-hidden">
         <div className="h-full">
           <Tabs defaultValue="ad-hijack" className="h-full flex flex-col">
             {/* Tabs List - Fixed */}
-            <div className="flex-shrink-0 px-6 pt-4 bg-background">
+            <div className="flex-shrink-0 px-4 py-2 bg-background">
               <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="ad-hijack" className="flex items-center gap-2 text-sm">
                   <Zap className="w-4 h-4" />
@@ -80,22 +80,22 @@ const Dashboard = () => {
             </div>
 
             {/* Tab Content - Fills remaining space */}
-            <div className="flex-1 min-h-0 overflow-auto">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <TabsContent value="ad-hijack" className="h-full m-0 p-0">
-                <div className="h-full overflow-auto">
+                <div className="h-full overflow-hidden">
                   <AdSignalHijackDashboard />
                 </div>
               </TabsContent>
 
               <TabsContent value="ad-signal" className="h-full m-0 p-0">
-                <div className="h-full overflow-auto">
+                <div className="h-full overflow-hidden">
                   <AdSignalDashboard />
                 </div>
               </TabsContent>
 
               <TabsContent value="market-intel" className="h-full m-0 p-0">
-                <div className="h-full flex items-center justify-center">
-                  <Card className="w-full max-w-md mx-6">
+                <div className="h-full flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Shield className="w-5 h-5 text-primary" />
@@ -112,8 +112,8 @@ const Dashboard = () => {
               </TabsContent>
 
               <TabsContent value="leads" className="h-full m-0 p-0">
-                <div className="h-full flex items-center justify-center">
-                  <Card className="w-full max-w-md mx-6">
+                <div className="h-full flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Users className="w-5 h-5 text-primary" />
@@ -130,8 +130,8 @@ const Dashboard = () => {
               </TabsContent>
 
               <TabsContent value="performance" className="h-full m-0 p-0">
-                <div className="h-full flex items-center justify-center">
-                  <Card className="w-full max-w-md mx-6">
+                <div className="h-full flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Activity className="w-5 h-5 text-primary" />
@@ -148,8 +148,8 @@ const Dashboard = () => {
               </TabsContent>
 
               <TabsContent value="alerts" className="h-full m-0 p-0">
-                <div className="h-full flex items-center justify-center">
-                  <Card className="w-full max-w-md mx-6">
+                <div className="h-full flex items-center justify-center p-4">
+                  <Card className="w-full max-w-md">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5 text-primary" />
