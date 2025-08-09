@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,8 +12,9 @@ import {
   Tooltip, 
   ResponsiveContainer,
   ReferenceLine,
+  ScatterChart,
   Scatter,
-  ScatterChart
+  Cell
 } from 'recharts';
 import { 
   Activity, 
@@ -20,9 +22,11 @@ import {
   AlertTriangle, 
   Play, 
   Pause,
-  BarChart3
+  BarChart3,
+  MousePointer
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import InteractiveSpikeTooltip from './InteractiveSpikeTooltip';
 
 interface EngagementDataPoint {
   timestamp: string;
@@ -33,6 +37,9 @@ interface EngagementDataPoint {
   platform: string;
   competitor: string;
   isSpike: boolean;
+  likes?: number;
+  comments?: number;
+  shares?: number;
 }
 
 interface SpikeEvent {
@@ -43,6 +50,9 @@ interface SpikeEvent {
   impressions: number;
   clicks: number;
   type: 'impressions' | 'clicks' | 'both';
+  likes?: number;
+  comments?: number;
+  shares?: number;
 }
 
 const RealTimeEngagementSpikes = () => {
@@ -50,23 +60,25 @@ const RealTimeEngagementSpikes = () => {
   const [data, setData] = useState<EngagementDataPoint[]>([]);
   const [spikes, setSpikes] = useState<SpikeEvent[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedSpike, setSelectedSpike] = useState<EngagementDataPoint | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const intervalRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
-  // Mock engagement events data (simulating the CSV data)
+  // Enhanced mock events data with additional engagement metrics
   const mockEvents = [
-    { ad_id: 'ad_001', platform: 'facebook', competitor: 'TechFlow Solutions', impressions: 1200, clicks: 45 },
-    { ad_id: 'ad_002', platform: 'google', competitor: 'DataDriven Analytics', impressions: 1800, clicks: 67 },
-    { ad_id: 'ad_003', platform: 'youtube', competitor: 'InnovateNow Corp', impressions: 2500, clicks: 120 }, // Spike
-    { ad_id: 'ad_004', platform: 'facebook', competitor: 'NextGen Dynamics', impressions: 1400, clicks: 52 },
-    { ad_id: 'ad_005', platform: 'google', competitor: 'Digital Pioneers', impressions: 1600, clicks: 58 },
-    { ad_id: 'ad_006', platform: 'facebook', competitor: 'TechFlow Solutions', impressions: 3200, clicks: 89 }, // Spike
-    { ad_id: 'ad_007', platform: 'youtube', competitor: 'DataDriven Analytics', impressions: 1900, clicks: 71 },
-    { ad_id: 'ad_008', platform: 'google', competitor: 'InnovateNow Corp', impressions: 2800, clicks: 145 }, // Spike
-    { ad_id: 'ad_009', platform: 'facebook', competitor: 'NextGen Dynamics', impressions: 1300, clicks: 48 },
-    { ad_id: 'ad_010', platform: 'youtube', competitor: 'Digital Pioneers', impressions: 2100, clicks: 95 },
-    { ad_id: 'ad_011', platform: 'google', competitor: 'TechFlow Solutions', impressions: 4100, clicks: 178 }, // Major spike
-    { ad_id: 'ad_012', platform: 'facebook', competitor: 'DataDriven Analytics', impressions: 1500, clicks: 56 }
+    { ad_id: 'ad_001', platform: 'facebook', competitor: 'TechFlow Solutions', impressions: 1200, clicks: 45, likes: 23, comments: 8, shares: 5 },
+    { ad_id: 'ad_002', platform: 'google', competitor: 'DataDriven Analytics', impressions: 1800, clicks: 67, likes: 35, comments: 12, shares: 8 },
+    { ad_id: 'ad_003', platform: 'youtube', competitor: 'InnovateNow Corp', impressions: 2500, clicks: 120, likes: 89, comments: 25, shares: 18 }, // Spike
+    { ad_id: 'ad_004', platform: 'facebook', competitor: 'NextGen Dynamics', impressions: 1400, clicks: 52, likes: 28, comments: 9, shares: 6 },
+    { ad_id: 'ad_005', platform: 'google', competitor: 'Digital Pioneers', impressions: 1600, clicks: 58, likes: 31, comments: 11, shares: 7 },
+    { ad_id: 'ad_006', platform: 'facebook', competitor: 'TechFlow Solutions', impressions: 3200, clicks: 89, likes: 156, comments: 34, shares: 23 }, // Spike
+    { ad_id: 'ad_007', platform: 'youtube', competitor: 'DataDriven Analytics', impressions: 1900, clicks: 71, likes: 42, comments: 15, shares: 9 },
+    { ad_id: 'ad_008', platform: 'google', competitor: 'InnovateNow Corp', impressions: 2800, clicks: 145, likes: 78, comments: 28, shares: 19 }, // Spike
+    { ad_id: 'ad_009', platform: 'facebook', competitor: 'NextGen Dynamics', impressions: 1300, clicks: 48, likes: 25, comments: 7, shares: 4 },
+    { ad_id: 'ad_010', platform: 'youtube', competitor: 'Digital Pioneers', impressions: 2100, clicks: 95, likes: 52, comments: 18, shares: 12 },
+    { ad_id: 'ad_011', platform: 'google', competitor: 'TechFlow Solutions', impressions: 4100, clicks: 178, likes: 234, comments: 67, shares: 45 }, // Major spike
+    { ad_id: 'ad_012', platform: 'facebook', competitor: 'DataDriven Analytics', impressions: 1500, clicks: 56, likes: 29, comments: 10, shares: 6 }
   ];
 
   // Spike detection thresholds
@@ -104,12 +116,14 @@ const RealTimeEngagementSpikes = () => {
       ad_id: event.ad_id,
       platform: event.platform,
       competitor: event.competitor,
-      isSpike
+      isSpike,
+      likes: event.likes,
+      comments: event.comments,
+      shares: event.shares
     };
 
     setData(prev => {
       const newData = [...prev, dataPoint];
-      // Keep only last 20 data points for better visualization
       return newData.slice(-20);
     });
 
@@ -121,14 +135,17 @@ const RealTimeEngagementSpikes = () => {
         competitor: event.competitor,
         impressions: event.impressions,
         clicks: event.clicks,
-        type: spikeType
+        type: spikeType,
+        likes: event.likes,
+        comments: event.comments,
+        shares: event.shares
       };
 
-      setSpikes(prev => [spike, ...prev.slice(0, 4)]); // Keep last 5 spikes
+      setSpikes(prev => [spike, ...prev.slice(0, 4)]);
 
       toast({
         title: "🚨 Engagement Spike Detected!",
-        description: `${event.platform} - ${event.competitor} (${event.ad_id})`,
+        description: `${event.platform} - ${event.competitor} (${event.ad_id}) - Click spike dot for details`,
         variant: "destructive"
       });
     }
@@ -138,7 +155,7 @@ const RealTimeEngagementSpikes = () => {
 
   const startSimulation = () => {
     setIsRunning(true);
-    intervalRef.current = setInterval(processNextEvent, 2000); // 2 second intervals
+    intervalRef.current = setInterval(processNextEvent, 2000);
   };
 
   const stopSimulation = () => {
@@ -153,6 +170,28 @@ const RealTimeEngagementSpikes = () => {
     setData([]);
     setSpikes([]);
     setCurrentIndex(0);
+    setSelectedSpike(null);
+  };
+
+  const handleSpikeClick = (entry: any, event: any) => {
+    if (entry && entry.payload && entry.payload.isSpike) {
+      setSelectedSpike(entry.payload);
+      setTooltipPosition({ 
+        x: event.activeLabel || event.chartX || 0, 
+        y: event.chartY || 0 
+      });
+      
+      console.log("\n=== AD DETAILS ===");
+      console.log(`Ad ID: ${entry.payload.ad_id} | Platform: ${entry.payload.platform} | Competitor: ${entry.payload.competitor}`);
+      console.log(`Impressions: ${entry.payload.impressions} | Clicks: ${entry.payload.clicks}`);
+      console.log("==================\n");
+    }
+  };
+
+  const handleViewSnapshot = (adId: string) => {
+    const mockSnapshotUrl = `https://example.com/snapshots/${adId}`;
+    window.open(mockSnapshotUrl, '_blank');
+    console.log(`Opening snapshot URL: ${mockSnapshotUrl}`);
   };
 
   useEffect(() => {
@@ -174,10 +213,16 @@ const RealTimeEngagementSpikes = () => {
           <p className="text-sm text-muted-foreground">{`${data.platform} - ${data.competitor}`}</p>
           <p className="text-sm text-muted-foreground">{`Ad: ${data.ad_id}`}</p>
           {data.isSpike && (
-            <Badge variant="destructive" className="mt-1">
-              <AlertTriangle className="w-3 h-3 mr-1" />
-              Spike Detected
-            </Badge>
+            <div className="mt-2">
+              <Badge variant="destructive" className="mb-1">
+                <AlertTriangle className="w-3 h-3 mr-1" />
+                Spike Detected - Click for details
+              </Badge>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <MousePointer className="w-3 h-3" />
+                Click spike dot for ad details
+              </div>
+            </div>
           )}
         </div>
       );
@@ -186,14 +231,14 @@ const RealTimeEngagementSpikes = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       {/* Control Header */}
       <Card className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-orange-500/20">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="w-5 h-5 text-orange-500" />
-              Real-Time Engagement Spike Monitor
+              Interactive Engagement Spike Monitor
             </div>
             <div className="flex gap-2">
               <Button
@@ -233,16 +278,20 @@ const RealTimeEngagementSpikes = () => {
             <div className="text-sm text-muted-foreground">
               Spikes Detected: {spikes.length}
             </div>
+            <div className="flex items-center gap-1 text-sm text-blue-400">
+              <MousePointer className="w-3 h-3" />
+              Click red spike dots for details
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Chart Visualization */}
+      {/* Interactive Chart Visualization */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5" />
-            Live Engagement Data
+            Live Engagement Data (Click Spikes for Details)
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -259,7 +308,6 @@ const RealTimeEngagementSpikes = () => {
               <YAxis className="text-sm" />
               <Tooltip content={customTooltip} />
               
-              {/* Threshold lines */}
               <ReferenceLine 
                 y={IMPRESSION_SPIKE_THRESHOLD} 
                 stroke="#ef4444" 
@@ -273,7 +321,7 @@ const RealTimeEngagementSpikes = () => {
                 stroke="#3b82f6"
                 strokeWidth={2}
                 dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6 }}
+                activeDot={{ r: 6, onClick: handleSpikeClick }}
                 name="Impressions"
               />
               <Line
@@ -282,31 +330,46 @@ const RealTimeEngagementSpikes = () => {
                 stroke="#10b981"
                 strokeWidth={2}
                 dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6 }}
+                activeDot={{ r: 6, onClick: handleSpikeClick }}
                 name="Clicks"
               />
               
-              {/* Highlight spike points */}
-              {data
-                .filter(point => point.isSpike)
-                .map((point, index) => (
-                  <Line
-                    key={`spike-${index}`}
-                    type="monotone"
-                    dataKey="impressions"
-                    stroke="#ef4444"
-                    strokeWidth={3}
-                    dot={{ fill: '#ef4444', strokeWidth: 2, r: 8 }}
-                    data={[point]}
-                  />
-                ))
-              }
+              {/* Interactive spike dots overlay */}
+              <ScatterChart data={data.filter(d => d.isSpike)}>
+                <Scatter 
+                  dataKey="impressions" 
+                  fill="#ef4444"
+                  onClick={handleSpikeClick}
+                >
+                  {data.filter(d => d.isSpike).map((entry, index) => (
+                    <Cell key={`spike-${index}`} fill="#ef4444" stroke="#ef4444" strokeWidth={3} r={8} cursor="pointer" />
+                  ))}
+                </Scatter>
+              </ScatterChart>
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      {/* Recent Spikes */}
+      {/* Interactive Spike Tooltip */}
+      {selectedSpike && (
+        <div 
+          style={{
+            position: 'fixed',
+            left: `${Math.min(tooltipPosition.x + 20, window.innerWidth - 340)}px`,
+            top: `${Math.max(tooltipPosition.y - 100, 10)}px`,
+            zIndex: 1000
+          }}
+        >
+          <InteractiveSpikeTooltip
+            data={selectedSpike}
+            onClose={() => setSelectedSpike(null)}
+            onViewSnapshot={handleViewSnapshot}
+          />
+        </div>
+      )}
+
+      {/* Recent Spikes List */}
       {spikes.length > 0 && (
         <Card>
           <CardHeader>
@@ -318,7 +381,12 @@ const RealTimeEngagementSpikes = () => {
           <CardContent>
             <div className="space-y-3">
               {spikes.map((spike, index) => (
-                <div key={index} className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <div key={index} className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg cursor-pointer hover:bg-red-500/15 transition-colors"
+                     onClick={() => setSelectedSpike({
+                       ...spike,
+                       time: spike.timestamp,
+                       isSpike: true
+                     } as EngagementDataPoint)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Badge variant="destructive">
@@ -329,6 +397,11 @@ const RealTimeEngagementSpikes = () => {
                         <div className="text-sm text-muted-foreground">
                           {spike.platform} • {spike.ad_id} • {spike.timestamp}
                         </div>
+                        {spike.likes && (
+                          <div className="text-xs text-muted-foreground">
+                            👍 {spike.likes} • 💬 {spike.comments} • 🔄 {spike.shares}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="text-right">
