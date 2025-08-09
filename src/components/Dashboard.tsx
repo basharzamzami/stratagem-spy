@@ -1,240 +1,173 @@
 
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AdSignalHijackDashboard from './AdSignalHijackDashboard';
+import AdSignalDashboard from './AdSignalDashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { TrendingUp, Target, Eye, Bell, Zap, Users, DollarSign, Activity } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { ApiClient } from '@/services/api';
-import { useNavigate } from 'react-router-dom';
+import { 
+  Target, 
+  Zap, 
+  BarChart3, 
+  Users, 
+  TrendingUp, 
+  AlertTriangle,
+  Activity,
+  Shield
+} from 'lucide-react';
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-
-  // Fetch dashboard data with proper error handling
-  const { data: adsResponse } = useQuery({
-    queryKey: ['ads'],
-    queryFn: () => ApiClient.getAds(),
-  });
-
-  const { data: leadsResponse } = useQuery({
-    queryKey: ['leads'],
-    queryFn: () => ApiClient.searchLeads({}),
-  });
-
-  const { data: alertsResponse } = useQuery({
-    queryKey: ['alerts'],
-    queryFn: () => ApiClient.getAlerts(),
-  });
-
-  // Safely extract data with fallbacks
-  const ads = Array.isArray(adsResponse?.data) ? adsResponse.data : [];
-  const leads = Array.isArray(leadsResponse?.data) ? leadsResponse.data : [];
-  const alerts = Array.isArray(alertsResponse?.data) ? alertsResponse.data : [];
-
-  // Calculate metrics safely
-  const totalAds = ads.length;
-  const warmLeads = leads.filter((lead: any) => lead.intentScore > 80).length;
-  const newAlerts = alerts.filter((alert: any) => !alert.dismissed).length;
-
   return (
-    <div className="w-full max-w-full p-4 space-y-6 overflow-hidden">
-      {/* Header */}
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Specter Insights Dashboard</h1>
-        <p className="text-muted-foreground text-sm lg:text-base">Competitive intelligence & reverse engineering platform</p>
-      </div>
-
-      {/* Status Overview */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="bg-card border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Active Targets</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-card-foreground">247</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 mr-1 text-success" />
-              +12% from last month
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Live Ads Tracked</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-card-foreground">{totalAds.toLocaleString()}</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <Activity className="h-3 w-3 mr-1 text-primary" />
-              Real-time monitoring
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Warm Leads</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-card-foreground">{warmLeads}</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 mr-1 text-success" />
-              +23% conversion rate
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-card-foreground">Revenue Impact</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-card-foreground">$124K</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <TrendingUp className="h-3 w-3 mr-1 text-success" />
-              +45% this quarter
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Intelligence Modules */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-card-foreground">Ad Signal Hijack</CardTitle>
-              <Badge className="bg-success/20 text-success border-success/30">
-                <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
-                Live
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Real-time competitor ad tracking & reverse engineering. Decode winning creative hooks and offers.
+    <div className="h-screen w-full overflow-hidden flex flex-col bg-background">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 p-6 border-b border-border bg-background">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Specter Insights Dashboard Nexus
+            </h1>
+            <p className="text-muted-foreground">
+              Competitive intelligence & reverse engineering platform
             </p>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Ads Analyzed Today:</span>
-              <span className="font-medium text-card-foreground">{totalAds}</span>
-            </div>
-            <Button className="w-full" onClick={() => navigate('/ad-signal-hijack')}>
-              <Eye className="w-4 h-4 mr-2" />
-              View Live Feed
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-card-foreground">Lead Locator</CardTitle>
-              <Badge className="bg-primary/20 text-primary border-primary/30">
-                Active
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              AI-powered warm lead detection from multiple intent signals and behavioral patterns.
-            </p>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">New Leads Today:</span>
-              <span className="font-medium text-card-foreground">{leads.length}</span>
-            </div>
-            <Button className="w-full" variant="outline" onClick={() => navigate('/lead-locator')}>
-              <Target className="w-4 h-4 mr-2" />
-              View Pipeline
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-card-foreground">Change Alerts</CardTitle>
-              <Badge className="bg-warning/20 text-warning border-warning/30">
-                <Bell className="w-3 h-3 mr-1" />
-                {newAlerts} New
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Real-time notifications when competitors change strategies, pricing, or launch new campaigns.
-            </p>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Critical Alerts:</span>
-              <span className="font-medium text-warning">{alerts.filter((alert: any) => alert.severity === 'critical').length}</span>
-            </div>
-            <Button className="w-full" variant="outline" onClick={() => navigate('/change-alerts')}>
-              <Bell className="w-4 h-4 mr-2" />
-              Review Alerts
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-card-foreground">Task Generator</CardTitle>
-              <Badge className="bg-accent/20 text-accent-foreground border-accent/30">
-                AI Powered
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Automatically generate prioritized marketing tasks based on competitive intelligence insights.
-            </p>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Pending Tasks:</span>
-              <span className="font-medium text-card-foreground">12</span>
-            </div>
-            <Button className="w-full" variant="outline" onClick={() => navigate('/task-generator')}>
-              <Zap className="w-4 h-4 mr-2" />
-              Generate Tasks
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-card-foreground">Recent Intelligence</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
-                <span className="text-sm text-card-foreground">New competitor ad detected: "50% Off Holiday Sale"</span>
-              </div>
-              <span className="text-xs text-muted-foreground">2 min ago</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-primary"></div>
-                <span className="text-sm text-card-foreground">Warm lead identified: High-intent search behavior</span>
-              </div>
-              <span className="text-xs text-muted-foreground">8 min ago</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-warning"></div>
-                <span className="text-sm text-card-foreground">Competitor changed pricing structure</span>
-              </div>
-              <span className="text-xs text-muted-foreground">15 min ago</span>
-            </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="bg-success/20 text-success border-success/30">
+              <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
+              Live Intelligence Active
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - Scrollable */}
+      <div className="flex-1 min-h-0 overflow-auto">
+        <div className="h-full">
+          <Tabs defaultValue="ad-hijack" className="h-full flex flex-col">
+            {/* Tabs List - Fixed */}
+            <div className="flex-shrink-0 px-6 pt-4 bg-background">
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="ad-hijack" className="flex items-center gap-2 text-sm">
+                  <Zap className="w-4 h-4" />
+                  <span className="hidden md:inline">Ad Hijack Fusion</span>
+                  <span className="md:hidden">Hijack</span>
+                </TabsTrigger>
+                <TabsTrigger value="ad-signal" className="flex items-center gap-2 text-sm">
+                  <Target className="w-4 h-4" />
+                  <span className="hidden md:inline">Ad Signal</span>
+                  <span className="md:hidden">Signal</span>
+                </TabsTrigger>
+                <TabsTrigger value="market-intel" className="flex items-center gap-2 text-sm">
+                  <BarChart3 className="w-4 h-4" />
+                  <span className="hidden md:inline">Market Intel</span>
+                  <span className="md:hidden">Intel</span>
+                </TabsTrigger>
+                <TabsTrigger value="leads" className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4" />
+                  <span className="hidden md:inline">Leads</span>
+                  <span className="md:hidden">Leads</span>
+                </TabsTrigger>
+                <TabsTrigger value="performance" className="flex items-center gap-2 text-sm">
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="hidden md:inline">Performance</span>
+                  <span className="md:hidden">Perf</span>
+                </TabsTrigger>
+                <TabsTrigger value="alerts" className="flex items-center gap-2 text-sm">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span className="hidden md:inline">Alerts</span>
+                  <span className="md:hidden">Alerts</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Tab Content - Fills remaining space */}
+            <div className="flex-1 min-h-0 overflow-auto">
+              <TabsContent value="ad-hijack" className="h-full m-0 p-0">
+                <div className="h-full overflow-auto">
+                  <AdSignalHijackDashboard />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="ad-signal" className="h-full m-0 p-0">
+                <div className="h-full overflow-auto">
+                  <AdSignalDashboard />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="market-intel" className="h-full m-0 p-0">
+                <div className="h-full flex items-center justify-center">
+                  <Card className="w-full max-w-md mx-6">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-primary" />
+                        Market Intelligence
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Advanced competitive intelligence and market analysis tools
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="leads" className="h-full m-0 p-0">
+                <div className="h-full flex items-center justify-center">
+                  <Card className="w-full max-w-md mx-6">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="w-5 h-5 text-primary" />
+                        Lead Management
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Warm lead detection and prospect management system
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="performance" className="h-full m-0 p-0">
+                <div className="h-full flex items-center justify-center">
+                  <Card className="w-full max-w-md mx-6">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-primary" />
+                        Performance Operations
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Real-time business KPI dashboard and performance tracking
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="alerts" className="h-full m-0 p-0">
+                <div className="h-full flex items-center justify-center">
+                  <Card className="w-full max-w-md mx-6">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-primary" />
+                        Intelligence Alerts
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Real-time competitive intelligence alerts and notifications
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 };
