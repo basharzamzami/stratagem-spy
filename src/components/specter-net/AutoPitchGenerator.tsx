@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { EnhancedLead } from '@/services/specterNetIntegration';
 import { AutoPitch } from '@/services/warmLeadProspector';
 
-interface AutoPitchGeneratorProps {
+export interface AutoPitchGeneratorProps {
   lead: EnhancedLead;
   pitch: AutoPitch;
   onRegeneratePitch: () => void;
@@ -48,6 +47,9 @@ const AutoPitchGenerator: React.FC<AutoPitchGeneratorProps> = ({
     if (pitch && pitch.subject_lines) return pitch;
     
     return {
+      id: `pitch-${Date.now()}`,
+      lead_id: lead.id || `lead-${Date.now()}`,
+      created_at: new Date().toISOString(),
       subject_lines: [
         `Quick question about ${lead.company || 'your company'}'s growth strategy`,
         `Helping ${lead.company || 'companies like yours'} with competitive intelligence`,
