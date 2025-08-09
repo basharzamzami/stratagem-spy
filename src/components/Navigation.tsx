@@ -1,10 +1,35 @@
 
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { ApiClient } from '@/services/api';
 
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Fetch data for dynamic badges
+  const { data: adsResponse } = useQuery({
+    queryKey: ['ads'],
+    queryFn: () => ApiClient.getAds(),
+  });
+
+  const { data: leadsResponse } = useQuery({
+    queryKey: ['leads'],
+    queryFn: () => ApiClient.searchLeads({}),
+  });
+
+  const { data: alertsResponse } = useQuery({
+    queryKey: ['alerts'],
+    queryFn: () => ApiClient.getAlerts(),
+  });
+
+  // Safely extract counts
+  const adsCount = Array.isArray(adsResponse?.data) ? adsResponse.data.length : 0;
+  const leadsCount = Array.isArray(leadsResponse?.data) ? leadsResponse.data.length : 0;
+  const alertsCount = Array.isArray(alertsResponse?.data) 
+    ? alertsResponse.data.filter((alert: any) => !alert.dismissed).length 
+    : 0;
 
   const modules = [
     { 
@@ -19,7 +44,7 @@ const Navigation = () => {
       name: "Ad Signal Hijack", 
       icon: Zap, 
       active: location.pathname === '/ad-signal-hijack', 
-      badge: "34",
+      badge: adsCount > 0 ? adsCount.toString() : null,
       description: "Competitor ad tracking",
       path: "/ad-signal-hijack"
     },
@@ -27,7 +52,7 @@ const Navigation = () => {
       name: "Lead Locator", 
       icon: Users, 
       active: location.pathname === '/lead-locator', 
-      badge: "156",
+      badge: leadsCount > 0 ? leadsCount.toString() : null,
       description: "Prospect identification",
       path: "/lead-locator"
     },
@@ -51,7 +76,7 @@ const Navigation = () => {
       name: "Change Alerts", 
       icon: Bell, 
       active: location.pathname === '/change-alerts', 
-      badge: "17",
+      badge: alertsCount > 0 ? alertsCount.toString() : null,
       description: "Real-time monitoring",
       path: "/change-alerts"
     },

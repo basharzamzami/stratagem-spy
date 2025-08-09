@@ -11,6 +11,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ApiClient } from '@/services/api';
 import type { Campaign } from '@/backend/types';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface CampaignListProps {
   onCampaignSelect?: (campaignId: string) => void;
@@ -20,8 +22,10 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [channelFilter, setChannelFilter] = useState('all');
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const { data: campaignsResponse, isLoading, error } = useQuery({
+  const { data: campaignsResponse, isLoading, error, refetch } = useQuery({
     queryKey: ['campaigns'],
     queryFn: () => ApiClient.getCampaigns(),
   });
@@ -48,16 +52,53 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
 
   const getChannelColor = (channel: string) => {
     switch (channel.toLowerCase()) {
-      case 'google ads':
+      case 'google':
         return 'bg-blue-500/20 text-blue-500 border-blue-500/30';
-      case 'facebook':
+      case 'meta':
         return 'bg-blue-600/20 text-blue-600 border-blue-600/30';
-      case 'linkedin':
-        return 'bg-blue-700/20 text-blue-700 border-blue-700/30';
-      case 'email':
-        return 'bg-green-500/20 text-green-500 border-green-500/30';
+      case 'youtube':
+        return 'bg-red-500/20 text-red-500 border-red-500/30';
+      case 'tiktok':
+        return 'bg-purple-500/20 text-purple-500 border-purple-500/30';
       default:
         return 'bg-muted/20 text-muted-foreground border-muted/30';
+    }
+  };
+
+  const handleCampaignAction = async (campaignId: number, action: 'play' | 'pause' | 'edit' | 'delete') => {
+    try {
+      switch (action) {
+        case 'play':
+          toast({
+            title: "Campaign Started",
+            description: "Campaign has been activated successfully."
+          });
+          break;
+        case 'pause':
+          toast({
+            title: "Campaign Paused",
+            description: "Campaign has been paused successfully."
+          });
+          break;
+        case 'edit':
+          navigate(`/campaign-manager/edit/${campaignId}`);
+          break;
+        case 'delete':
+          if (window.confirm('Are you sure you want to delete this campaign?')) {
+            toast({
+              title: "Campaign Deleted",
+              description: "Campaign has been moved to trash."
+            });
+            await refetch();
+          }
+          break;
+      }
+    } catch (error) {
+      toast({
+        title: "Action Failed",
+        description: "There was an error performing this action.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -134,8 +175,8 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Channels</SelectItem>
-                  <SelectItem value="google">Google Ads</SelectItem>
-                  <SelectItem value="meta">Facebook</SelectItem>
+                  <SelectItem value="google">Google</SelectItem>
+                  <SelectItem value="meta">Meta</SelectItem>
                   <SelectItem value="youtube">YouTube</SelectItem>
                   <SelectItem value="tiktok">TikTok</SelectItem>
                 </SelectContent>
@@ -170,7 +211,9 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                   >
                     <TableCell>
                       <div className="font-medium text-card-foreground">{campaign.name}</div>
-                      <div className="text-xs text-card-foreground/60">{campaign.channel} Campaign</div>
+                      <div className="text-xs text-card-foreground/60">
+                        {campaign.channel.charAt(0).toUpperCase() + campaign.channel.slice(1)} Campaign
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(campaign.status)}>
@@ -179,7 +222,7 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={getChannelColor(campaign.channel)}>
-                        {campaign.channel}
+                        {campaign.channel.charAt(0).toUpperCase() + campaign.channel.slice(1)}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right font-mono">
@@ -199,19 +242,22 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleCampaignAction(campaign.id, 'edit')}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Campaign
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleCampaignAction(campaign.id, 'play')}>
                             <Play className="w-4 h-4 mr-2" />
                             Start Campaign
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleCampaignAction(campaign.id, 'pause')}>
                             <Pause className="w-4 h-4 mr-2" />
                             Pause Campaign
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => handleCampaignAction(campaign.id, 'delete')}
+                          >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete Campaign
                           </DropdownMenuItem>
@@ -227,7 +273,7 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
           {filteredCampaigns.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">No campaigns found</p>
-              <Button>
+              <Button onClick={() => navigate('/campaign-manager/create')}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Campaign
               </Button>

@@ -1,9 +1,41 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, Target, Eye, Bell, Zap, Users, DollarSign, Activity } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { ApiClient } from '@/services/api';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+  // Fetch dashboard data with proper error handling
+  const { data: adsResponse } = useQuery({
+    queryKey: ['ads'],
+    queryFn: () => ApiClient.getAds(),
+  });
+
+  const { data: leadsResponse } = useQuery({
+    queryKey: ['leads'],
+    queryFn: () => ApiClient.searchLeads({}),
+  });
+
+  const { data: alertsResponse } = useQuery({
+    queryKey: ['alerts'],
+    queryFn: () => ApiClient.getAlerts(),
+  });
+
+  // Safely extract data with fallbacks
+  const ads = Array.isArray(adsResponse?.data) ? adsResponse.data : [];
+  const leads = Array.isArray(leadsResponse?.data) ? leadsResponse.data : [];
+  const alerts = Array.isArray(alertsResponse?.data) ? alertsResponse.data : [];
+
+  // Calculate metrics safely
+  const totalAds = ads.length;
+  const warmLeads = leads.filter((lead: any) => lead.intentScore > 80).length;
+  const newAlerts = alerts.filter((alert: any) => !alert.dismissed).length;
+
   return (
     <div className="w-full max-w-full p-4 space-y-6 overflow-hidden">
       {/* Header */}
@@ -34,7 +66,7 @@ const Dashboard = () => {
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-card-foreground">1,543</div>
+            <div className="text-2xl font-bold text-card-foreground">{totalAds.toLocaleString()}</div>
             <div className="flex items-center text-xs text-muted-foreground">
               <Activity className="h-3 w-3 mr-1 text-primary" />
               Real-time monitoring
@@ -48,7 +80,7 @@ const Dashboard = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-card-foreground">89</div>
+            <div className="text-2xl font-bold text-card-foreground">{warmLeads}</div>
             <div className="flex items-center text-xs text-muted-foreground">
               <TrendingUp className="h-3 w-3 mr-1 text-success" />
               +23% conversion rate
@@ -89,9 +121,9 @@ const Dashboard = () => {
             </p>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Ads Analyzed Today:</span>
-              <span className="font-medium text-card-foreground">342</span>
+              <span className="font-medium text-card-foreground">{totalAds}</span>
             </div>
-            <Button className="w-full">
+            <Button className="w-full" onClick={() => navigate('/ad-signal-hijack')}>
               <Eye className="w-4 h-4 mr-2" />
               View Live Feed
             </Button>
@@ -113,9 +145,9 @@ const Dashboard = () => {
             </p>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">New Leads Today:</span>
-              <span className="font-medium text-card-foreground">23</span>
+              <span className="font-medium text-card-foreground">{leads.length}</span>
             </div>
-            <Button className="w-full" variant="outline">
+            <Button className="w-full" variant="outline" onClick={() => navigate('/lead-locator')}>
               <Target className="w-4 h-4 mr-2" />
               View Pipeline
             </Button>
@@ -128,7 +160,7 @@ const Dashboard = () => {
               <CardTitle className="text-lg font-semibold text-card-foreground">Change Alerts</CardTitle>
               <Badge className="bg-warning/20 text-warning border-warning/30">
                 <Bell className="w-3 h-3 mr-1" />
-                17 New
+                {newAlerts} New
               </Badge>
             </div>
           </CardHeader>
@@ -138,9 +170,9 @@ const Dashboard = () => {
             </p>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Critical Alerts:</span>
-              <span className="font-medium text-warning">3</span>
+              <span className="font-medium text-warning">{alerts.filter((alert: any) => alert.severity === 'critical').length}</span>
             </div>
-            <Button className="w-full" variant="outline">
+            <Button className="w-full" variant="outline" onClick={() => navigate('/change-alerts')}>
               <Bell className="w-4 h-4 mr-2" />
               Review Alerts
             </Button>
@@ -164,7 +196,7 @@ const Dashboard = () => {
               <span className="text-muted-foreground">Pending Tasks:</span>
               <span className="font-medium text-card-foreground">12</span>
             </div>
-            <Button className="w-full" variant="outline">
+            <Button className="w-full" variant="outline" onClick={() => navigate('/task-generator')}>
               <Zap className="w-4 h-4 mr-2" />
               Generate Tasks
             </Button>
