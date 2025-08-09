@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,15 +5,15 @@ import { TrendingUp, Target, Eye, Bell, Zap, Users, DollarSign, Activity } from 
 
 const Dashboard = () => {
   return (
-    <div className="min-h-screen w-full p-6 space-y-6">
+    <div className="w-full max-w-full p-4 space-y-6 overflow-hidden">
       {/* Header */}
       <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold text-foreground">Specter Insights Dashboard</h1>
-        <p className="text-muted-foreground">Competitive intelligence & reverse engineering platform</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Specter Insights Dashboard</h1>
+        <p className="text-muted-foreground text-sm lg:text-base">Competitive intelligence & reverse engineering platform</p>
       </div>
 
       {/* Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-card-foreground">Active Targets</CardTitle>
@@ -73,7 +72,7 @@ const Dashboard = () => {
       </div>
 
       {/* Intelligence Modules */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Card className="bg-card border-border">
           <CardHeader>
             <div className="flex items-center justify-between">

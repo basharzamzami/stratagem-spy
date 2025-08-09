@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,7 +23,9 @@ const CampaignDashboard = () => {
   });
 
   // Calculate metrics from the actual data with proper type checking
-  const campaigns: Campaign[] = Array.isArray(campaignsResponse?.data) ? campaignsResponse.data : [];
+  const campaigns: Campaign[] = Array.isArray(campaignsResponse?.data) 
+    ? (campaignsResponse.data as Campaign[])
+    : [];
   const activeCampaigns = campaigns.filter((c: Campaign) => c.status === 'active').length;
   const totalSpend = campaigns.reduce((sum: number, c: Campaign) => sum + (c.spent || 0), 0);
   const averageRoas = campaigns.length > 0 
@@ -71,9 +72,9 @@ const CampaignDashboard = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-full">
+    <div className="w-full max-w-full space-y-4 overflow-hidden">
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="bg-card border-border">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-card-foreground/70">Active Campaigns</CardTitle>
@@ -135,62 +136,62 @@ const CampaignDashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="flex flex-wrap items-center gap-4">
-        <Button className="bg-primary hover:bg-primary/90">
+      <div className="flex flex-wrap items-center gap-3">
+        <Button className="bg-primary hover:bg-primary/90 text-sm">
           <Plus className="w-4 h-4 mr-2" />
           New Campaign
         </Button>
-        <Button variant="outline">
+        <Button variant="outline" size="sm">
           <Play className="w-4 h-4 mr-2" />
           Start Automation
         </Button>
-        <Button variant="outline">
+        <Button variant="outline" size="sm">
           <Pause className="w-4 h-4 mr-2" />
           Pause All
         </Button>
       </div>
 
-      <Tabs defaultValue="campaigns" className="flex flex-col min-h-0">
-        <TabsList className="grid w-full grid-cols-4 mb-6">
-          <TabsTrigger value="campaigns" className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Campaigns
+      <Tabs defaultValue="campaigns" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="campaigns" className="flex items-center gap-2 text-xs">
+            <TrendingUp className="w-3 h-3" />
+            <span className="hidden sm:inline">Campaigns</span>
           </TabsTrigger>
-          <TabsTrigger value="automation" className="flex items-center gap-2">
-            <Zap className="w-4 h-4" />
-            Automation
+          <TabsTrigger value="automation" className="flex items-center gap-2 text-xs">
+            <Zap className="w-3 h-3" />
+            <span className="hidden sm:inline">Automation</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            Analytics
+          <TabsTrigger value="analytics" className="flex items-center gap-2 text-xs">
+            <BarChart3 className="w-3 h-3" />
+            <span className="hidden sm:inline">Analytics</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
-            Settings
+          <TabsTrigger value="settings" className="flex items-center gap-2 text-xs">
+            <Settings className="w-3 h-3" />
+            <span className="hidden sm:inline">Settings</span>
           </TabsTrigger>
         </TabsList>
 
-        <div className="flex-1 min-h-0">
-          <TabsContent value="campaigns" className="mt-0 h-full">
-            <div className="h-full overflow-auto">
+        <div className="mt-4 w-full overflow-hidden">
+          <TabsContent value="campaigns" className="mt-0 w-full">
+            <div className="w-full overflow-hidden">
               <CampaignList onCampaignSelect={handleCampaignSelect} />
             </div>
           </TabsContent>
 
-          <TabsContent value="automation" className="mt-0 h-full">
-            <div className="h-full overflow-auto">
+          <TabsContent value="automation" className="mt-0 w-full">
+            <div className="w-full overflow-hidden">
               <CampaignAutomation />
             </div>
           </TabsContent>
 
-          <TabsContent value="analytics" className="mt-0 h-full">
-            <div className="h-full overflow-auto">
+          <TabsContent value="analytics" className="mt-0 w-full">
+            <div className="w-full overflow-hidden">
               <CampaignAnalytics />
             </div>
           </TabsContent>
 
-          <TabsContent value="settings" className="mt-0 h-full">
-            <div className="h-full overflow-auto">
+          <TabsContent value="settings" className="mt-0 w-full">
+            <div className="w-full overflow-hidden">
               <CampaignSettings />
             </div>
           </TabsContent>
