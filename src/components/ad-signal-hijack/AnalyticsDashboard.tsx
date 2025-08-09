@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
 import { useQuery } from "@tanstack/react-query";
 import { SearchFilters } from "@/services/adSignal";
+import AnalyticsSkeleton from "./Analytics.Skeleton";
 
 export default function AnalyticsDashboard({ filters }: { filters: SearchFilters }) {
   const { data, isFetching, isError } = useQuery({
@@ -17,9 +18,9 @@ export default function AnalyticsDashboard({ filters }: { filters: SearchFilters
     <Card className="saas-card p-6">
       <CardContent>
         <h3 className="text-xl font-semibold mb-4">Ad Analysis Dashboard</h3>
-        {isFetching && <div className="text-sm text-muted-foreground">Loading analytics…</div>}
+        {isFetching && <AnalyticsSkeleton />}
         {isError && <div className="text-sm text-destructive">Failed to load analytics</div>}
-        {data && (
+        {data && !isFetching && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ChartContainer config={{}}>
               <div className="text-sm">Angles: Emotional {data.angles.emotional}, Logical {data.angles.logical}</div>
