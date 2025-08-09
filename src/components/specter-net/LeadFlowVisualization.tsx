@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,7 +68,12 @@ const LeadFlowVisualization = ({ leads }: LeadFlowVisualizationProps) => {
       }
     });
     
-    return Array.from(regionMap.values()).sort((a, b) => b.leadCount - a.leadCount);
+    const result: LeadHeatmapData[] = [];
+    regionMap.forEach((value) => {
+      result.push(value);
+    });
+    
+    return result.sort((a, b) => b.leadCount - a.leadCount);
   };
 
   // Generate source performance data
@@ -92,7 +96,12 @@ const LeadFlowVisualization = ({ leads }: LeadFlowVisualizationProps) => {
       }
     });
     
-    return Array.from(sourceMap.values()).sort((a, b) => b.leadCount - a.leadCount);
+    const result: SourcePerformance[] = [];
+    sourceMap.forEach((value) => {
+      result.push(value);
+    });
+    
+    return result.sort((a, b) => b.leadCount - a.leadCount);
   };
 
   const getCoordinates = (state: string, city: string): [number, number] => {
