@@ -62,7 +62,7 @@ export default function AdSignalHijack() {
       
       const response = await ApiClient.getAds(params);
       if (response.status === 'success' && response.data) {
-        setAds(response.data);
+        setAds(response.data as AdItem[]);
       } else {
         toast({
           title: "Error",
@@ -86,7 +86,7 @@ export default function AdSignalHijack() {
     try {
       const response = await ApiClient.getAdAnalytics();
       if (response.status === 'success' && response.data) {
-        setAnalytics(response.data);
+        setAnalytics(response.data as AdAnalytics);
       }
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
