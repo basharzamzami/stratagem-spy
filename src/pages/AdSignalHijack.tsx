@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,9 +16,12 @@ import {
   DollarSign,
   TrendingUp,
   ExternalLink,
-  Copy
+  Copy,
+  AlertCircle,
+  Wifi,
+  WifiOff
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ApiClient } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
@@ -76,15 +80,18 @@ export default function AdSignalHijack() {
   const [ads, setAds] = useState<AdItem[]>([]);
   const [analytics, setAnalytics] = useState<AdAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [selectedCompetitor, setSelectedCompetitor] = useState<string>('all');
   const [selectedAd, setSelectedAd] = useState<ServiceAdItem | null>(null);
   const [isLive, setIsLive] = useState(true);
-  const { toast } = useToast();
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const { toast } = useToast();
 
-  const fetchAds = async () => {
+  const fetchAds = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       const params = {
         ...(selectedPlatform !== 'all' && { platform: selectedPlatform }),
@@ -92,28 +99,31 @@ export default function AdSignalHijack() {
       };
       
       const response = await ApiClient.getAds(params);
+      
       if (response.status === 'success' && response.data) {
         setAds(response.data as AdItem[]);
       } else {
-        toast({
-          title: "Error",
-          description: response.message || "Failed to fetch ads",
-          variant: "destructive"
-        });
+        throw new Error(response.message || "Failed to fetch ads");
       }
     } catch (error) {
       console.error('Failed to fetch ads:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to connect to API";
+      setError(errorMessage);
+      
       toast({
-        title: "Error",
-        description: "Failed to connect to API",
+        title: "Connection Error",
+        description: "Using demo data while API is unavailable",
         variant: "destructive"
       });
+      
+      // Fallback to demo data
+      setAds(generateDemoAds());
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedPlatform, selectedCompetitor, toast]);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const response = await ApiClient.getAdAnalytics();
       if (response.status === 'success' && response.data) {
@@ -121,40 +131,97 @@ export default function AdSignalHijack() {
       }
     } catch (error) {
       console.error('Failed to fetch analytics:', error);
+      // Fallback to demo analytics
+      setAnalytics(generateDemoAnalytics());
     }
-  };
+  }, []);
+
+  // Generate demo data when API is unavailable
+  const generateDemoAds = (): AdItem[] => [
+    {
+      id: 1,
+      platform: 'Meta',
+      competitor: 'Competitor A',
+      title: 'Revolutionary Marketing Solution',
+      description: 'Transform your business with our cutting-edge tools',
+      cta: 'Get Started Free',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop',
+      date: '2024-01-15',
+      engagement: 1250,
+      spend: 2500,
+      impressions: 45000,
+      clicks: 890,
+      ctr: 1.98,
+      creative_type: 'image',
+      active: true
+    },
+    {
+      id: 2,
+      platform: 'Google',
+      competitor: 'Competitor B',
+      title: 'Boost Your ROI by 300%',
+      description: 'Proven strategies that deliver results',
+      cta: 'Learn More',
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=200&fit=crop',
+      date: '2024-01-14',
+      engagement: 980,
+      spend: 1800,
+      impressions: 32000,
+      clicks: 640,
+      ctr: 2.0,
+      creative_type: 'image',
+      active: true
+    }
+  ];
+
+  const generateDemoAnalytics = (): AdAnalytics => ({
+    totalAds: 25,
+    totalSpend: 45000,
+    totalImpressions: 890000,
+    totalClicks: 17800,
+    avgCTR: 2.1,
+    byPlatform: {
+      Meta: 12,
+      Google: 8,
+      YouTube: 3,
+      TikTok: 2
+    }
+  });
 
   useEffect(() => {
     fetchAds();
     fetchAnalytics();
-  }, [selectedPlatform, selectedCompetitor]);
+  }, [fetchAds, fetchAnalytics]);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     fetchAds();
     fetchAnalytics();
     toast({
       title: "Refreshed",
       description: "Data updated successfully"
     });
-  };
+  }, [fetchAds, fetchAnalytics, toast]);
 
-  const handleLiveToggle = () => {
-    setIsLive(!isLive);
-    toast({
-      title: isLive ? "Live monitoring paused" : "Live monitoring resumed",
-      description: isLive 
-        ? "Ad feed will no longer update automatically" 
-        : "Feed will now update in real-time"
+  const handleLiveToggle = useCallback(() => {
+    setIsLive(prev => {
+      const newState = !prev;
+      toast({
+        title: newState ? "Live monitoring resumed" : "Live monitoring paused",
+        description: newState 
+          ? "Feed will now update automatically" 
+          : "Ad feed will no longer update automatically"
+      });
+      return newState;
     });
-  };
+  }, [toast]);
 
-  const handleAnalyzeAd = (ad: AdItem) => {
+  const handleAnalyzeAd = useCallback((ad: AdItem) => {
     const serviceAd = convertToServiceAdItem(ad);
     setSelectedAd(serviceAd);
     setShowAnalysisModal(true);
-  };
+  }, []);
 
-  const handleCopyStrategy = async (ad: AdItem) => {
+  const handleCopyStrategy = useCallback(async (ad: AdItem) => {
     const strategyText = `
 Ad Strategy Analysis:
 Competitor: ${ad.competitor}
@@ -180,14 +247,14 @@ CTR: ${ad.ctr}%
         variant: "destructive"
       });
     }
-  };
+  }, [toast]);
 
-  const handleViewOriginal = (ad: AdItem) => {
+  const handleViewOriginal = useCallback((ad: AdItem) => {
     toast({
       title: "Opening original ad",
       description: `Redirecting to ${ad.platform} to view the source`
     });
-  };
+  }, [toast]);
 
   const platforms = ['all', 'Meta', 'Google', 'YouTube', 'TikTok'];
   const competitors = ['all', ...Array.from(new Set(ads.map(ad => ad.competitor)))];
@@ -200,7 +267,47 @@ CTR: ${ad.ctr}%
           <div className="mb-8 sticky top-0 bg-background z-10 border-b border-border pb-4">
             <PageHeader title="Ad Signal Hijack" subtitle="Real-time competitor ad tracking & decoding" />
             
-            {/* Enhanced Filters and Controls */}
+            {/* Enhanced Status Bar */}
+            <div className="flex items-center justify-between mt-4 p-3 bg-card rounded-lg border">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  {error ? <WifiOff className="w-4 h-4 text-destructive" /> : <Wifi className="w-4 h-4 text-success" />}
+                  <span className="text-sm font-medium">
+                    {error ? 'Offline Mode' : 'Connected'}
+                  </span>
+                  {error && (
+                    <Badge variant="outline" className="text-xs">
+                      Demo Data
+                    </Badge>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-success animate-pulse' : 'bg-muted-foreground'}`} />
+                  <span className="text-xs font-medium">
+                    {isLoading ? 'LOADING' : isLive ? 'LIVE' : 'PAUSED'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={isLive ? "default" : "outline"}
+                  size="sm"
+                  onClick={handleLiveToggle}
+                  className="min-w-[80px]"
+                >
+                  {isLive ? 'Live' : 'Paused'}
+                </Button>
+                
+                <Button variant="outline" onClick={handleRefresh} disabled={isLoading} size="sm">
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
+            </div>
+            
+            {/* Enhanced Filters */}
             <div className="flex items-center gap-4 mt-4 flex-wrap">
               <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
                 <SelectTrigger className="w-[180px]">
@@ -228,29 +335,32 @@ CTR: ${ad.ctr}%
                 </SelectContent>
               </Select>
 
-              <Button variant="outline" onClick={handleRefresh} disabled={isLoading}>
-                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-
-              <Button
-                variant={isLive ? "default" : "outline"}
-                size="sm"
-                onClick={handleLiveToggle}
-              >
-                {isLive ? 'Live' : 'Paused'}
-              </Button>
-
-              <div className="ml-auto flex items-center gap-2 px-3 py-1 bg-success/10 rounded-full">
-                <div className={`w-2 h-2 rounded-full bg-success ${isLive ? 'animate-pulse' : ''}`} />
-                <span className="text-xs font-medium text-success">
-                  {isLoading ? 'LOADING' : isLive ? 'LIVE' : 'PAUSED'}
-                </span>
-              </div>
+              {ads.length > 0 && (
+                <Badge variant="secondary" className="ml-auto">
+                  {ads.length} ads found
+                </Badge>
+              )}
             </div>
           </div>
 
-          {/* Enhanced Analytics Overview */}
+          {/* Error State */}
+          {error && (
+            <Card className="mb-6 border-warning/50 bg-warning/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-warning" />
+                  <div>
+                    <h3 className="font-semibold text-warning">API Connection Issue</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Unable to connect to the backend API. Showing demo data for preview.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Analytics Overview */}
           {analytics && (
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
               <Card className="bg-primary/5 border-primary/20">
@@ -289,22 +399,21 @@ CTR: ${ad.ctr}%
               
               <Card className="bg-purple-500/5 border-purple-500/20">
                 <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground">AI Insights</div>
+                  <div className="text-sm text-muted-foreground">Avg CTR</div>
                   <div className="text-2xl font-bold text-purple-400">
-                    {Math.floor(analytics.totalAds * 0.8)}
+                    {analytics.avgCTR.toFixed(1)}%
                   </div>
-                  <div className="text-xs text-muted-foreground">Analyzed</div>
                 </CardContent>
               </Card>
             </div>
           )}
 
-          {/* Enhanced Main Content */}
+          {/* Main Content */}
           <Tabs defaultValue="feed" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="feed" className="flex items-center gap-2">
                 <Eye className="w-4 h-4" />
-                Live Ad Feed ({ads.length})
+                Live Feed ({ads.length})
               </TabsTrigger>
               <TabsTrigger value="insights" className="flex items-center gap-2">
                 <Brain className="w-4 h-4" />
@@ -323,15 +432,20 @@ CTR: ${ad.ctr}%
             <TabsContent value="feed">
               <Card className="p-6">
                 <CardContent className="p-0">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                  {isLoading && ads.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4" />
+                      <p className="text-muted-foreground">Loading competitor ads...</p>
                     </div>
                   ) : ads.length === 0 ? (
                     <div className="text-center py-12">
                       <Eye className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                       <h3 className="text-lg font-semibold mb-2">No ads found</h3>
-                      <p className="text-muted-foreground">Try adjusting your filters</p>
+                      <p className="text-muted-foreground mb-4">Try adjusting your filters or check your connection</p>
+                      <Button onClick={handleRefresh} variant="outline">
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Try Again
+                      </Button>
                     </div>
                   ) : (
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -345,6 +459,7 @@ CTR: ${ad.ctr}%
                               src={ad.image || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=200&fit=crop"} 
                               alt={ad.title}
                               className="w-full h-48 object-cover rounded-t-lg"
+                              loading="lazy"
                             />
                             <Badge 
                               variant="secondary" 
@@ -352,6 +467,13 @@ CTR: ${ad.ctr}%
                             >
                               {ad.platform}
                             </Badge>
+                            {ad.active && (
+                              <Badge 
+                                className="absolute top-2 left-2 bg-success/10 text-success"
+                              >
+                                Live
+                              </Badge>
+                            )}
                           </div>
                           
                           <div className="p-4">
@@ -371,13 +493,13 @@ CTR: ${ad.ctr}%
                                 <div className="flex items-center justify-center gap-1">
                                   <DollarSign className="w-3 h-3" />
                                 </div>
-                                <div className="font-medium">${ad.spend}</div>
+                                <div className="font-medium">${ad.spend.toLocaleString()}</div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center gap-1">
                                   <Eye className="w-3 h-3" />
                                 </div>
-                                <div className="font-medium">{ad.engagement}</div>
+                                <div className="font-medium">{ad.engagement.toLocaleString()}</div>
                               </div>
                               <div className="text-center">
                                 <div className="flex items-center justify-center gap-1">
@@ -409,6 +531,16 @@ CTR: ${ad.ctr}%
                                 }}
                               >
                                 <Copy className="w-3 h-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewOriginal(ad);
+                                }}
+                              >
+                                <ExternalLink className="w-3 h-3" />
                               </Button>
                             </div>
                           </div>
@@ -513,7 +645,6 @@ CTR: ${ad.ctr}%
             </TabsContent>
           </Tabs>
 
-          {/* Enhanced Analysis Modal */}
           <AdAnalysisModal
             ad={selectedAd}
             isOpen={showAnalysisModal}
