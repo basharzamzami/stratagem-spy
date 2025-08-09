@@ -17,36 +17,305 @@ export type Database = {
       ads: {
         Row: {
           ad_creative_url: string | null
+          campaign_type: string | null
           competitor: string
+          creative_hash: string | null
           cta: string | null
           detected_patterns: Json | null
           engagement: Json | null
+          estimated_spend_daily: number | null
           fetched_at: string | null
+          first_seen: string | null
           id: string
+          landing_page_snapshot: string | null
+          landing_page_url: string | null
+          last_seen: string | null
           offer: string | null
           platform: string
+          status: string | null
+          target_audience: Json | null
         }
         Insert: {
           ad_creative_url?: string | null
+          campaign_type?: string | null
           competitor: string
+          creative_hash?: string | null
           cta?: string | null
           detected_patterns?: Json | null
           engagement?: Json | null
+          estimated_spend_daily?: number | null
           fetched_at?: string | null
+          first_seen?: string | null
           id?: string
+          landing_page_snapshot?: string | null
+          landing_page_url?: string | null
+          last_seen?: string | null
           offer?: string | null
           platform: string
+          status?: string | null
+          target_audience?: Json | null
         }
         Update: {
           ad_creative_url?: string | null
+          campaign_type?: string | null
           competitor?: string
+          creative_hash?: string | null
           cta?: string | null
           detected_patterns?: Json | null
           engagement?: Json | null
+          estimated_spend_daily?: number | null
           fetched_at?: string | null
+          first_seen?: string | null
           id?: string
+          landing_page_snapshot?: string | null
+          landing_page_url?: string | null
+          last_seen?: string | null
           offer?: string | null
           platform?: string
+          status?: string | null
+          target_audience?: Json | null
+        }
+        Relationships: []
+      }
+      alerts: {
+        Row: {
+          channels: string[] | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          message: string | null
+          read: boolean | null
+          severity: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          channels?: string[] | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string | null
+          read?: boolean | null
+          severity?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          channels?: string[] | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          message?: string | null
+          read?: boolean | null
+          severity?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      competitors: {
+        Row: {
+          created_at: string | null
+          domain: string | null
+          dominance_score: number | null
+          estimated_monthly_spend: number | null
+          id: string
+          industry: string | null
+          last_activity: string | null
+          location_city: string | null
+          location_state: string | null
+          location_zip: string | null
+          name: string
+          total_ads_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          domain?: string | null
+          dominance_score?: number | null
+          estimated_monthly_spend?: number | null
+          id?: string
+          industry?: string | null
+          last_activity?: string | null
+          location_city?: string | null
+          location_state?: string | null
+          location_zip?: string | null
+          name: string
+          total_ads_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string | null
+          dominance_score?: number | null
+          estimated_monthly_spend?: number | null
+          id?: string
+          industry?: string | null
+          last_activity?: string | null
+          location_city?: string | null
+          location_state?: string | null
+          location_zip?: string | null
+          name?: string
+          total_ads_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          company: string | null
+          created_at: string | null
+          email: string | null
+          enrichment_data: Json | null
+          id: string
+          intent_score: number | null
+          location_city: string | null
+          location_state: string | null
+          location_zip: string | null
+          name: string | null
+          notes: string | null
+          phone: string | null
+          source: string | null
+          source_data: Json | null
+          status: string | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          enrichment_data?: Json | null
+          id?: string
+          intent_score?: number | null
+          location_city?: string | null
+          location_state?: string | null
+          location_zip?: string | null
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          source_data?: Json | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string | null
+          email?: string | null
+          enrichment_data?: Json | null
+          id?: string
+          intent_score?: number | null
+          location_city?: string | null
+          location_state?: string | null
+          location_zip?: string | null
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          source_data?: Json | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      market_dominance: {
+        Row: {
+          ad_presence_score: number | null
+          city: string | null
+          competitor_id: string | null
+          dominance_score: number | null
+          id: string
+          last_calculated: string | null
+          review_score: number | null
+          seo_rank_average: number | null
+          state: string | null
+          zip_code: string
+        }
+        Insert: {
+          ad_presence_score?: number | null
+          city?: string | null
+          competitor_id?: string | null
+          dominance_score?: number | null
+          id?: string
+          last_calculated?: string | null
+          review_score?: number | null
+          seo_rank_average?: number | null
+          state?: string | null
+          zip_code: string
+        }
+        Update: {
+          ad_presence_score?: number | null
+          city?: string | null
+          competitor_id?: string | null
+          dominance_score?: number | null
+          id?: string
+          last_calculated?: string | null
+          review_score?: number | null
+          seo_rank_average?: number | null
+          state?: string | null
+          zip_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_dominance_competitor_id_fkey"
+            columns: ["competitor_id"]
+            isOneToOne: false
+            referencedRelation: "competitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          estimated_impact: string | null
+          execution_steps: Json | null
+          id: string
+          priority: number | null
+          related_entities: Json | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          estimated_impact?: string | null
+          execution_steps?: Json | null
+          id?: string
+          priority?: number | null
+          related_entities?: Json | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          estimated_impact?: string | null
+          execution_steps?: Json | null
+          id?: string
+          priority?: number | null
+          related_entities?: Json | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

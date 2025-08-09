@@ -1,3 +1,4 @@
+
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -7,10 +8,10 @@ const Navigation = () => {
 
   const modules = [
     { 
-      name: "Command Center", 
+      name: "Specter Net", 
       icon: Shield, 
       active: location.pathname === '/', 
-      badge: null,
+      badge: "NEW",
       description: "Intelligence dashboard",
       path: "/"
     },
@@ -50,7 +51,7 @@ const Navigation = () => {
       name: "Change Alerts", 
       icon: Bell, 
       active: false, 
-      badge: "3",
+      badge: "17",
       description: "Real-time monitoring",
       path: "/change-alerts"
     },
@@ -89,7 +90,7 @@ const Navigation = () => {
         <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
           <div className="flex items-center justify-between text-sm">
             <span className="text-card-foreground/70">Active Targets</span>
-            <span className="font-semibold text-primary">847</span>
+            <span className="font-semibold text-primary">247</span>
           </div>
         </div>
       </div>
@@ -127,6 +128,8 @@ const Navigation = () => {
               <span className={`text-xs px-2 py-1 rounded-md font-medium ${
                 module.active 
                   ? 'bg-primary-foreground/20 text-primary-foreground' 
+                  : module.badge === 'NEW'
+                  ? 'bg-green-500/20 text-green-400 animate-pulse'
                   : 'bg-primary text-primary-foreground'
               }`}>
                 {module.badge}
@@ -156,7 +159,11 @@ const Navigation = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-card-foreground/70">Last Sync</span>
-              <span className="text-card-foreground">32s ago</span>
+              <span className="text-card-foreground">12s ago</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-card-foreground/70">Intelligence</span>
+              <span className="text-primary font-medium">ACTIVE</span>
             </div>
           </div>
         </div>
