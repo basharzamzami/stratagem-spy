@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,7 @@ import {
   Clock,
   ExternalLink,
   Plus,
-  Sync
+  RefreshCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import LeadJourney from './LeadJourney';
@@ -448,7 +447,7 @@ export default function LeadDetailView({ lead, isOpen, onClose, onUpdate }: Lead
                   onClick={() => handleCRMSync('hubspot')}
                   disabled={loading}
                 >
-                  <Sync className="w-4 h-4 mr-2" />
+                  <RefreshCw className="w-4 h-4 mr-2" />
                   Sync to HubSpot
                 </Button>
                 <Button
@@ -457,7 +456,7 @@ export default function LeadDetailView({ lead, isOpen, onClose, onUpdate }: Lead
                   onClick={() => handleCRMSync('pipedrive')}
                   disabled={loading}
                 >
-                  <Sync className="w-4 h-4 mr-2" />
+                  <RefreshCw className="w-4 h-4 mr-2" />
                   Sync to Pipedrive
                 </Button>
               </div>
