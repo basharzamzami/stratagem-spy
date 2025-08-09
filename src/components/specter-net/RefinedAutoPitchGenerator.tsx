@@ -63,14 +63,7 @@ export default function RefinedAutoPitchGenerator() {
       company: 'TechFlow Solutions',
       title: 'VP of Marketing',
       intent_score: 94,
-      geo_context: { city: 'San Francisco', state: 'CA' },
-      business_context: {
-        industry: 'SaaS',
-        company_size: '200-500',
-        tech_stack: ['HubSpot', 'Salesforce', 'Google Analytics'],
-        pain_points: ['lead generation challenges', 'competitor analysis'],
-        budget_range: '$50K-100K'
-      },
+      geo_context: { city: 'San Francisco', state: 'CA', zip: '94105' },
       source: 'linkedin_intent',
       source_data: {
         recent_activity: 'Liked posts about competitive intelligence',
@@ -109,8 +102,8 @@ export default function RefinedAutoPitchGenerator() {
         personalization_tokens: {
           '{first_name}': selectedLead.name?.split(' ')[0] || 'there',
           '{company}': selectedLead.company || 'your company',
-          '{industry}': selectedLead.business_context?.industry || 'your industry',
-          '{pain_point}': selectedLead.business_context?.pain_points?.[0] || 'operational challenges',
+          '{industry}': 'Technology', // Default industry
+          '{pain_point}': 'operational challenges', // Default pain point
           '{location}': `${selectedLead.geo_context?.city}, ${selectedLead.geo_context?.state}`,
           '{similar_company}': 'TechCorp'
         },
@@ -129,7 +122,7 @@ export default function RefinedAutoPitchGenerator() {
   const generateSubjectLines = (lead: EnhancedLead, tone: string, channel: string): string[] => {
     const company = lead.company || 'your company';
     const name = lead.name?.split(' ')[0] || 'there';
-    const industry = lead.business_context?.industry || 'your industry';
+    const industry = 'Technology'; // Default since business_context doesn't exist
     
     if (channel === 'email') {
       switch (tone) {
@@ -170,8 +163,8 @@ export default function RefinedAutoPitchGenerator() {
 
   const generateOpeningHooks = (lead: EnhancedLead, tone: string): string[] => {
     return [
-      `I noticed ${lead.company} is in a competitive ${lead.business_context?.industry} space...`,
-      `Many ${lead.business_context?.industry} companies like ${lead.company} are facing similar challenges...`,
+      `I noticed ${lead.company} is in a competitive space...`,
+      `Many companies like ${lead.company} are facing similar challenges...`,
       `Your recent activity suggests you're exploring competitive intelligence solutions...`,
       `${lead.company} has impressive growth, but I noticed a potential blind spot...`
     ];
@@ -180,7 +173,7 @@ export default function RefinedAutoPitchGenerator() {
   const generatePainPointRefs = (lead: EnhancedLead): string[] => {
     return [
       `The lead generation challenges you're likely experiencing...`,
-      `Competitor analysis gaps that many ${lead.business_context?.industry} companies face...`,
+      `Competitor analysis gaps that many companies face...`,
       `Market intelligence blind spots affecting growth...`,
       `The difficulty in tracking competitor moves in real-time...`
     ];
@@ -188,7 +181,7 @@ export default function RefinedAutoPitchGenerator() {
 
   const generateValueProps = (lead: EnhancedLead): string[] => {
     return [
-      `Specifically built for ${lead.business_context?.company_size} ${lead.business_context?.industry} companies`,
+      `Specifically built for growing companies like ${lead.company}`,
       `ROI typically seen within 30 days of deployment`,
       `Reduce competitive research time by 80%`,
       `Used by industry leaders in ${lead.geo_context?.city}`
