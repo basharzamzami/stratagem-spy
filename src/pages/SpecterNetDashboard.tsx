@@ -11,10 +11,10 @@ import { Shield, Target, Bell, Zap, Eye, TrendingUp } from "lucide-react";
 
 export default function SpecterNetDashboard() {
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex w-full">
       <Navigation />
-      <div className="flex-1 overflow-auto">
-        <div className="p-8 max-w-7xl mx-auto">
+      <div className="flex-1 overflow-auto w-full">
+        <div className="p-8 w-full max-w-none">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6">
@@ -28,51 +28,51 @@ export default function SpecterNetDashboard() {
             </div>
 
             {/* Status Indicators */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <Card className="bg-success/5 border-success/20">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-success/20 rounded-lg flex items-center justify-center">
-                    <Target className="w-5 h-5 text-success" />
+                <CardContent className="p-6 flex items-center gap-3">
+                  <div className="w-12 h-12 bg-success/20 rounded-lg flex items-center justify-center">
+                    <Target className="w-6 h-6 text-success" />
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground">Active Targets</div>
-                    <div className="text-xl font-bold text-success">247</div>
+                    <div className="text-2xl font-bold text-success">247</div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-primary/5 border-primary/20">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-primary" />
+                <CardContent className="p-6 flex items-center gap-3">
+                  <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+                    <Eye className="w-6 h-6 text-primary" />
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground">Live Ads</div>
-                    <div className="text-xl font-bold text-primary">1,543</div>
+                    <div className="text-2xl font-bold text-primary">1,543</div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-yellow-500/5 border-yellow-500/20">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-                    <Bell className="w-5 h-5 text-yellow-400" />
+                <CardContent className="p-6 flex items-center gap-3">
+                  <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                    <Bell className="w-6 h-6 text-yellow-400" />
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground">New Alerts</div>
-                    <div className="text-xl font-bold text-yellow-400">17</div>
+                    <div className="text-2xl font-bold text-yellow-400">17</div>
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="bg-red-500/5 border-red-500/20">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-red-400" />
+                <CardContent className="p-6 flex items-center gap-3">
+                  <div className="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-red-400" />
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground">Threat Level</div>
-                    <div className="text-xl font-bold text-red-400">HIGH</div>
+                    <div className="text-2xl font-bold text-red-400">HIGH</div>
                   </div>
                 </CardContent>
               </Card>
@@ -80,7 +80,7 @@ export default function SpecterNetDashboard() {
           </div>
 
           {/* Main Intelligence Tabs */}
-          <Tabs defaultValue="competitors" className="space-y-6">
+          <Tabs defaultValue="competitors" className="space-y-8">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="competitors" className="flex items-center gap-2">
                 <Target className="w-4 h-4" />
@@ -101,19 +101,19 @@ export default function SpecterNetDashboard() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="competitors" className="space-y-6">
+            <TabsContent value="competitors" className="space-y-8">
               <CompetitorDashboard />
             </TabsContent>
 
-            <TabsContent value="ads" className="space-y-6">
+            <TabsContent value="ads" className="space-y-8">
               <DatabaseLiveFeed />
             </TabsContent>
 
-            <TabsContent value="alerts" className="space-y-6">
+            <TabsContent value="alerts" className="space-y-8">
               <IntelligenceAlerts />
             </TabsContent>
 
-            <TabsContent value="tasks" className="space-y-6">
+            <TabsContent value="tasks" className="space-y-8">
               <TaskGenerator />
             </TabsContent>
           </Tabs>

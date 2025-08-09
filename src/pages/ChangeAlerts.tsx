@@ -5,10 +5,10 @@ import { Shield } from "lucide-react";
 
 export default function ChangeAlerts() {
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex w-full">
       <Navigation />
-      <div className="flex-1 overflow-auto">
-        <div className="p-8 max-w-7xl mx-auto">
+      <div className="flex-1 overflow-auto w-full">
+        <div className="p-8 w-full max-w-none">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6">
