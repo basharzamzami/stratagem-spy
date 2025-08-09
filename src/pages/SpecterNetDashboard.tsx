@@ -7,7 +7,8 @@ import CompetitorDashboard from "@/components/specter-net/CompetitorDashboard";
 import IntelligenceAlerts from "@/components/specter-net/IntelligenceAlerts";
 import TaskGenerator from "@/components/specter-net/TaskGenerator";
 import DatabaseLiveFeed from "@/components/ad-signal-hijack/DatabaseLiveFeed";
-import { Shield, Target, Bell, Zap, Eye, TrendingUp } from "lucide-react";
+import SpecterNetIntegration from "@/components/specter-net/SpecterNetIntegration";
+import { Shield, Target, Bell, Zap, Eye, TrendingUp, Crosshair } from "lucide-react";
 
 export default function SpecterNetDashboard() {
   return (
@@ -23,7 +24,7 @@ export default function SpecterNetDashboard() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Specter Net Intelligence</h1>
-                <p className="text-muted-foreground">Advanced competitive intelligence & reverse engineering platform</p>
+                <p className="text-muted-foreground">Advanced competitive intelligence & AI-powered lead hijacking platform</p>
               </div>
             </div>
 
@@ -80,8 +81,12 @@ export default function SpecterNetDashboard() {
           </div>
 
           {/* Main Intelligence Tabs */}
-          <Tabs defaultValue="competitors" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs defaultValue="hijack" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="hijack" className="flex items-center gap-2">
+                <Crosshair className="w-4 h-4" />
+                Lead Hijack
+              </TabsTrigger>
               <TabsTrigger value="competitors" className="flex items-center gap-2">
                 <Target className="w-4 h-4" />
                 Competitors
@@ -100,6 +105,10 @@ export default function SpecterNetDashboard() {
                 AI Tasks
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="hijack" className="space-y-6">
+              <SpecterNetIntegration />
+            </TabsContent>
 
             <TabsContent value="competitors" className="space-y-6">
               <CompetitorDashboard />
