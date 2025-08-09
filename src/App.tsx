@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import AdSignalHijack from "./pages/AdSignalHijack";
+import EnhancedAdSignalHijack from "./pages/EnhancedAdSignalHijack";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/ad-signal-hijack" element={<AdSignalHijack />} />
+          <Route path="/ad-signal-enhanced" element={<EnhancedAdSignalHijack />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
