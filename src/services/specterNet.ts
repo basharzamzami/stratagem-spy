@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 // Enhanced Ad Intelligence
@@ -385,4 +384,35 @@ function calculateAverageEngagement(ads: EnhancedAdItem[]) {
   return validEngagements.length > 0 
     ? validEngagements.reduce((sum, val) => sum + val, 0) / validEngagements.length 
     : 0;
+}
+
+// Refined Auto Pitch Generator
+export async function generateRefinedPitch(leadDetails: any, pitchType: string): Promise<string> {
+  // Simulate AI-powered pitch generation based on lead details and type
+  const { name, company, title, intent_keywords, geo_context, competitor_references } = leadDetails;
+  
+  let pitch = '';
+  
+  switch (pitchType) {
+    case 'introductory':
+      pitch = `Hi ${name},\n\nI noticed ${company} has been researching ${intent_keywords?.[0] || 'marketing solutions'}. As ${title}, you're probably looking for ways to stay ahead of competitors like ${competitor_references?.[0] || 'industry leaders'}.\n\nOur competitive intelligence platform has helped similar companies in ${geo_context?.city || 'your area'} increase their market share by 40% on average.\n\nWould you be interested in a 15-minute demo to see how we can help ${company} dominate your local market?\n\nBest regards,\nYour Marketing Intelligence Team`;
+      break;
+      
+    case 'follow_up':
+      pitch = `Hi ${name},\n\nFollowing up on our previous conversation about ${company}'s competitive positioning. I've been tracking your competitors' latest moves in ${geo_context?.city || 'your market'}.\n\nJust this week, ${competitor_references?.[0] || 'a key competitor'} launched a new campaign targeting ${intent_keywords?.[0] || 'your keywords'}. This could impact your market share if not addressed quickly.\n\nI'd love to show you exactly what they're doing and how you can counter it. Are you available for a quick call this week?\n\nBest,\nYour Competitive Intelligence Team`;
+      break;
+      
+    case 'personalized':
+      pitch = `${name},\n\nI've been analyzing the ${geo_context?.city || 'local'} market for ${intent_keywords?.[0] || 'your industry'} and noticed some concerning trends for ${company}.\n\nYour competitors are investing heavily in ${intent_keywords?.[1] || 'digital marketing'}, with ${competitor_references?.[0] || 'the market leader'} increasing their ad spend by 150% in the last quarter.\n\nAs ${title}, I'm sure you're aware of how quickly market dynamics can shift. Our platform can give you real-time insights into their strategies before they impact your bottom line.\n\nWould you like to see a personalized competitive analysis for ${company}?\n\nRegards,\nSpecter Insights Team`;
+      break;
+      
+    case 'competitive':
+      pitch = `${name},\n\nYour competitors don't want you to see this...\n\nI've been tracking ${competitor_references?.join(', ') || 'your key competitors'} and discovered they're using tactics that could be costing ${company} significant market share in ${geo_context?.city || 'your area'}.\n\nSpecifically, they're targeting ${intent_keywords?.[0] || 'your keywords'} with strategies that most ${title}s aren't aware of.\n\nI can show you exactly what they're doing and how to counter it in the next 24 hours. This intelligence is time-sensitive.\n\nInterested in staying ahead?\n\nUrgently,\nCompetitive Intelligence Team`;
+      break;
+      
+    default:
+      pitch = `Hi ${name},\n\nI hope this message finds you well. I wanted to reach out regarding ${company}'s competitive positioning in the ${geo_context?.city || 'current'} market.\n\nBest regards,\nSpecter Insights Team`;
+  }
+  
+  return pitch;
 }
