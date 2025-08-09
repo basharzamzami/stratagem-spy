@@ -1,48 +1,10 @@
 
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ApiClient } from '@/services/api';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 
 const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
-
-  // Fetch real-time data for badges
-  const { data: adData } = useQuery({
-    queryKey: ['nav-ad-count'],
-    queryFn: () => ApiClient.getAds(),
-    refetchInterval: 30000
-  });
-
-  const { data: leadData } = useQuery({
-    queryKey: ['nav-lead-count'],
-    queryFn: () => ApiClient.searchLeads({}),
-    refetchInterval: 30000
-  });
-
-  const { data: alertData } = useQuery({
-    queryKey: ['nav-alert-count'],
-    queryFn: () => ApiClient.getAlerts({ dismissed: false }),
-    refetchInterval: 15000
-  });
-
-  // Calculate real badge counts
-  const adCount = adData?.data?.length || 34;
-  const leadCount = leadData?.data?.length || 156;
-  const alertCount = alertData?.data?.length || 17;
-
-  const handleNavigation = (path: string, moduleName: string) => {
-    toast({
-      title: `Opening ${moduleName}`,
-      description: "Loading intelligence module...",
-      duration: 2000
-    });
-    navigate(path);
-  };
 
   const modules = [
     { 
@@ -51,26 +13,23 @@ const Navigation = () => {
       active: location.pathname === '/', 
       badge: "NEW",
       description: "Intelligence dashboard",
-      path: "/",
-      onClick: () => handleNavigation('/', 'Specter Net Intelligence Dashboard')
+      path: "/"
     },
     { 
       name: "Ad Signal Hijack", 
       icon: Zap, 
       active: location.pathname === '/ad-signal-hijack', 
-      badge: String(adCount),
+      badge: "34",
       description: "Competitor ad tracking",
-      path: "/ad-signal-hijack",
-      onClick: () => handleNavigation('/ad-signal-hijack', 'Ad Signal Hijack')
+      path: "/ad-signal-hijack"
     },
     { 
       name: "Lead Locator", 
       icon: Users, 
       active: location.pathname === '/lead-locator', 
-      badge: String(leadCount),
+      badge: "156",
       description: "Prospect identification",
-      path: "/lead-locator",
-      onClick: () => handleNavigation('/lead-locator', 'Lead Locator')
+      path: "/lead-locator"
     },
     { 
       name: "Dominance Map", 
@@ -78,8 +37,7 @@ const Navigation = () => {
       active: location.pathname === '/dominance-map', 
       badge: null,
       description: "Territory analysis",
-      path: "/dominance-map",
-      onClick: () => handleNavigation('/dominance-map', 'Dominance Map')
+      path: "/dominance-map"
     },
     { 
       name: "Task Generator", 
@@ -87,17 +45,15 @@ const Navigation = () => {
       active: location.pathname === '/task-generator', 
       badge: null,
       description: "Action recommendations",
-      path: "/task-generator",
-      onClick: () => handleNavigation('/task-generator', 'AI Task Generator')
+      path: "/task-generator"
     },
     { 
       name: "Change Alerts", 
       icon: Bell, 
       active: location.pathname === '/change-alerts', 
-      badge: String(alertCount),
+      badge: "17",
       description: "Real-time monitoring",
-      path: "/change-alerts",
-      onClick: () => handleNavigation('/change-alerts', 'Change Alerts System')
+      path: "/change-alerts"
     },
     { 
       name: "Campaign Manager", 
@@ -105,8 +61,7 @@ const Navigation = () => {
       active: location.pathname === '/campaign-manager', 
       badge: null,
       description: "Campaign automation",
-      path: "/campaign-manager",
-      onClick: () => handleNavigation('/campaign-manager', 'Campaign Manager')
+      path: "/campaign-manager"
     },
     { 
       name: "Competitive CRM", 
@@ -114,19 +69,9 @@ const Navigation = () => {
       active: location.pathname === '/competitive-crm', 
       badge: null,
       description: "Lead management",
-      path: "/competitive-crm",
-      onClick: () => handleNavigation('/competitive-crm', 'Competitive CRM')
+      path: "/competitive-crm"
     }
   ];
-
-  const handleSettingsClick = () => {
-    toast({
-      title: "Opening Settings",
-      description: "Accessing system configuration...",
-      duration: 2000
-    });
-    navigate('/settings');
-  };
 
   return (
     <div className="w-72 h-screen bg-background-secondary border-r border-border flex flex-col">
@@ -151,7 +96,7 @@ const Navigation = () => {
       </div>
       
       {/* Navigation */}
-      <div className="flex-1 p-4 space-y-2 overflow-auto">
+      <div className="flex-1 p-4 space-y-2">
         <div className="mb-4">
           <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             Intelligence Modules
@@ -161,7 +106,7 @@ const Navigation = () => {
         {modules.map((module, index) => (
           <button
             key={index}
-            onClick={module.onClick}
+            onClick={() => navigate(module.path)}
             className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
               module.active 
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
@@ -180,20 +125,15 @@ const Navigation = () => {
               </div>
             </div>
             {module.badge && (
-              <Badge 
-                variant={module.active ? "secondary" : "outline"}
-                className={`text-xs px-2 py-1 rounded-md font-medium ${
-                  module.active 
-                    ? 'bg-primary-foreground/20 text-primary-foreground' 
-                    : module.badge === 'NEW'
-                    ? 'bg-green-500/20 text-green-400 animate-pulse border-green-500/30'
-                    : parseInt(module.badge) > 10
-                    ? 'bg-red-500/20 text-red-400 border-red-500/30'
-                    : 'bg-primary/20 text-primary border-primary/30'
-                }`}
-              >
+              <span className={`text-xs px-2 py-1 rounded-md font-medium ${
+                module.active 
+                  ? 'bg-primary-foreground/20 text-primary-foreground' 
+                  : module.badge === 'NEW'
+                  ? 'bg-green-500/20 text-green-400 animate-pulse'
+                  : 'bg-primary text-primary-foreground'
+              }`}>
                 {module.badge}
-              </Badge>
+              </span>
             )}
           </button>
         ))}
@@ -202,7 +142,7 @@ const Navigation = () => {
       {/* Settings */}
       <div className="p-4 border-t border-border">
         <button 
-          onClick={handleSettingsClick}
+          onClick={() => navigate('/settings')}
           className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
             location.pathname === '/settings'
               ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
