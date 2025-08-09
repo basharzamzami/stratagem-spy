@@ -1,429 +1,474 @@
-
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Users, Target, TrendingUp, Plus, Download, Filter } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Search, Filter, Zap, Calendar } from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import { useToast } from '@/hooks/use-toast';
+import { useLeadPipeline } from '@/hooks/useLeadPipeline';
+import {
+  gatherLeadIntelligence,
+  processLeadThroughPipeline,
+  updateLeadScore,
+  matchAndDeduplicateLeads,
+  EnhancedLead
+} from '@/services/leadPipeline';
 
-interface Lead {
+interface LeadFilters {
+  industry: string;
+  location: {
+    city: string;
+    state: string;
+    zip: string;
+  };
+  companySize: string;
+  minIntentScore: number;
+}
+
+interface MockLead {
   id: string;
   name: string;
   company: string;
   title: string;
-  email?: string;
+  email: string;
+  phone: string;
   location: string;
+  industry: string;
+  companySize: string;
   intentScore: number;
   keywords: string[];
-  source: string;
   lastActivity: string;
-  companySize: string;
-  industry: string;
-  revenue?: string;
-  status: 'new' | 'qualified' | 'contacted' | 'converted';
 }
-
-interface SearchFilters {
-  industry: string;
-  location: string;
-  minIntentScore: number;
-  companySize: string;
-  keywords: string;
-}
-
-const fetchLeads = async (filters: SearchFilters): Promise<Lead[]> => {
-  // Simulate API call with realistic data
-  await new Promise(resolve => setTimeout(resolve, 1200));
-  
-  const mockLeads: Lead[] = [
-    {
-      id: '1',
-      name: 'Sarah Chen',
-      company: 'TechFlow Solutions',
-      title: 'VP of Marketing',
-      email: 's.chen@techflow.com',
-      location: 'San Francisco, CA',
-      intentScore: 94,
-      keywords: ['marketing automation', 'lead generation', 'conversion optimization'],
-      source: 'LinkedIn + Website Activity',
-      lastActivity: '2 hours ago',
-      companySize: '50-200',
-      industry: 'SaaS',
-      revenue: '$5-10M',
-      status: 'new'
-    },
-    {
-      id: '2',
-      name: 'Marcus Rodriguez',
-      company: 'DataDriven Corp',
-      title: 'Chief Marketing Officer',
-      email: 'm.rodriguez@datadriven.co',
-      location: 'Austin, TX',
-      intentScore: 91,
-      keywords: ['competitive intelligence', 'market analysis', 'growth hacking'],
-      source: 'Search Behavior + Content Downloads',
-      lastActivity: '4 hours ago',
-      companySize: '200-500',
-      industry: 'Analytics',
-      revenue: '$10-25M',
-      status: 'qualified'
-    },
-    {
-      id: '3',
-      name: 'Emma Thompson',
-      company: 'GrowthLabs',
-      title: 'Growth Director',
-      location: 'New York, NY',
-      intentScore: 88,
-      keywords: ['ad optimization', 'funnel analysis', 'performance marketing'],
-      source: 'Website Tracking + Email Engagement',
-      lastActivity: '1 day ago',
-      companySize: '10-50',
-      industry: 'Marketing Agency',
-      revenue: '$1-5M',
-      status: 'new'
-    },
-    {
-      id: '4',
-      name: 'David Kumar',
-      company: 'ScaleUp Ventures',
-      title: 'Head of Digital Marketing',
-      email: 'd.kumar@scaleup.vc',
-      location: 'Seattle, WA',
-      intentScore: 85,
-      keywords: ['competitor analysis', 'market research', 'strategic planning'],
-      source: 'Social Media + Search Activity',
-      lastActivity: '6 hours ago',
-      companySize: '100-200',
-      industry: 'Venture Capital',
-      revenue: '$25M+',
-      status: 'contacted'
-    },
-    {
-      id: '5',
-      name: 'Lisa Park',
-      company: 'InnovateNow',
-      title: 'Marketing Manager',
-      location: 'Boston, MA',
-      intentScore: 82,
-      keywords: ['lead scoring', 'customer insights', 'data analytics'],
-      source: 'Content Engagement + Webinar Attendance',
-      lastActivity: '3 hours ago',
-      companySize: '50-100',
-      industry: 'Technology',
-      revenue: '$5-10M',
-      status: 'new'
-    }
-  ];
-
-  // Filter based on search criteria
-  return mockLeads.filter(lead => {
-    if (filters.industry && !lead.industry.toLowerCase().includes(filters.industry.toLowerCase())) return false;
-    if (filters.location && !lead.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
-    if (filters.minIntentScore && lead.intentScore < filters.minIntentScore) return false;
-    if (filters.companySize && lead.companySize !== filters.companySize) return false;
-    if (filters.keywords && !lead.keywords.some(k => k.toLowerCase().includes(filters.keywords.toLowerCase()))) return false;
-    return true;
-  });
-};
 
 export default function LeadLocator() {
-  const [filters, setFilters] = useState<SearchFilters>({
+  const [filters, setFilters] = useState<LeadFilters>({
     industry: '',
-    location: '',
-    minIntentScore: 70,
+    location: { city: '', state: '', zip: '' },
     companySize: '',
-    keywords: ''
+    minIntentScore: 70
   });
+  const [mockData, setMockData] = useState<MockLead[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const { gatherLeads, processLeads, isProcessing, processedCount } = useLeadPipeline();
+  const { toast } = useToast();
 
-  const { data: leads = [], isLoading, refetch } = useQuery({
-    queryKey: ['leads', filters],
-    queryFn: () => fetchLeads(filters),
-    enabled: false
-  });
-
-  const handleSearch = () => {
-    refetch();
-  };
-
-  const handleAddToCRM = (lead: Lead) => {
-    toast({
-      title: "Lead Added to CRM",
-      description: `${lead.name} from ${lead.company} has been added to your pipeline.`
-    });
-  };
-
-  const getIntentScoreColor = (score: number) => {
-    if (score >= 90) return 'bg-green-500';
-    if (score >= 80) return 'bg-yellow-500';
-    if (score >= 70) return 'bg-orange-500';
-    return 'bg-red-500';
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'new': return 'bg-blue-500';
-      case 'qualified': return 'bg-green-500';
-      case 'contacted': return 'bg-yellow-500';
-      case 'converted': return 'bg-purple-500';
-      default: return 'bg-gray-500';
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    if (name.startsWith('location.')) {
+      const locationKey = name.split('.')[1];
+      setFilters(prev => ({
+        ...prev,
+        location: {
+          ...prev.location,
+          [locationKey]: value
+        }
+      }));
+    } else if (name === 'minIntentScore') {
+      setFilters(prev => ({
+        ...prev,
+        [name]: parseInt(value)
+      }));
+    }
+    else {
+      setFilters(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
   };
+
+  const filteredData = mockData.filter(lead => {
+    const matchesIndustry = !filters.industry || lead.industry.toLowerCase().includes(filters.industry.toLowerCase());
+    const matchesLocation = !filters.location.city || lead.location.toLowerCase().includes(filters.location.city.toLowerCase());
+    return matchesIndustry && matchesLocation;
+  });
+
+  const handleIntelligenceSearch = async () => {
+    console.log('Starting intelligence search with filters:', filters);
+    setIsLoading(true);
+
+    try {
+      const leads = await gatherLeads({
+        industry: filters.industry,
+        location: filters.location,
+        keywords: filters.industry ? [filters.industry] : undefined,
+        minIntentScore: filters.minIntentScore
+      });
+
+      setMockData(leads.map(lead => ({
+        id: lead.id,
+        name: lead.name,
+        company: lead.company,
+        title: lead.title || '',
+        email: lead.email,
+        phone: lead.phone || '',
+        location: `${lead.location_city}, ${lead.location_state}`,
+        industry: lead.enrichment_data?.industry || filters.industry || 'Technology',
+        companySize: lead.enrichment_data?.company_size || '50-200',
+        intentScore: lead.intent_score,
+        keywords: lead.keywords,
+        lastActivity: '2024-01-15'
+      })));
+
+      setHasSearched(true);
+    } catch (error) {
+      console.error("Error during intelligence search:", error);
+      toast({
+        title: "Search Error",
+        description: "Failed to gather lead intelligence. Please check your filters and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleProcessSelectedLeads = () => {
+    const leadsToProcess = mockData
+      .filter(lead => selectedLeads.includes(lead.id))
+      .map(lead => ({
+        id: lead.id,
+        name: lead.name,
+        email: lead.email,
+        company: lead.company,
+        title: lead.title,
+        phone: lead.phone,
+        location_city: lead.location.split(',')[0]?.trim() || '',
+        location_state: lead.location.split(',')[1]?.trim() || '',
+        intent_score: lead.intentScore,
+        keywords: lead.keywords,
+        source: 'lead_locator' as const,
+        source_data: {
+          search_filters: filters,
+          discovery_method: 'intelligence_search',
+          search_timestamp: new Date().toISOString()
+        },
+        enrichment_data: {
+          industry: lead.industry,
+          company_size: lead.companySize
+        },
+        status: 'new'
+      }));
+
+    if (leadsToProcess.length > 0) {
+      processLeads(leadsToProcess);
+      setSelectedLeads([]);
+      toast({
+        title: "Processing Leads",
+        description: `Processing ${leadsToProcess.length} leads through intelligence pipeline`
+      });
+    }
+  };
+
+  const mockIndustries = [
+    "Technology",
+    "Healthcare",
+    "Finance",
+    "Education",
+    "Manufacturing"
+  ];
+
+  const mockCompanySizes = [
+    "1-10",
+    "11-50",
+    "51-200",
+    "201-500",
+    "501+"
+  ];
 
   return (
     <div className="flex h-screen bg-background">
       <Navigation />
-      
+
       <div className="flex-1 overflow-auto">
         <div className="p-8 space-y-6">
-          {/* Header */}
+          {/* Enhanced Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Lead Locator</h1>
-              <p className="text-muted-foreground mt-2">Identify high-intent prospects with AI-powered scoring</p>
+              <h1 className="text-3xl font-bold text-foreground">AI Lead Intelligence Locator</h1>
+              <p className="text-muted-foreground mt-2">
+                Advanced lead discovery using competitive intelligence and intent signals
+              </p>
             </div>
             <div className="flex gap-3">
+              {selectedLeads.length > 0 && (
+                <Button onClick={handleProcessSelectedLeads} disabled={isProcessing}>
+                  <Zap className="w-4 h-4 mr-2" />
+                  Process {selectedLeads.length} Leads
+                </Button>
+              )}
               <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-              <Button size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Manual Lead
+                <Calendar className="w-4 h-4 mr-2" />
+                Export Results
               </Button>
             </div>
           </div>
 
-          {/* Search Filters */}
-          <Card className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-              <Input
-                placeholder="Industry or keyword"
-                value={filters.keywords}
-                onChange={(e) => setFilters(prev => ({ ...prev, keywords: e.target.value }))}
-              />
-              <Input
-                placeholder="Location (city, state)"
-                value={filters.location}
-                onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
-              />
-              <Select value={filters.industry} onValueChange={(value) => setFilters(prev => ({ ...prev, industry: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Industry" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="saas">SaaS</SelectItem>
-                  <SelectItem value="analytics">Analytics</SelectItem>
-                  <SelectItem value="marketing">Marketing</SelectItem>
-                  <SelectItem value="technology">Technology</SelectItem>
-                  <SelectItem value="finance">Finance</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filters.companySize} onValueChange={(value) => setFilters(prev => ({ ...prev, companySize: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Company Size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1-10">1-10 employees</SelectItem>
-                  <SelectItem value="10-50">10-50 employees</SelectItem>
-                  <SelectItem value="50-100">50-100 employees</SelectItem>
-                  <SelectItem value="50-200">50-200 employees</SelectItem>
-                  <SelectItem value="200-500">200-500 employees</SelectItem>
-                  <SelectItem value="500+">500+ employees</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={handleSearch} disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Target className="w-4 h-4 mr-2 animate-spin" />
-                    Searching...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-4 h-4 mr-2" />
-                    Find Leads
-                  </>
-                )}
-              </Button>
+          {/* Processing Status */}
+          {isProcessing && (
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+                  <div>
+                    <div className="font-medium">Processing leads through AI pipeline...</div>
+                    <div className="text-sm text-muted-foreground">
+                      Processed {processedCount} leads • Creating journey maps and generating tasks
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Enhanced Stats with Intelligence Metrics */}
+          {hasSearched && (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Prospects</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-primary">{filteredData.length}</div>
+                  <div className="text-sm text-muted-foreground">Intelligence-verified</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-green-500/10 to-green-500/5 border-green-500/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">High Intent</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-400">
+                    {filteredData.filter(lead => lead.intentScore >= 80).length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Strong buying signals</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-blue-500/10 to-blue-500/5 border-blue-500/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Avg. Intent Score</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-400">
+                    {filteredData.length > 0 ? Math.round(filteredData.reduce((sum, lead) => sum + lead.intentScore, 0) / filteredData.length) : 0}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Overall lead quality</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-yellow-500/10 to-yellow-500/5 border-yellow-500/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Top Industry</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-yellow-400">
+                    {filters.industry || 'Technology'}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Dominant segment</div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-r from-purple-500/10 to-purple-500/5 border-purple-500/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Selected</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-purple-400">{selectedLeads.length}</div>
+                  <div className="text-sm text-muted-foreground">Ready for processing</div>
+                </CardContent>
+              </Card>
             </div>
-            
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4" />
-                <span>Min Intent Score:</span>
-                <Select 
-                  value={filters.minIntentScore.toString()} 
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, minIntentScore: parseInt(value) }))}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="60">60+</SelectItem>
-                    <SelectItem value="70">70+</SelectItem>
-                    <SelectItem value="80">80+</SelectItem>
-                    <SelectItem value="90">90+</SelectItem>
-                  </SelectContent>
-                </Select>
+          )}
+
+          {/* Search Interface */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Search className="w-5 h-5" />
+                Intelligence Search Parameters
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="industry">Industry</Label>
+                  <Select name="industry" value={filters.industry} onValueChange={(value) => handleFilterChange({ target: { name: 'industry', value } } as any)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select industry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockIndustries.map(industry => (
+                        <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="location.city">City</Label>
+                  <Input
+                    type="text"
+                    name="location.city"
+                    id="location.city"
+                    value={filters.location.city}
+                    onChange={handleFilterChange}
+                    placeholder="Enter city"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="location.state">State</Label>
+                  <Input
+                    type="text"
+                    name="location.state"
+                    id="location.state"
+                    value={filters.location.state}
+                    onChange={handleFilterChange}
+                    placeholder="Enter state"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="location.zip">Zip Code</Label>
+                  <Input
+                    type="text"
+                    name="location.zip"
+                    id="location.zip"
+                    value={filters.location.zip}
+                    onChange={handleFilterChange}
+                    placeholder="Enter zip code"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="companySize">Company Size</Label>
+                  <Select name="companySize" value={filters.companySize} onValueChange={(value) => handleFilterChange({ target: { name: 'companySize', value } } as any)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select company size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockCompanySizes.map(size => (
+                        <SelectItem key={size} value={size}>{size}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="minIntentScore">Min. Intent Score</Label>
+                  <Input
+                    type="number"
+                    name="minIntentScore"
+                    id="minIntentScore"
+                    value={filters.minIntentScore}
+                    onChange={handleFilterChange}
+                    placeholder="Enter minimum score"
+                  />
+                </div>
               </div>
-            </div>
+
+              <div className="flex gap-4 mt-4">
+                <Button
+                  onClick={handleIntelligenceSearch}
+                  size="lg"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4 mr-2" />
+                      Start Intelligence Search
+                    </>
+                  )}
+                </Button>
+
+                <Button variant="outline" size="lg">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Advanced Filters
+                </Button>
+              </div>
+            </CardContent>
           </Card>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads Found</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  <span className="text-2xl font-bold">{leads.length}</span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">High Intent (90+)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-green-500" />
-                  <span className="text-2xl font-bold text-green-600">
-                    {leads.filter(l => l.intentScore >= 90).length}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Avg Intent Score</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-yellow-500" />
-                  <span className="text-2xl font-bold">
-                    {leads.length > 0 ? Math.round(leads.reduce((sum, l) => sum + l.intentScore, 0) / leads.length) : 0}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Ready to Contact</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-blue-500" />
-                  <span className="text-2xl font-bold text-blue-600">
-                    {leads.filter(l => l.intentScore >= 85 && l.status === 'new').length}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Results Table */}
-          {leads.length > 0 && (
+          {/* Enhanced Results Table with Selection */}
+          {hasSearched && (
             <Card>
               <CardHeader>
-                <CardTitle>Lead Results</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Intelligence Search Results</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const allIds = filteredData.map(lead => lead.id);
+                        setSelectedLeads(selectedLeads.length === allIds.length ? [] : allIds);
+                      }}
+                    >
+                      {selectedLeads.length === filteredData.length ? 'Deselect All' : 'Select All'}
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Lead</TableHead>
+                      <TableHead className="w-12"></TableHead>
+                      <TableHead>Name</TableHead>
                       <TableHead>Company</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Industry</TableHead>
+                      <TableHead>Company Size</TableHead>
                       <TableHead>Intent Score</TableHead>
-                      <TableHead>Keywords</TableHead>
-                      <TableHead>Source</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>Last Activity</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {leads.map((lead) => (
+                    {filteredData.map((lead) => (
                       <TableRow key={lead.id}>
                         <TableCell>
-                          <div>
-                            <div className="font-medium">{lead.name}</div>
-                            <div className="text-sm text-muted-foreground">{lead.title}</div>
-                            <div className="text-sm text-muted-foreground">{lead.location}</div>
-                          </div>
+                          <Checkbox
+                            checked={selectedLeads.includes(lead.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedLeads([...selectedLeads, lead.id]);
+                              } else {
+                                setSelectedLeads(selectedLeads.filter(id => id !== lead.id));
+                              }
+                            }}
+                          />
                         </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{lead.company}</div>
-                            <div className="text-sm text-muted-foreground">{lead.companySize} employees</div>
-                            {lead.revenue && (
-                              <div className="text-sm text-muted-foreground">{lead.revenue} revenue</div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`${getIntentScoreColor(lead.intentScore)} text-white`}>
-                            {lead.intentScore}%
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            {lead.keywords.slice(0, 2).map((keyword, idx) => (
-                              <Badge key={idx} variant="outline" className="text-xs">
-                                {keyword}
-                              </Badge>
-                            ))}
-                            {lead.keywords.length > 2 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{lead.keywords.length - 2} more
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          <div>{lead.source}</div>
-                          <div className="text-muted-foreground">{lead.lastActivity}</div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`${getStatusColor(lead.status)} text-white capitalize`}>
-                            {lead.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            size="sm"
-                            onClick={() => handleAddToCRM(lead)}
-                            disabled={lead.status === 'converted'}
-                          >
-                            Add to CRM
-                          </Button>
-                        </TableCell>
+                        <TableCell>{lead.name}</TableCell>
+                        <TableCell>{lead.company}</TableCell>
+                        <TableCell>{lead.title}</TableCell>
+                        <TableCell>{lead.email}</TableCell>
+                        <TableCell>{lead.phone}</TableCell>
+                        <TableCell>{lead.location}</TableCell>
+                        <TableCell>{lead.industry}</TableCell>
+                        <TableCell>{lead.companySize}</TableCell>
+                        <TableCell>{lead.intentScore}</TableCell>
+                        <TableCell>{lead.lastActivity}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </CardContent>
-            </Card>
-          )}
-
-          {!isLoading && leads.length === 0 && filters.keywords && (
-            <Card className="p-12 text-center">
-              <Target className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No leads found</h3>
-              <p className="text-muted-foreground mb-4">
-                Try adjusting your search criteria or lowering the minimum intent score
-              </p>
-              <Button variant="outline" onClick={() => setFilters({ industry: '', location: '', minIntentScore: 60, companySize: '', keywords: '' })}>
-                Clear Filters
-              </Button>
             </Card>
           )}
         </div>
