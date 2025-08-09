@@ -152,11 +152,7 @@ export default function EnhancedAdSignalHijack() {
                 </TabsContent>
 
                 <TabsContent value="analytics">
-                  <AnalyticsDashboard 
-                    filters={filters}
-                    data={analytics}
-                    isLoading={analyticsLoading}
-                  />
+                  <AnalyticsDashboard />
                 </TabsContent>
 
                 <TabsContent value="export">
