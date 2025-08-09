@@ -43,6 +43,13 @@ const AdSignalHijackDashboard = () => {
             <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
             Live Targeting Active
           </Badge>
+          <Button 
+            onClick={() => window.open('/ad-signal-hijack-2', '_blank')}
+            className="bg-orange-600 hover:bg-orange-700"
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Try Hijack 2.0
+          </Button>
         </div>
       </div>
 
