@@ -64,6 +64,11 @@ export default function RefinedAutoPitchGenerator() {
       title: 'VP of Marketing',
       intent_score: 94,
       geo_context: { city: 'San Francisco', state: 'CA', zip: '94105' },
+      intent_keywords: ['competitive intelligence', 'market analysis', 'competitor tracking'],
+      search_patterns: ['researching competitor tools', 'comparing analytics platforms'],
+      competitor_references: ['Similarweb', 'SEMrush', 'Ahrefs'],
+      urgency_score: 0.85,
+      last_activity: '2024-01-08T10:30:00Z',
       source: 'linkedin_intent',
       source_data: {
         recent_activity: 'Liked posts about competitive intelligence',
