@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,144 @@ import { Button } from '@/components/ui/button';
 import { fetchTasks, createTask, Task } from '@/services/specterNet';
 import { Plus, Target, Clock, TrendingUp, CheckCircle, Play, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+const REALISTIC_TASKS = [
+  {
+    title: "Analyze Competitor's Q1 Video Ad Campaign Performance",
+    description: "Deep dive into main competitor's video advertising strategy across Meta, YouTube, and TikTok - they've increased spend 40% this quarter",
+    priority: 5,
+    category: 'ad_creative',
+    status: 'pending' as const,
+    estimated_impact: 'high',
+    execution_steps: {
+      steps: [
+        "Extract all video ads from Meta Ads Library (target: 50+ creatives)",
+        "Analyze video hooks, CTAs, and messaging patterns",
+        "Identify audience targeting signals and demographics", 
+        "Create counter-campaign strategy with improved messaging",
+        "A/B test 3 alternative video concepts based on findings"
+      ]
+    }
+  },
+  {
+    title: "Target High-Intent SaaS Leads in Chicago Metro Area",
+    description: "Identify and engage warm B2B SaaS prospects showing purchase intent signals in Chicago, Naperville, and Evanston ZIP codes",
+    priority: 4,
+    category: 'lead_gen',
+    status: 'pending' as const,
+    estimated_impact: 'high',
+    execution_steps: {
+      steps: [
+        "Query CRM for leads with intent_score > 85 in target ZIP codes",
+        "Enrich 200+ profiles using Apollo and LinkedIn Sales Navigator",
+        "Generate personalized outreach sequences (email + LinkedIn)",
+        "Launch multi-touch campaign with 48hr follow-up cadence",
+        "Track conversion rates and optimize messaging weekly"
+      ]
+    }
+  },
+  {
+    title: "SEO Content Gap Analysis for 'Marketing Automation' Keywords",
+    description: "Identify high-volume keywords where competitors rank on page 1 but we're absent - focus on commercial intent terms",
+    priority: 3,
+    category: 'seo',
+    status: 'in_progress' as const,
+    estimated_impact: 'medium',
+    execution_steps: {
+      steps: [
+        "Audit competitor rankings for 500+ marketing automation terms",
+        "Identify gap keywords with >1000 monthly searches",
+        "Create content calendar targeting top 20 opportunity keywords",
+        "Optimize 5 existing pages for secondary keyword clusters",
+        "Build topic cluster content around 'workflow automation'"
+      ]
+    }
+  },
+  {
+    title: "Monitor Competitor Pricing Changes and Market Response",
+    description: "Track competitor pricing updates and analyze market reaction through review sentiment and ad spend changes",
+    priority: 4,
+    category: 'competitor_analysis',
+    status: 'pending' as const,
+    estimated_impact: 'high',
+    execution_steps: {
+      steps: [
+        "Set up automated pricing monitoring for top 5 competitors",
+        "Analyze review sentiment before/after pricing changes",
+        "Track ad spend fluctuations using Meta Ads Library",
+        "Identify optimal pricing response strategies",
+        "Create alert system for significant market movements"
+      ]
+    }
+  },
+  {
+    title: "Launch Retargeting Campaign for Website Visitors 90+ Days",
+    description: "Re-engage cold website traffic with personalized offers based on their previous page visits and behavior patterns",
+    priority: 3,
+    category: 'ad_creative',
+    status: 'completed' as const,
+    estimated_impact: 'medium',
+    execution_steps: {
+      steps: [
+        "Segment 10K+ visitors by page history and engagement depth",
+        "Create 6 personalized ad creatives based on interest signals",
+        "Set up Facebook and Google retargeting audiences",
+        "Launch campaign with $2000 daily budget allocation",
+        "Achieved 3.2% CTR and $45 CAC (23% improvement)"
+      ]
+    }
+  },
+  {
+    title: "Analyze Local Search Rankings for 'Digital Marketing Agency'",
+    description: "Comprehensive local SEO audit to improve Google My Business rankings in target cities",
+    priority: 2,
+    category: 'seo',
+    status: 'cancelled' as const,
+    estimated_impact: 'low',
+    execution_steps: {
+      steps: [
+        "Audit GMB listings in Chicago, Milwaukee, Detroit markets",
+        "Analyze competitor citation profiles and review strategies",
+        "Optimize NAP consistency across 50+ local directories",
+        "Launch review generation campaign for existing clients"
+      ]
+    }
+  },
+  {
+    title: "Develop AI-Powered Lead Scoring Model",
+    description: "Build predictive model to identify prospects most likely to convert based on engagement patterns and firmographic data",
+    priority: 5,
+    category: 'lead_gen',
+    status: 'in_progress' as const,
+    estimated_impact: 'high',
+    execution_steps: {
+      steps: [
+        "Collect 12 months of conversion data (3,000+ records)",
+        "Engineer features: email engagement, website behavior, company size",
+        "Train Random Forest model with 85%+ accuracy threshold",
+        "Implement real-time scoring in CRM workflow",
+        "A/B test against current manual qualification process"
+      ]
+    }
+  },
+  {
+    title: "Competitor Social Media Strategy Deep Dive",
+    description: "Analyze top 3 competitors' social media performance, content themes, and engagement patterns across all platforms",
+    priority: 3,
+    category: 'competitor_analysis',
+    status: 'pending' as const,
+    estimated_impact: 'medium',
+    execution_steps: {
+      steps: [
+        "Extract 6 months of social posts from LinkedIn, Twitter, Facebook",
+        "Identify top-performing content themes and formats",
+        "Analyze posting frequency and optimal timing strategies",
+        "Map competitor influencer partnerships and collaborations",
+        "Create content strategy to outperform in key metrics"
+      ]
+    }
+  }
+];
 
 export default function TaskGenerator() {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -29,60 +166,25 @@ export default function TaskGenerator() {
     },
   });
 
-  const generateSampleTask = () => {
-    const sampleTasks = [
-      {
-        title: "Analyze competitor's new video ad campaign",
-        description: "Deep dive into competitor's latest video advertising strategy on Meta and YouTube",
-        priority: 5,
-        category: 'ad_creative',
-        status: 'pending' as const,
-        estimated_impact: 'high',
-        execution_steps: {
-          steps: [
-            "Extract video ads from Meta Ads Library",
-            "Analyze video hooks and CTAs",
-            "Identify target audience signals",
-            "Create counter-campaign strategy"
-          ]
-        }
-      },
-      {
-        title: "Target high-intent leads in Chicago market",
-        description: "Identify and reach out to warm leads showing purchase intent in Chicago ZIP codes",
-        priority: 4,
-        category: 'lead_gen',
-        status: 'pending' as const,
-        estimated_impact: 'high',
-        execution_steps: {
-          steps: [
-            "Query leads with intent_score > 80 in Chicago",
-            "Enrich profiles with Apollo API",
-            "Generate personalized outreach copy",
-            "Launch targeted LinkedIn/email campaigns"
-          ]
-        }
-      },
-      {
-        title: "SEO gap analysis for competitive keywords",
-        description: "Identify keyword opportunities where competitors rank but we don't",
-        priority: 3,
-        category: 'seo',
-        status: 'pending' as const,
-        estimated_impact: 'medium',
-        execution_steps: {
-          steps: [
-            "Analyze competitor SERP rankings",
-            "Identify gap keywords with high volume",
-            "Create content calendar for target keywords",
-            "Optimize existing pages for target terms"
-          ]
-        }
-      }
+  const generateRealisticTask = () => {
+    const randomTask = REALISTIC_TASKS[Math.floor(Math.random() * REALISTIC_TASKS.length)];
+    
+    // Add some randomization to make each generated task unique
+    const variations = [
+      " - Q4 Focus",
+      " - Priority Initiative", 
+      " - Seasonal Campaign",
+      " - Market Expansion",
+      " - Competitive Response"
     ];
-
-    const randomTask = sampleTasks[Math.floor(Math.random() * sampleTasks.length)];
-    createTaskMutation.mutate(randomTask);
+    
+    const modifiedTask = {
+      ...randomTask,
+      title: randomTask.title + (Math.random() > 0.7 ? variations[Math.floor(Math.random() * variations.length)] : ""),
+      status: 'pending' as const // Always create as pending
+    };
+    
+    createTaskMutation.mutate(modifiedTask);
   };
 
   const getPriorityColor = (priority: number) => {
@@ -141,9 +243,9 @@ export default function TaskGenerator() {
           <p className="text-muted-foreground">Actionable intelligence tasks prioritized by impact</p>
         </div>
         
-        <Button onClick={generateSampleTask} disabled={createTaskMutation.isPending}>
+        <Button onClick={generateRealisticTask} disabled={createTaskMutation.isPending}>
           <Plus className="w-4 h-4 mr-2" />
-          Generate Task
+          Generate AI Task
         </Button>
       </div>
 
@@ -189,7 +291,7 @@ export default function TaskGenerator() {
               <p className="text-muted-foreground mb-4">
                 Generate AI-powered intelligence tasks to get started
               </p>
-              <Button onClick={generateSampleTask} disabled={createTaskMutation.isPending}>
+              <Button onClick={generateRealisticTask} disabled={createTaskMutation.isPending}>
                 <Plus className="w-4 h-4 mr-2" />
                 Generate First Task
               </Button>
