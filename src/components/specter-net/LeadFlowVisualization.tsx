@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  Map, 
+  Map as MapIcon, 
   BarChart3, 
   TrendingUp, 
   Filter,
@@ -141,7 +141,7 @@ const LeadFlowVisualization = ({ leads }: LeadFlowVisualizationProps) => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Map className="w-5 h-5" />
+              <MapIcon className="w-5 h-5" />
               Lead Flow Visualization
             </CardTitle>
             <div className="flex items-center gap-3">
@@ -214,7 +214,7 @@ const LeadFlowVisualization = ({ leads }: LeadFlowVisualizationProps) => {
       <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as any)} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="heatmap" className="flex items-center gap-2">
-            <Map className="w-4 h-4" />
+            <MapIcon className="w-4 h-4" />
             Regional Heatmap
           </TabsTrigger>
           <TabsTrigger value="source" className="flex items-center gap-2">
@@ -265,7 +265,7 @@ const LeadFlowVisualization = ({ leads }: LeadFlowVisualizationProps) => {
               <CardContent>
                 <div className="w-full h-80 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-dashed border-primary/20 flex items-center justify-center">
                   <div className="text-center">
-                    <Map className="w-12 h-12 text-primary mx-auto mb-3" />
+                    <MapIcon className="w-12 h-12 text-primary mx-auto mb-3" />
                     <p className="text-muted-foreground">Interactive map visualization</p>
                     <p className="text-sm text-muted-foreground">showing lead density by region</p>
                   </div>
