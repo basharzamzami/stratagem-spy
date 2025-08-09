@@ -4,20 +4,35 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Image, FileText, Plus, Copy, Edit, Trash, ExternalLink } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Upload, 
+  Image, 
+  FileText, 
+  Video, 
+  Download, 
+  Eye, 
+  Edit,
+  Trash2,
+  Plus,
+  Search
+} from 'lucide-react';
 
 interface Asset {
   id: string;
   name: string;
-  type: 'image' | 'copy' | 'video';
-  url?: string;
-  content?: string;
-  size?: string;
-  createdAt: string;
-  status: 'Active' | 'Draft' | 'Archived';
+  type: 'image' | 'video' | 'document' | 'creative';
+  size: string;
+  uploadDate: string;
+  status: 'active' | 'draft' | 'archived';
+  url: string;
+  dimensions?: string;
+  performance?: {
+    impressions: number;
+    clicks: number;
+    ctr: number;
+  };
 }
 
 interface CampaignAssetsProps {
@@ -27,279 +42,245 @@ interface CampaignAssetsProps {
 const mockAssets: Asset[] = [
   {
     id: '1',
-    name: 'Hero Image - HVAC Service',
+    name: 'Miami HVAC Hero Banner.jpg',
     type: 'image',
+    size: '2.4 MB',
+    uploadDate: '2024-01-14',
+    status: 'active',
     url: '/placeholder.svg',
-    size: '1200x628',
-    createdAt: '2024-01-10',
-    status: 'Active'
+    dimensions: '1920x1080',
+    performance: {
+      impressions: 15420,
+      clicks: 342,
+      ctr: 2.22
+    }
   },
   {
     id: '2',
-    name: 'Emergency Service Ad Copy',
-    type: 'copy',
-    content: 'Need HVAC repair now? 24/7 emergency service in Miami. Licensed & insured technicians. Call now for same-day service!',
-    createdAt: '2024-01-12',
-    status: 'Active'
+    name: 'Emergency Service Video Ad.mp4',
+    type: 'video',
+    size: '15.7 MB',
+    uploadDate: '2024-01-12',
+    status: 'active',
+    url: '/placeholder.svg',
+    dimensions: '1280x720',
+    performance: {
+      impressions: 8950,
+      clicks: 267,
+      ctr: 2.98
+    }
   },
   {
     id: '3',
-    name: 'Weekend Special Copy',
-    type: 'copy',
-    content: 'Weekend HVAC emergency? We\'re here! Special weekend rates for Miami homeowners. Fast, reliable service you can trust.',
-    createdAt: '2024-01-14',
-    status: 'Draft'
+    name: 'Service Area Map.pdf',
+    type: 'document',
+    size: '1.1 MB',
+    uploadDate: '2024-01-10',
+    status: 'draft',
+    url: '/placeholder.svg'
   }
 ];
 
 const CampaignAssets = ({ campaignId }: CampaignAssetsProps) => {
   const [assets, setAssets] = useState<Asset[]>(mockAssets);
-  const [showNewAssetForm, setShowNewAssetForm] = useState(false);
-  const [newAsset, setNewAsset] = useState({
-    name: '',
-    type: 'copy' as const,
-    content: ''
-  });
-  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [showUploadModal, setShowUploadModal] = useState(false);
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'image':
+        return <Image className="w-4 h-4" />;
+      case 'video':
+        return <Video className="w-4 h-4" />;
+      case 'document':
+        return <FileText className="w-4 h-4" />;
+      default:
+        return <FileText className="w-4 h-4" />;
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Active':
+      case 'active':
         return 'bg-success/20 text-success border-success/30';
-      case 'Draft':
-        return 'bg-warning/20 text-warning border-warning/30';
-      case 'Archived':
+      case 'draft':
         return 'bg-muted/20 text-muted-foreground border-muted/30';
+      case 'archived':
+        return 'bg-warning/20 text-warning border-warning/30';
       default:
         return 'bg-muted/20 text-muted-foreground border-muted/30';
     }
   };
 
-  const handleAddAsset = () => {
-    if (!newAsset.name.trim() || !newAsset.content.trim()) return;
-
-    const asset: Asset = {
-      id: Date.now().toString(),
-      ...newAsset,
-      createdAt: new Date().toISOString().split('T')[0],
-      status: 'Draft'
-    };
-
-    setAssets([asset, ...assets]);
-    setNewAsset({ name: '', type: 'copy', content: '' });
-    setShowNewAssetForm(false);
-    
-    toast({
-      title: "Asset created",
-      description: "Your new asset has been saved as a draft."
-    });
-  };
-
-  const copyToClipboard = async (content: string) => {
-    try {
-      await navigator.clipboard.writeText(content);
-      toast({
-        title: "Copied to clipboard",
-        description: "Asset content copied successfully"
-      });
-    } catch (error) {
-      toast({
-        title: "Failed to copy",
-        description: "Could not copy content to clipboard",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const importFromAdSignal = () => {
-    // Mock importing from Ad Signal Hijack
-    const importedAsset: Asset = {
-      id: Date.now().toString(),
-      name: 'Imported from Ad Signal - Competitor Copy',
-      type: 'copy',
-      content: 'AC repair Miami - Same day service guaranteed! Licensed professionals, upfront pricing. Call now!',
-      createdAt: new Date().toISOString().split('T')[0],
-      status: 'Draft'
-    };
-
-    setAssets([importedAsset, ...assets]);
-    toast({
-      title: "Asset imported",
-      description: "Competitor ad copy imported from Ad Signal Hijack"
-    });
-  };
-
-  const imageAssets = assets.filter(a => a.type === 'image');
-  const copyAssets = assets.filter(a => a.type === 'copy');
-  const videoAssets = assets.filter(a => a.type === 'video');
+  const filteredAssets = assets.filter(asset => {
+    const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = selectedType === 'all' || asset.type === selectedType;
+    return matchesSearch && matchesType;
+  });
 
   return (
     <div className="space-y-6">
-      {/* Asset Manager Header */}
+      {/* Header with Search and Upload */}
       <Card className="bg-card border-border">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-card-foreground">Campaign Assets</CardTitle>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={importFromAdSignal}>
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Import from Ad Signal
-              </Button>
-              <Button onClick={() => setShowNewAssetForm(!showNewAssetForm)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Asset
-              </Button>
-            </div>
+            <Button onClick={() => setShowUploadModal(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Asset
+            </Button>
           </div>
         </CardHeader>
-        {showNewAssetForm && (
-          <CardContent className="border-t border-border pt-6">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  placeholder="Asset name"
-                  value={newAsset.name}
-                  onChange={(e) => setNewAsset({ ...newAsset, name: e.target.value })}
-                />
-                <select 
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  value={newAsset.type}
-                  onChange={(e) => setNewAsset({ ...newAsset, type: e.target.value as any })}
-                >
-                  <option value="copy">Ad Copy</option>
-                  <option value="image">Image</option>
-                  <option value="video">Video</option>
-                </select>
-              </div>
-              {newAsset.type === 'copy' ? (
-                <Textarea
-                  placeholder="Enter your ad copy content..."
-                  value={newAsset.content}
-                  onChange={(e) => setNewAsset({ ...newAsset, content: e.target.value })}
-                  className="min-h-[100px]"
+        <CardContent className="space-y-4">
+          <div className="flex gap-4">
+            <div className="flex-1 relative">
+              <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+              <Input
+                placeholder="Search assets..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <select 
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="px-3 py-2 bg-background border border-border rounded-md"
+            >
+              <option value="all">All Types</option>
+              <option value="image">Images</option>
+              <option value="video">Videos</option>
+              <option value="document">Documents</option>
+            </select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Asset Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredAssets.map((asset) => (
+          <Card key={asset.id} className="bg-card border-border overflow-hidden">
+            <div className="aspect-video bg-muted flex items-center justify-center">
+              {asset.type === 'image' ? (
+                <img 
+                  src={asset.url} 
+                  alt={asset.name}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                  <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Upload {newAsset.type} files (drag & drop or click to browse)
-                  </p>
+                <div className="flex flex-col items-center gap-2">
+                  {getTypeIcon(asset.type)}
+                  <span className="text-sm text-muted-foreground">{asset.type.toUpperCase()}</span>
                 </div>
               )}
+            </div>
+            
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <div>
+                  <h3 className="font-medium text-card-foreground truncate">{asset.name}</h3>
+                  <div className="flex items-center gap-2 text-sm text-card-foreground/70">
+                    <span>{asset.size}</span>
+                    {asset.dimensions && (
+                      <>
+                        <span>•</span>
+                        <span>{asset.dimensions}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className={getStatusColor(asset.status)}>
+                    {asset.status}
+                  </Badge>
+                  <span className="text-xs text-card-foreground/70">{asset.uploadDate}</span>
+                </div>
+
+                {asset.performance && (
+                  <div className="space-y-2">
+                    <div className="text-xs text-card-foreground/70">Performance</div>
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div>
+                        <div className="text-card-foreground font-medium">
+                          {asset.performance.impressions.toLocaleString()}
+                        </div>
+                        <div className="text-card-foreground/70">Impressions</div>
+                      </div>
+                      <div>
+                        <div className="text-card-foreground font-medium">
+                          {asset.performance.clicks}
+                        </div>
+                        <div className="text-card-foreground/70">Clicks</div>
+                      </div>
+                      <div>
+                        <div className="text-card-foreground font-medium">
+                          {asset.performance.ctr}%
+                        </div>
+                        <div className="text-card-foreground/70">CTR</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    <Eye className="w-3 h-3 mr-1" />
+                    View
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Download className="w-3 h-3 mr-1" />
+                    Download
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Edit className="w-3 h-3 mr-1" />
+                    Edit
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-card-foreground">Upload New Asset</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                <Upload className="w-8 h-8 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-card-foreground mb-2">Drop files here or click to upload</p>
+                <p className="text-sm text-card-foreground/70">Supports images, videos, and documents</p>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-card-foreground">Asset Name</label>
+                <Input placeholder="Enter asset name..." />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-card-foreground">Description</label>
+                <Textarea placeholder="Asset description..." rows={3} />
+              </div>
+
               <div className="flex gap-2">
-                <Button onClick={handleAddAsset}>Create Asset</Button>
-                <Button variant="outline" onClick={() => setShowNewAssetForm(false)}>
+                <Button className="flex-1">Upload Asset</Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowUploadModal(false)}
+                >
                   Cancel
                 </Button>
               </div>
-            </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Asset Tabs */}
-      <Tabs defaultValue="copy" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="copy" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Ad Copy ({copyAssets.length})
-          </TabsTrigger>
-          <TabsTrigger value="images" className="flex items-center gap-2">
-            <Image className="w-4 h-4" />
-            Images ({imageAssets.length})
-          </TabsTrigger>
-          <TabsTrigger value="videos" className="flex items-center gap-2">
-            <Upload className="w-4 h-4" />
-            Videos ({videoAssets.length})
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="copy" className="space-y-4">
-          {copyAssets.map((asset) => (
-            <Card key={asset.id} className="bg-card border-border">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h3 className="font-semibold text-card-foreground">{asset.name}</h3>
-                    <Badge variant="outline" className={getStatusColor(asset.status)}>
-                      {asset.status}
-                    </Badge>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => copyToClipboard(asset.content || '')}>
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="outline" className="text-destructive">
-                      <Trash className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-card-foreground whitespace-pre-wrap mb-4">{asset.content}</p>
-                <div className="flex justify-between items-center text-sm text-card-foreground/70">
-                  <span>Created: {asset.createdAt}</span>
-                  <span>{asset.content?.length || 0} characters</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="images" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {imageAssets.map((asset) => (
-              <Card key={asset.id} className="bg-card border-border">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-card-foreground text-sm">{asset.name}</h3>
-                    <Badge variant="outline" className={getStatusColor(asset.status)}>
-                      {asset.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="aspect-video bg-muted rounded-lg mb-4 flex items-center justify-center">
-                    {asset.url ? (
-                      <img src={asset.url} alt={asset.name} className="w-full h-full object-cover rounded-lg" />
-                    ) : (
-                      <Image className="w-8 h-8 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="flex justify-between items-center text-sm text-card-foreground/70">
-                    <span>{asset.size}</span>
-                    <span>{asset.createdAt}</span>
-                  </div>
-                  <div className="flex gap-2 mt-3">
-                    <Button size="sm" variant="outline" className="flex-1">
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="outline" className="text-destructive">
-                      <Trash className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="videos" className="space-y-4">
-          <div className="text-center py-12">
-            <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-card-foreground mb-2">No video assets yet</h3>
-            <p className="text-card-foreground/70 mb-4">Upload your first video asset to get started</p>
-            <Button>
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Video
-            </Button>
-          </div>
-        </TabsContent>
-      </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
