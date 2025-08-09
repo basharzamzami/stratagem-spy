@@ -12,6 +12,7 @@ import DominanceMap from "./pages/DominanceMap";
 import TaskGeneratorPage from "./pages/TaskGenerator";
 import ChangeAlerts from "./pages/ChangeAlerts";
 import CampaignManager from "./pages/CampaignManager";
+import CompetitiveCRM from "./pages/CompetitiveCRM";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/task-generator" element={<TaskGeneratorPage />} />
           <Route path="/change-alerts" element={<ChangeAlerts />} />
           <Route path="/campaign-manager" element={<CampaignManager />} />
+          <Route path="/competitive-crm" element={<CompetitiveCRM />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
