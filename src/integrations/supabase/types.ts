@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ads: {
+        Row: {
+          ad_creative_url: string | null
+          competitor: string
+          cta: string | null
+          detected_patterns: Json | null
+          engagement: Json | null
+          fetched_at: string | null
+          id: string
+          offer: string | null
+          platform: string
+        }
+        Insert: {
+          ad_creative_url?: string | null
+          competitor: string
+          cta?: string | null
+          detected_patterns?: Json | null
+          engagement?: Json | null
+          fetched_at?: string | null
+          id?: string
+          offer?: string | null
+          platform: string
+        }
+        Update: {
+          ad_creative_url?: string | null
+          competitor?: string
+          cta?: string | null
+          detected_patterns?: Json | null
+          engagement?: Json | null
+          fetched_at?: string | null
+          id?: string
+          offer?: string | null
+          platform?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
