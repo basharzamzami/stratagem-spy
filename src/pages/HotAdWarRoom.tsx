@@ -8,7 +8,7 @@ const HotAdWarRoom = () => {
     <div className="container mx-auto p-6 space-y-6">
       <PageHeader
         title="🔥 Hot Ad War Room"
-        description="Production-grade hot ad detection and counter-campaign system"
+        subtitle="Production-grade hot ad detection and counter-campaign system"
       />
       
       <div className="grid gap-6">
