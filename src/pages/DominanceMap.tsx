@@ -14,8 +14,8 @@ import CompetitorRankings from '@/components/dominance-map/CompetitorRankings';
 import MarketMetrics from '@/components/dominance-map/MarketMetrics';
 
 export default function DominanceMap() {
-  const [selectedState, setSelectedState] = useState<string>('');
-  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [selectedState, setSelectedState] = useState<string>('all');
+  const [selectedCity, setSelectedCity] = useState<string>('all');
   const [searchZip, setSearchZip] = useState<string>('');
   const [deviceFilter, setDeviceFilter] = useState<string>('all');
 
@@ -130,7 +130,7 @@ export default function DominanceMap() {
                       <SelectValue placeholder="Select State" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All States</SelectItem>
+                      <SelectItem value="all">All States</SelectItem>
                       <SelectItem value="CA">California</SelectItem>
                       <SelectItem value="TX">Texas</SelectItem>
                       <SelectItem value="NY">New York</SelectItem>
@@ -143,7 +143,7 @@ export default function DominanceMap() {
                       <SelectValue placeholder="Select City" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Cities</SelectItem>
+                      <SelectItem value="all">All Cities</SelectItem>
                       <SelectItem value="Los Angeles">Los Angeles</SelectItem>
                       <SelectItem value="San Francisco">San Francisco</SelectItem>
                       <SelectItem value="Austin">Austin</SelectItem>
