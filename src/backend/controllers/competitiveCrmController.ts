@@ -11,7 +11,7 @@ export const getCRMData = async (req: Request, res: Response) => {
     const filtered = filterByQuery(crmData, {
       type: type as string,
       stage: stage as string
-    });
+    }, ['name', 'email', 'company', 'notes', 'tags']);
     
     res.json({ 
       success: true, 

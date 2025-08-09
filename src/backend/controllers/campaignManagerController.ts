@@ -11,7 +11,7 @@ export const getCampaigns = async (req: Request, res: Response) => {
     const filtered = filterByQuery(campaigns, {
       status: status as string,
       channel: channel as string
-    });
+    }, ['name', 'status', 'channel']);
     
     res.json({ 
       success: true, 

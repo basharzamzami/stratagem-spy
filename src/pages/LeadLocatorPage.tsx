@@ -39,7 +39,7 @@ export default function LeadLocatorPage() {
     queryFn: () => ApiClient.searchLeads(searchParams),
   });
 
-  const leads = leadsData?.data || [];
+  const leads: Lead[] = Array.isArray(leadsData?.data) ? leadsData.data : [];
 
   const handleSearch = () => {
     refetch();

@@ -11,7 +11,7 @@ export const getTasks = async (req: Request, res: Response) => {
     const filtered = filterByQuery(tasks, {
       status: status as string,
       assignedTo: assignedTo as string
-    });
+    }, ['title', 'notes', 'assignedTo', 'status']);
     
     res.json({ 
       success: true, 

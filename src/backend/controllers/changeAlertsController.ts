@@ -11,7 +11,7 @@ export const getAlerts = async (req: Request, res: Response) => {
     const filtered = filterByQuery(alerts, {
       severity: severity as string,
       dismissed: dismissed === 'true' ? true : dismissed === 'false' ? false : undefined
-    });
+    }, ['summary', 'description', 'competitor', 'type']);
     
     res.json({ 
       success: true, 
