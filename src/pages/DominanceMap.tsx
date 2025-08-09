@@ -181,30 +181,37 @@ export default function DominanceMap() {
             </Card>
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Heatmap Visualization */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Map className="w-5 h-5" />
-                    Market Dominance Heatmap
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <DominanceHeatmap 
-                    data={dominanceData || []}
-                    isLoading={isLoading}
-                    deviceFilter={deviceFilter}
-                  />
-                </CardContent>
-              </Card>
+          {/* Main Content - Reorganized Layout */}
+          <div className="space-y-6">
+            {/* Top Row - Heatmap with Side Panel */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Heatmap Visualization */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Map className="w-5 h-5" />
+                      Market Dominance Heatmap
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <DominanceHeatmap 
+                      data={dominanceData || []}
+                      isLoading={isLoading}
+                      deviceFilter={deviceFilter}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Market Metrics */}
+              <div>
+                <MarketMetrics data={dominanceData || []} />
+              </div>
             </div>
 
-            {/* Side Panel */}
-            <div className="space-y-6">
-              <MarketMetrics data={dominanceData || []} />
+            {/* Bottom Row - Competitor Rankings (Full Width) */}
+            <div className="w-full">
               <CompetitorRankings data={dominanceData || []} />
             </div>
           </div>
