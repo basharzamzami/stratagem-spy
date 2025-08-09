@@ -327,7 +327,7 @@ const ProductionHotAdDetector = () => {
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">
-                Target: <5min end-to-end
+                Target: less than 5min end-to-end
               </div>
             </div>
 
