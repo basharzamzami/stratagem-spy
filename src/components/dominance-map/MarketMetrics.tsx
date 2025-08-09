@@ -18,14 +18,6 @@ export default function MarketMetrics({ data }: MarketMetricsProps) {
     ? data.reduce((sum, item) => sum + (item.seo_rank_average || 0), 0) / data.length 
     : 0;
 
-  const topPerformingZones = data
-    .sort((a, b) => b.dominance_score - a.dominance_score)
-    .slice(0, 5);
-
-  const worstPerformingZones = data
-    .sort((a, b) => a.dominance_score - b.dominance_score)
-    .slice(0, 5);
-
   return (
     <div className="space-y-6">
       <Card>
@@ -67,62 +59,6 @@ export default function MarketMetrics({ data }: MarketMetricsProps) {
               <span className="text-sm text-muted-foreground">Avg SEO Rank</span>
               <span className="font-semibold text-foreground">#{avgSeoRank.toFixed(1)}</span>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <CheckCircle className="w-5 h-5" />
-            Top Performing Zones
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {topPerformingZones.map((zone, index) => (
-              <div key={zone.id} className="flex items-center justify-between p-2 hover:bg-muted/20 rounded-lg">
-                <div>
-                  <div className="font-medium text-sm">
-                    {zone.city}, {zone.state} {zone.zip_code}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Rank #{index + 1}
-                  </div>
-                </div>
-                <Badge className="bg-green-500/20 text-green-400">
-                  {zone.dominance_score.toFixed(1)}%
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <TrendingDown className="w-5 h-5" />
-            Growth Opportunities
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {worstPerformingZones.map((zone, index) => (
-              <div key={zone.id} className="flex items-center justify-between p-2 hover:bg-muted/20 rounded-lg">
-                <div>
-                  <div className="font-medium text-sm">
-                    {zone.city}, {zone.state} {zone.zip_code}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Opportunity #{index + 1}
-                  </div>
-                </div>
-                <Badge className="bg-red-500/20 text-red-400">
-                  {zone.dominance_score.toFixed(1)}%
-                </Badge>
-              </div>
-            ))}
           </div>
         </CardContent>
       </Card>
