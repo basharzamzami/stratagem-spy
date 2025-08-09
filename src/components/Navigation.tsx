@@ -66,7 +66,7 @@ const Navigation = () => {
     { 
       name: "Competitive CRM", 
       icon: Database, 
-      active: false, 
+      active: location.pathname === '/competitive-crm', 
       badge: null,
       description: "Lead management",
       path: "/competitive-crm"
@@ -141,7 +141,14 @@ const Navigation = () => {
       
       {/* Settings */}
       <div className="p-4 border-t border-border">
-        <button className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground transition-all duration-200">
+        <button 
+          onClick={() => navigate('/settings')}
+          className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+            location.pathname === '/settings'
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
+              : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+          }`}
+        >
           <Settings className="w-5 h-5" />
           <span className="font-medium">Settings</span>
         </button>
