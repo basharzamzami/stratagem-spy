@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,12 +13,15 @@ import {
   Mail
 } from 'lucide-react';
 import { EnhancedLead } from '@/services/specterNetIntegration';
+import { LeadEnrichmentData } from '@/services/warmLeadProspector';
 
 interface WarmLeadsTableProps {
   leads: EnhancedLead[];
+  onSelectLead?: (lead: EnhancedLead) => void;
+  enrichmentData?: Record<string, LeadEnrichmentData>;
 }
 
-const WarmLeadsTable = ({ leads }: WarmLeadsTableProps) => {
+const WarmLeadsTable = ({ leads, onSelectLead, enrichmentData = {} }: WarmLeadsTableProps) => {
   const getUrgencyColor = (score: number) => {
     if (score >= 90) return 'text-red-400';
     if (score >= 80) return 'text-orange-400';
@@ -32,6 +34,12 @@ const WarmLeadsTable = ({ leads }: WarmLeadsTableProps) => {
     if (score >= 75) return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
     if (score >= 65) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
     return 'bg-green-500/20 text-green-400 border-green-500/30';
+  };
+
+  const handleSelectLead = (lead: EnhancedLead) => {
+    if (onSelectLead) {
+      onSelectLead(lead);
+    }
   };
 
   if (leads.length === 0) {
@@ -71,90 +79,111 @@ const WarmLeadsTable = ({ leads }: WarmLeadsTableProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {leads.map((lead) => (
-              <TableRow key={lead.id}>
-                <TableCell>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium text-foreground">{lead.name}</div>
-                        <div className="text-sm text-muted-foreground">{lead.title} at {lead.company}</div>
+            {leads.map((lead) => {
+              const enrichment = enrichmentData[lead.id];
+              return (
+                <TableRow key={lead.id}>
+                  <TableCell>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium text-foreground">{lead.name}</div>
+                          <div className="text-sm text-muted-foreground">{lead.title} at {lead.company}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Mail className="w-3 h-3" />
+                          {lead.email}
+                        </div>
+                        {lead.phone && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            {lead.phone}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Mail className="w-3 h-3" />
-                        {lead.email}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-sm">
+                        {lead.geo_context.city}, {lead.geo_context.state}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      ZIP: {lead.geo_context.zip}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {lead.intent_keywords.map((keyword, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {keyword}
+                        </Badge>
+                      ))}
+                    </div>
+                    {lead.search_patterns.length > 0 && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        Patterns: {lead.search_patterns.join(', ')}
                       </div>
-                      {lead.phone && (
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          {lead.phone}
-                        </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Progress value={lead.urgency_score} className="h-2 w-16" />
+                      <span className={`text-sm font-medium ${getUrgencyColor(lead.urgency_score)}`}>
+                        {lead.urgency_score}%
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={getIntentScoreColor(lead.intent_score)}>
+                      {lead.intent_score}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1 text-sm">
+                      <Clock className="w-3 h-3 text-muted-foreground" />
+                      {new Date(lead.last_search_activity).toLocaleDateString()}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {Math.floor((Date.now() - new Date(lead.last_search_activity).getTime()) / (1000 * 60 * 60))}h ago
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="outline">
+                        Contact
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => handleSelectLead(lead)}
+                      >
+                        View
+                      </Button>
+                      {onSelectLead && (
+                        <Button 
+                          size="sm" 
+                          variant="default"
+                          onClick={() => handleSelectLead(lead)}
+                        >
+                          Generate Pitch
+                        </Button>
                       )}
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-sm">
-                      {lead.geo_context.city}, {lead.geo_context.state}
-                    </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    ZIP: {lead.geo_context.zip}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {lead.intent_keywords.map((keyword, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {keyword}
-                      </Badge>
-                    ))}
-                  </div>
-                  {lead.search_patterns.length > 0 && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Patterns: {lead.search_patterns.join(', ')}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Progress value={lead.urgency_score} className="h-2 w-16" />
-                    <span className={`text-sm font-medium ${getUrgencyColor(lead.urgency_score)}`}>
-                      {lead.urgency_score}%
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className={getIntentScoreColor(lead.intent_score)}>
-                    {lead.intent_score}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1 text-sm">
-                    <Clock className="w-3 h-3 text-muted-foreground" />
-                    {new Date(lead.last_search_activity).toLocaleDateString()}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {Math.floor((Date.now() - new Date(lead.last_search_activity).getTime()) / (1000 * 60 * 60))}h ago
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="outline">
-                      Contact
-                    </Button>
-                    <Button size="sm" variant="ghost">
-                      View
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                    {enrichment && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {enrichment.firmographics.company_size} • {enrichment.firmographics.revenue_estimate}
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>

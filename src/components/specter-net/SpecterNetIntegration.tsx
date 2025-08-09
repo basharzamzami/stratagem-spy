@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,8 @@ import {
   DollarSign,
   Play,
   Pause,
-  RefreshCw
+  RefreshCw,
+  MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -26,6 +26,17 @@ import {
 import WarmLeadsTable from './WarmLeadsTable';
 import CompetitorIntelDashboard from './CompetitorIntelDashboard';
 import GeneratedCampaignsView from './GeneratedCampaignsView';
+import LeadFlowVisualization from './LeadFlowVisualization';
+import AutoPitchGenerator from './AutoPitchGenerator';
+import { 
+  scanForIntentSignals, 
+  enrichLead, 
+  calculateLeadScore, 
+  generateAutoPitch,
+  AutoPitch,
+  IntentSignal,
+  LeadEnrichmentData
+} from '@/services/warmLeadProspector';
 
 const SpecterNetIntegration = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -34,6 +45,10 @@ const SpecterNetIntegration = () => {
   const [competitorIntel, setCompetitorIntel] = useState<CompetitorAdIntel[]>([]);
   const [generatedCampaigns, setGeneratedCampaigns] = useState<GeneratedCampaign[]>([]);
   const [isRealTimeActive, setIsRealTimeActive] = useState(false);
+  const [intentSignals, setIntentSignals] = useState<IntentSignal[]>([]);
+  const [leadEnrichments, setLeadEnrichments] = useState<Record<string, LeadEnrichmentData>>({});
+  const [autoPitches, setAutoPitches] = useState<Record<string, AutoPitch>>({});
+  const [selectedLead, setSelectedLead] = useState<EnhancedLead | null>(null);
   const { toast } = useToast();
 
   // Mock configuration - in real app, this would come from user settings
@@ -51,15 +66,19 @@ const SpecterNetIntegration = () => {
     try {
       toast({
         title: "🎯 Specter Net Activated",
-        description: "Scanning for warm leads and analyzing competitor intelligence..."
+        description: "Scanning for warm leads with advanced intelligence..."
       });
 
-      // Simulate progress
-      for (let i = 0; i <= 100; i += 10) {
-        setProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 200));
-      }
+      // Step 1: Scan for intent signals (20% progress)
+      setProgress(20);
+      const signals = await scanForIntentSignals(
+        config.targetKeywords,
+        config.geoTargets
+      );
+      setIntentSignals(signals);
 
+      // Step 2: Run existing integration (40% progress)
+      setProgress(40);
       const results = await runSpecterNetIntegration(
         config.targetKeywords,
         config.geoTargets,
@@ -67,13 +86,40 @@ const SpecterNetIntegration = () => {
         config.budget
       );
 
+      // Step 3: Enrich leads with advanced data (60% progress)
+      setProgress(60);
+      const enrichments: Record<string, LeadEnrichmentData> = {};
+      const pitches: Record<string, AutoPitch> = {};
+      
+      for (const lead of results.warmLeads) {
+        const leadSignals = signals.filter(s => 
+          s.keywords.some(k => lead.intent_keywords.includes(k))
+        );
+        
+        const enrichment = await enrichLead(lead.id, leadSignals);
+        enrichments[lead.id] = enrichment;
+        
+        // Recalculate lead score with enrichment data
+        lead.intent_score = calculateLeadScore(lead, leadSignals, enrichment);
+        
+        // Generate auto-pitch
+        const pitch = await generateAutoPitch(lead, leadSignals, enrichment);
+        pitches[lead.id] = pitch;
+        
+        setProgress(60 + (Object.keys(enrichments).length / results.warmLeads.length) * 30);
+      }
+      
+      setLeadEnrichments(enrichments);
+      setAutoPitches(pitches);
+
+      setProgress(100);
       setWarmLeads(results.warmLeads);
       setCompetitorIntel(results.competitorIntel);
       setGeneratedCampaigns(results.generatedCampaigns);
 
       toast({
-        title: "✅ Integration Complete",
-        description: `Generated ${results.generatedCampaigns.length} hijack campaigns targeting ${results.warmLeads.length} warm leads`
+        title: "✅ Advanced Integration Complete",
+        description: `Generated ${results.generatedCampaigns.length} campaigns with ${Object.keys(pitches).length} auto-pitches`
       });
 
     } catch (error) {
@@ -85,6 +131,29 @@ const SpecterNetIntegration = () => {
     } finally {
       setIsRunning(false);
     }
+  };
+
+  const handleRegeneratePitch = async (leadId: string) => {
+    const lead = warmLeads.find(l => l.id === leadId);
+    const enrichment = leadEnrichments[leadId];
+    const leadSignals = intentSignals.filter(s => 
+      s.keywords.some(k => lead?.intent_keywords.includes(k))
+    );
+    
+    if (lead && enrichment) {
+      const newPitch = await generateAutoPitch(lead, leadSignals, enrichment);
+      setAutoPitches(prev => ({ ...prev, [leadId]: newPitch }));
+      
+      toast({
+        title: "Pitch regenerated",
+        description: "New personalized pitch created"
+      });
+    }
+  };
+
+  const handleSendPitch = (pitchContent: string) => {
+    // Mock implementation - in real app would integrate with email/CRM
+    console.log('Sending pitch:', pitchContent);
   };
 
   const toggleRealTimeMode = () => {
@@ -170,8 +239,8 @@ const SpecterNetIntegration = () => {
         </Card>
       )}
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Enhanced Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card className="bg-gradient-to-r from-green-500/10 to-green-500/5 border-green-500/20">
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
@@ -229,11 +298,25 @@ const SpecterNetIntegration = () => {
             </div>
           </CardContent>
         </Card>
+
+        <Card className="bg-gradient-to-r from-indigo-500/10 to-indigo-500/5 border-indigo-500/20">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-indigo-400" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-indigo-400">{Object.keys(autoPitches).length}</div>
+                <div className="text-sm text-muted-foreground">Auto-Pitches</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Main Content Tabs */}
+      {/* Enhanced Main Content Tabs */}
       <Tabs defaultValue="leads" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="leads" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Warm Leads ({warmLeads.length})
@@ -246,10 +329,22 @@ const SpecterNetIntegration = () => {
             <Zap className="w-4 h-4" />
             Generated Campaigns ({generatedCampaigns.length})
           </TabsTrigger>
+          <TabsTrigger value="visualization" className="flex items-center gap-2">
+            <Target className="w-4 h-4" />
+            Lead Flow Visualization
+          </TabsTrigger>
+          <TabsTrigger value="pitch" className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4" />
+            Auto-Pitch Generator
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="leads">
-          <WarmLeadsTable leads={warmLeads} />
+          <WarmLeadsTable 
+            leads={warmLeads} 
+            onSelectLead={setSelectedLead}
+            enrichmentData={leadEnrichments}
+          />
         </TabsContent>
 
         <TabsContent value="intelligence">
@@ -258,6 +353,29 @@ const SpecterNetIntegration = () => {
 
         <TabsContent value="campaigns">
           <GeneratedCampaignsView campaigns={generatedCampaigns} />
+        </TabsContent>
+
+        <TabsContent value="visualization">
+          <LeadFlowVisualization leads={warmLeads} />
+        </TabsContent>
+
+        <TabsContent value="pitch">
+          {selectedLead && autoPitches[selectedLead.id] ? (
+            <AutoPitchGenerator
+              lead={selectedLead}
+              pitch={autoPitches[selectedLead.id]}
+              onRegeneratePitch={() => handleRegeneratePitch(selectedLead.id)}
+              onSendPitch={handleSendPitch}
+            />
+          ) : (
+            <Card className="bg-card border-border">
+              <CardContent className="p-12 text-center">
+                <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No Lead Selected</h3>
+                <p className="text-muted-foreground">Select a lead from the Warm Leads tab to generate personalized pitches</p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
 
