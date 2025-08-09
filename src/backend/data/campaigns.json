@@ -1,0 +1,71 @@
+
+[
+  {
+    "id": 1,
+    "name": "Enterprise Security Q3 Campaign",
+    "channel": "google",
+    "budget": 15000,
+    "spent": 8750,
+    "startDate": "2025-07-01T00:00:00Z",
+    "endDate": "2025-09-30T23:59:59Z",
+    "status": "active",
+    "kpis": {
+      "impressions": 125000,
+      "clicks": 3200,
+      "conversions": 89,
+      "ctr": 2.56,
+      "cpc": 2.73,
+      "roas": 4.2
+    },
+    "targeting": {
+      "locations": ["San Francisco, CA", "Austin, TX", "Boston, MA"],
+      "demographics": ["IT Decision Makers", "C-Suite Executives"],
+      "interests": ["Enterprise Software", "Cybersecurity", "Cloud Computing"]
+    }
+  },
+  {
+    "id": 2,
+    "name": "Financial Services Lead Gen",
+    "channel": "meta",
+    "budget": 10000,
+    "spent": 6200,
+    "startDate": "2025-08-01T00:00:00Z",
+    "endDate": "2025-08-31T23:59:59Z",
+    "status": "active",
+    "kpis": {
+      "impressions": 89000,
+      "clicks": 2100,
+      "conversions": 45,
+      "ctr": 2.36,
+      "cpc": 2.95,
+      "roas": 3.8
+    },
+    "targeting": {
+      "locations": ["New York, NY", "Chicago, IL", "Miami, FL"],
+      "demographics": ["Finance Professionals", "Compliance Officers"],
+      "interests": ["Financial Technology", "Regulatory Compliance", "Data Security"]
+    }
+  },
+  {
+    "id": 3,
+    "name": "Manufacturing Automation Push",
+    "channel": "youtube",
+    "budget": 8000,
+    "spent": 2400,
+    "startDate": "2025-08-15T00:00:00Z",
+    "status": "draft",
+    "kpis": {
+      "impressions": 0,
+      "clicks": 0,
+      "conversions": 0,
+      "ctr": 0,
+      "cpc": 0,
+      "roas": 0
+    },
+    "targeting": {
+      "locations": ["Austin, TX", "Detroit, MI", "Phoenix, AZ"],
+      "demographics": ["Manufacturing Executives", "Operations Managers"],
+      "interests": ["Industrial Automation", "Process Optimization", "Manufacturing Technology"]
+    }
+  }
+]

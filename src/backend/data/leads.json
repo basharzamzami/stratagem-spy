@@ -1,0 +1,78 @@
+
+[
+  {
+    "id": "lead_001",
+    "name": "Alice Johnson",
+    "company": "Innovatech Solutions",
+    "title": "CTO",
+    "contact": "alice.johnson@innovatech.com",
+    "phone": "+1-555-0123",
+    "location": "San Francisco, CA",
+    "industry": "Technology",
+    "companySize": "100-500",
+    "intentScore": 92,
+    "keywords": ["cloud security", "enterprise SaaS", "data protection"],
+    "lastActivity": "2025-08-05",
+    "source": "linkedin_ads"
+  },
+  {
+    "id": "lead_002",
+    "name": "Bob Smith",
+    "company": "NextGen Manufacturing",
+    "title": "VP of Operations",
+    "contact": "bob.smith@nextgenm.com",
+    "phone": "+1-555-0124",
+    "location": "Austin, TX",
+    "industry": "Manufacturing",
+    "companySize": "50-200",
+    "intentScore": 88,
+    "keywords": ["enterprise SaaS", "automation", "process optimization"],
+    "lastActivity": "2025-08-04",
+    "source": "google_ads"
+  },
+  {
+    "id": "lead_003",
+    "name": "Cynthia Lee",
+    "company": "Bright Solutions Inc",
+    "title": "Marketing Director",
+    "contact": "cynthia.lee@brightsol.com",
+    "phone": "+1-555-0125",
+    "location": "Seattle, WA",
+    "industry": "Digital Marketing",
+    "companySize": "25-100",
+    "intentScore": 75,
+    "keywords": ["digital marketing", "analytics", "lead generation"],
+    "lastActivity": "2025-08-03",
+    "source": "organic_search"
+  },
+  {
+    "id": "lead_004",
+    "name": "David Kim",
+    "company": "TechFlow Enterprises",
+    "title": "Security Architect",
+    "contact": "david.kim@techflow.com",
+    "phone": "+1-555-0126",
+    "location": "Boston, MA",
+    "industry": "Cybersecurity",
+    "companySize": "200-1000",
+    "intentScore": 83,
+    "keywords": ["cybersecurity", "threat detection", "compliance"],
+    "lastActivity": "2025-08-02",
+    "source": "referral"
+  },
+  {
+    "id": "lead_005",
+    "name": "Emma Rodriguez",
+    "company": "Global Finance Corp",
+    "title": "Chief Data Officer",
+    "contact": "emma.rodriguez@globalfinance.com",
+    "phone": "+1-555-0127",
+    "location": "New York, NY",
+    "industry": "Financial Services",
+    "companySize": "1000+",
+    "intentScore": 95,
+    "keywords": ["financial data", "compliance", "regulatory reporting"],
+    "lastActivity": "2025-08-01",
+    "source": "webinar"
+  }
+]

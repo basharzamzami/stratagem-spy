@@ -1,0 +1,56 @@
+
+[
+  {
+    "id": 1,
+    "title": "Deploy offer targeting 'cloud security' stolen by CloudSecure Pro",
+    "status": "To Do",
+    "assignedTo": "Sarah Chen",
+    "priority": 1,
+    "notes": "Focus on SEO keyword: 'enterprise cloud security' - high intent cluster",
+    "estimatedImpact": "high",
+    "effortHours": 8,
+    "steps": [
+      "Analyze competitor's landing page structure",
+      "Create improved value proposition",
+      "Launch A/B test campaign"
+    ],
+    "linkedEntities": [{"type": "competitor", "id": 1}],
+    "createdAt": "2025-08-05T10:00:00Z",
+    "dueDate": "2025-08-07T17:00:00Z"
+  },
+  {
+    "id": 2,
+    "title": "Launch Google Ads campaign in Austin targeting 'enterprise SaaS' intent cluster",
+    "status": "In Progress",
+    "assignedTo": "Mark Rodriguez",
+    "priority": 2,
+    "notes": "Budget approved $5k/month, targeting manufacturing vertical",
+    "estimatedImpact": "medium",
+    "effortHours": 6,
+    "steps": [
+      "Define audience segments",
+      "Create responsive search ads",
+      "Set up conversion tracking"
+    ],
+    "linkedEntities": [{"type": "location", "zip": "73301"}],
+    "createdAt": "2025-08-04T14:30:00Z",
+    "dueDate": "2025-08-08T12:00:00Z"
+  },
+  {
+    "id": 3,
+    "title": "Optimize landing page CTA to match competitor 'Start Free Trial'",
+    "status": "Completed",
+    "assignedTo": "Lena Park",
+    "priority": 3,
+    "notes": "Completed A/B test - 23% improvement in conversions",
+    "estimatedImpact": "medium",
+    "effortHours": 4,
+    "steps": [
+      "Analyze competitor CTA performance",
+      "Design new CTA variants",
+      "Implement and test"
+    ],
+    "linkedEntities": [],
+    "createdAt": "2025-08-01T09:00:00Z"
+  }
+]

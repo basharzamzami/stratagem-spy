@@ -1,0 +1,83 @@
+
+[
+  {
+    "zip": "94103",
+    "city": "San Francisco",
+    "state": "CA",
+    "seoRank": 4,
+    "adPresence": 70,
+    "device": "Desktop",
+    "marketShare": 35.5,
+    "competitorCount": 12
+  },
+  {
+    "zip": "94103",
+    "city": "San Francisco",
+    "state": "CA",
+    "seoRank": 6,
+    "adPresence": 50,
+    "device": "Mobile",
+    "marketShare": 28.2,
+    "competitorCount": 15
+  },
+  {
+    "zip": "94107",
+    "city": "San Francisco",
+    "state": "CA",
+    "seoRank": 8,
+    "adPresence": 30,
+    "device": "Tablet",
+    "marketShare": 15.3,
+    "competitorCount": 8
+  },
+  {
+    "zip": "73301",
+    "city": "Austin",
+    "state": "TX",
+    "seoRank": 7,
+    "adPresence": 60,
+    "device": "Desktop",
+    "marketShare": 42.1,
+    "competitorCount": 9
+  },
+  {
+    "zip": "73301",
+    "city": "Austin",
+    "state": "TX",
+    "seoRank": 5,
+    "adPresence": 40,
+    "device": "Mobile",
+    "marketShare": 31.8,
+    "competitorCount": 11
+  },
+  {
+    "zip": "02101",
+    "city": "Boston",
+    "state": "MA",
+    "seoRank": 3,
+    "adPresence": 85,
+    "device": "Desktop",
+    "marketShare": 48.7,
+    "competitorCount": 14
+  },
+  {
+    "zip": "10001",
+    "city": "New York",
+    "state": "NY",
+    "seoRank": 2,
+    "adPresence": 90,
+    "device": "Desktop",
+    "marketShare": 52.3,
+    "competitorCount": 18
+  },
+  {
+    "zip": "33101",
+    "city": "Miami",
+    "state": "FL",
+    "seoRank": 9,
+    "adPresence": 25,
+    "device": "Mobile",
+    "marketShare": 22.1,
+    "competitorCount": 6
+  }
+]

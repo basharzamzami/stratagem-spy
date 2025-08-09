@@ -1,0 +1,48 @@
+
+[
+  {
+    "id": "crm_001",
+    "type": "contact",
+    "name": "Alice Johnson",
+    "email": "alice.johnson@innovatech.com",
+    "phone": "+1-555-0123",
+    "company": "Innovatech Solutions",
+    "lastContact": "2025-08-05T14:30:00Z",
+    "notes": ["Initial demo completed", "High interest in enterprise features", "Decision timeline: Q4 2025"],
+    "tags": ["hot-lead", "enterprise", "security-focused"]
+  },
+  {
+    "id": "crm_002",
+    "type": "deal",
+    "name": "NextGen Manufacturing - Enterprise License",
+    "company": "NextGen Manufacturing",
+    "value": 85000,
+    "stage": "proposal",
+    "probability": 75,
+    "lastContact": "2025-08-04T11:15:00Z",
+    "notes": ["Proposal sent", "Waiting for budget approval", "Competitor: SecureFlow Systems"],
+    "tags": ["large-deal", "manufacturing", "q3-close"]
+  },
+  {
+    "id": "crm_003",
+    "type": "company",
+    "name": "Global Finance Corp",
+    "email": "procurement@globalfinance.com",
+    "phone": "+1-555-0127",
+    "lastContact": "2025-08-01T09:45:00Z",
+    "notes": ["Enterprise compliance requirements", "Multi-year contract potential", "RFP process starting"],
+    "tags": ["enterprise", "compliance", "long-sales-cycle"]
+  },
+  {
+    "id": "crm_004",
+    "type": "deal",
+    "name": "TechFlow Security Implementation",
+    "company": "TechFlow Enterprises",
+    "value": 125000,
+    "stage": "negotiation",
+    "probability": 85,
+    "lastContact": "2025-08-02T16:20:00Z",
+    "notes": ["Contract terms agreed", "Final pricing discussion", "Implementation timeline: Q4"],
+    "tags": ["hot-deal", "security", "implementation-ready"]
+  }
+]

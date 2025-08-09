@@ -1,0 +1,44 @@
+
+[
+  {
+    "id": 1,
+    "type": "competitor_change",
+    "competitor": "CloudSecure Pro",
+    "summary": "Launched new 'Zero-Trust Security' campaign targeting our keywords",
+    "description": "CloudSecure Pro started running high-budget ads on 'enterprise security' with 40% higher bid than our current strategy.",
+    "severity": "high",
+    "timestamp": "2025-08-05T08:30:00Z",
+    "dismissed": false
+  },
+  {
+    "id": 2,
+    "type": "keyword_loss",
+    "competitor": "SecureFlow Systems",
+    "summary": "Lost position #3 for 'cloud data protection' - now ranking #7",
+    "description": "Organic ranking dropped significantly for primary keyword. Competitor increased content marketing efforts.",
+    "severity": "medium",
+    "timestamp": "2025-08-04T15:45:00Z",
+    "dismissed": false
+  },
+  {
+    "id": 3,
+    "type": "ad_change",
+    "competitor": "NextGen Analytics",
+    "summary": "Updated ad creative with new AI-focused messaging",
+    "description": "Competitor shifted messaging from 'business intelligence' to 'AI-powered insights' - potential trend shift.",
+    "severity": "medium",
+    "timestamp": "2025-08-03T11:20:00Z",
+    "dismissed": true,
+    "actionTaken": "Updated our messaging to emphasize AI capabilities"
+  },
+  {
+    "id": 4,
+    "type": "market_shift",
+    "competitor": "Multiple",
+    "summary": "Increased activity in financial services vertical",
+    "description": "Three major competitors launched campaigns targeting financial compliance keywords. Market opportunity or saturation?",
+    "severity": "critical",
+    "timestamp": "2025-08-02T16:00:00Z",
+    "dismissed": false
+  }
+]
