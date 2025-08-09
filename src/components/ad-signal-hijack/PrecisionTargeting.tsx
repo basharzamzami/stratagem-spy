@@ -77,7 +77,7 @@ export default function PrecisionTargeting() {
             <div className="text-center p-4 bg-success/5 rounded-lg border border-success/20">
               <Activity className="w-6 h-6 text-success mx-auto mb-2" />
               <div className="text-2xl font-bold text-foreground">23</div>
-              <div className="text-sm text-muted-foreground">High Intent (>80%)</div>
+              <div className="text-sm text-muted-foreground">High Intent ({">"}80%)</div>
             </div>
             
             <div className="text-center p-4 bg-orange-500/5 rounded-lg border border-orange-500/20">
