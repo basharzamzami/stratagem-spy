@@ -1,3 +1,4 @@
+
 import type { StrikeWindowPrediction } from './strikeWindowPredictor';
 
 export interface AcceptanceCriteria {
@@ -236,10 +237,10 @@ class StrikeWindowMonitoring {
     const testResult4 = this.recordTestResult(
       'channel_optimization_test',
       'Optimal channel selection effectiveness',
-      { selection_accuracy: 0.70, coverage_complete: true },
+      { selection_accuracy: 0.70, coverageComplete: true },
       { 
         selection_accuracy: channelTest.accuracy >= 0.70,
-        coverage_complete: channelTest.coverage_complete 
+        coverageComplete: channelTest.coverageComplete 
       },
       Date.now() - testStart4
     );
@@ -310,7 +311,7 @@ class StrikeWindowMonitoring {
     return { p95_latency: p95Latency, throughput };
   }
 
-  private async testChannelOptimization(): Promise<{ accuracy: number; coverage_complete: boolean }> {
+  private async testChannelOptimization(): Promise<{ accuracy: number; coverageComplete: boolean }> {
     // Test channel selection algorithm
     const testCases = [
       {
@@ -348,7 +349,7 @@ class StrikeWindowMonitoring {
       testCases.some(tc => tc.expected_channels.includes(channel))
     );
     
-    return { accuracy, coverage_complete };
+    return { accuracy, coverageComplete };
   }
 
   private mockChannelSelection(profile: any): string[] {
