@@ -26,11 +26,21 @@ export default function ChangeAlertsSystem() {
   });
   const { toast } = useToast();
 
-  const { data: alerts = [], refetch } = useQuery({
+  const { data: alertsData, refetch, isLoading, error } = useQuery({
     queryKey: ['alerts'],
-    queryFn: () => fetchAlerts(),
+    queryFn: async () => {
+      try {
+        return await fetchAlerts();
+      } catch (error) {
+        console.error('Error fetching alerts:', error);
+        return [];
+      }
+    },
     refetchInterval: realTimeEnabled ? 15000 : false // Refresh every 15 seconds if enabled
   });
+
+  // Ensure alerts is always an array
+  const alerts = Array.isArray(alertsData) ? alertsData : [];
 
   // Simulate real-time alerts
   useEffect(() => {
@@ -119,6 +129,39 @@ export default function ChangeAlertsSystem() {
 
   const unreadAlerts = alerts.filter(alert => !alert.read);
   const criticalAlerts = alerts.filter(alert => alert.severity === 'critical');
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading alerts...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">Unable to load alerts at this time.</p>
+            <Button 
+              onClick={() => refetch()} 
+              variant="outline" 
+              className="mt-4"
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
