@@ -10,6 +10,7 @@ import SpecterNetDashboard from "./pages/SpecterNetDashboard";
 import LeadLocator from "./pages/LeadLocator";
 import DominanceMap from "./pages/DominanceMap";
 import TaskGeneratorPage from "./pages/TaskGenerator";
+import ChangeAlerts from "./pages/ChangeAlerts";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/lead-locator" element={<LeadLocator />} />
           <Route path="/dominance-map" element={<DominanceMap />} />
           <Route path="/task-generator" element={<TaskGeneratorPage />} />
+          <Route path="/change-alerts" element={<ChangeAlerts />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
