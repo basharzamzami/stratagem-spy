@@ -42,6 +42,7 @@ export default function LeadLocatorPage() {
   const [selectedLead, setSelectedLead] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [enrichmentData, setEnrichmentData] = useState({});
+  const [selectedLeadPitch, setSelectedLeadPitch] = useState(null);
 
   const { data: leadsData, isLoading, refetch } = useQuery({
     queryKey: ['leads', searchParams],
@@ -106,6 +107,55 @@ export default function LeadLocatorPage() {
 
   const handleSelectLead = (lead) => {
     setSelectedLead(lead);
+    // Generate a mock pitch for the selected lead
+    const mockPitch = {
+      subject_lines: [
+        `Quick question about ${lead.company || 'your company'}'s growth strategy`,
+        `Helping ${lead.company || 'companies like yours'} with competitive intelligence`,
+        `${lead.name}, noticed your interest in market research tools`
+      ],
+      opening_hooks: [
+        `Hi ${lead.name}, I noticed you've been researching competitive intelligence solutions recently.`,
+        `${lead.name}, I saw that ${lead.company || 'your company'} is looking into market research tools.`,
+        `Hey ${lead.name}, based on your recent search activity, it looks like you're exploring ways to gain competitive advantages.`
+      ],
+      pain_point_references: [
+        `Many companies struggle with staying ahead of their competition without the right intelligence tools.`,
+        `I understand how challenging it can be to make strategic decisions without comprehensive market data.`,
+        `It's frustrating when you know there's valuable competitive information out there but can't access it efficiently.`
+      ],
+      value_propositions: [
+        `Our platform provides real-time competitive intelligence that can give ${lead.company || 'your company'} a significant advantage in your market.`,
+        `We help businesses like yours turn competitive data into actionable insights that drive growth.`,
+        `With our solution, you can monitor your competitors' strategies and respond faster than ever before.`
+      ],
+      cta_options: [
+        `Would you be interested in a 15-minute demo to see how this could work for ${lead.company || 'your company'}?`,
+        `I'd love to show you how our competitive intelligence platform could help. Are you free for a brief call this week?`,
+        `Would you like to see some examples of the insights we've generated for similar companies in your space?`
+      ],
+      engagement_score: lead.intent_score || 75,
+      personalization_tokens: {
+        '{first_name}': lead.name || 'there',
+        '{company}': lead.company || 'your company',
+        '{industry}': lead.industry_context || 'your industry',
+        '{location}': lead.geo_context?.city || 'your area'
+      }
+    };
+    setSelectedLeadPitch(mockPitch);
+  };
+
+  const handleRegeneratePitch = () => {
+    if (selectedLead) {
+      // Generate a new pitch with different variations
+      handleSelectLead(selectedLead);
+    }
+  };
+
+  const handleSendPitch = (pitchContent) => {
+    console.log('Sending pitch:', pitchContent);
+    // Here you would implement the actual sending logic
+    // For now, just log the pitch content
   };
 
   return (
@@ -244,9 +294,12 @@ export default function LeadLocatorPage() {
             </TabsContent>
 
             <TabsContent value="auto-pitch" className="space-y-6">
-              {selectedLead ? (
+              {selectedLead && selectedLeadPitch ? (
                 <AutoPitchGenerator 
                   lead={selectedLead}
+                  pitch={selectedLeadPitch}
+                  onRegeneratePitch={handleRegeneratePitch}
+                  onSendPitch={handleSendPitch}
                 />
               ) : (
                 <Card>
