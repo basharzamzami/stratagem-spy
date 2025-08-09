@@ -12,7 +12,8 @@ import {
   TrendingUp,
   Target
 } from "lucide-react";
-import { useAdSignalData } from "@/hooks/useAdSignalData";
+import { useQuery } from '@tanstack/react-query';
+import { fetchAdsFromDatabase } from '@/services/adDatabase';
 import EnhancedFilterBar from "@/components/ad-signal-hijack/EnhancedFilterBar";
 import EnhancedLiveFeed from "@/components/ad-signal-hijack/EnhancedLiveFeed";
 import AnalyticsDashboard from "@/components/ad-signal-hijack/AnalyticsDashboard";
@@ -20,10 +21,10 @@ import ExportControls from "@/components/ad-signal-hijack/ExportControls";
 import AdMetricsCard from "@/components/ad-signal-hijack/AdMetricsCard";
 import QuickActionsPanel from "@/components/ad-signal-hijack/QuickActionsPanel";
 import CompetitorInsights from "@/components/ad-signal-hijack/CompetitorInsights";
+import { useAdSignalData } from "@/hooks/useAdSignalData";
 
 export default function EnhancedAdSignalHijack() {
   const {
-    ads,
     filters,
     isLoading,
     isError,
@@ -36,8 +37,14 @@ export default function EnhancedAdSignalHijack() {
     refreshData
   } = useAdSignalData();
 
+  // Fetch actual ads data to get real count
+  const { data: actualAds = [] } = useQuery({
+    queryKey: ['active-ads-count'],
+    queryFn: () => fetchAdsFromDatabase(50),
+    refetchInterval: 30000,
+  });
+
   const handleExport = () => {
-    // Export functionality
     console.log('Exporting data...');
   };
 
@@ -78,7 +85,7 @@ export default function EnhancedAdSignalHijack() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <AdMetricsCard
               title="Active Ads Tracked"
-              value={ads.length}
+              value={actualAds.length}
               change={12}
               trend="up"
               icon={<Eye className="w-5 h-5 text-primary" />}
@@ -93,7 +100,7 @@ export default function EnhancedAdSignalHijack() {
             />
             <AdMetricsCard
               title="Competitors"
-              value={24}
+              value={new Set(actualAds.map(ad => ad.competitor)).size}
               change={3}
               trend="up"
               icon={<Users className="w-5 h-5 text-blue-500" />}
@@ -115,7 +122,7 @@ export default function EnhancedAdSignalHijack() {
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="feed" className="flex items-center gap-2">
                     <Zap className="w-4 h-4" />
-                    Live Feed ({ads.length})
+                    Live Feed ({actualAds.length})
                   </TabsTrigger>
                   <TabsTrigger value="analytics" className="flex items-center gap-2">
                     <BarChart3 className="w-4 h-4" />
@@ -142,10 +149,10 @@ export default function EnhancedAdSignalHijack() {
                       )}
                       
                       <EnhancedLiveFeed
-                        ads={ads}
+                        ads={[]}
                         isLoading={isLoading}
                         onLoadMore={loadMore}
-                        hasMore={ads.length > 0}
+                        hasMore={actualAds.length > 0}
                       />
                     </CardContent>
                   </Card>
@@ -169,7 +176,7 @@ export default function EnhancedAdSignalHijack() {
             {/* Sidebar - 1 column */}
             <div className="space-y-6">
               <QuickActionsPanel
-                totalAds={ads.length}
+                totalAds={actualAds.length}
                 onRefresh={refreshData}
                 onExport={handleExport}
                 isRefreshing={isLoading}
