@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +27,7 @@ import {
   Brain
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { creativeDNAAnalyzer } from '@/services/creativeDNAExtractor';
+import { creativeDNAAnalyzer } from '@/services/creativeDNAAnalyzer';
 import EnhancedSpikeTooltip from './EnhancedSpikeTooltip';
 import AdPreviewModal from './AdPreviewModal';
 
