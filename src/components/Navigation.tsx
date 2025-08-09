@@ -26,7 +26,7 @@ const Navigation = () => {
     { 
       name: "Lead Locator", 
       icon: Users, 
-      active: false, 
+      active: location.pathname === '/lead-locator', 
       badge: "156",
       description: "Prospect identification",
       path: "/lead-locator"
