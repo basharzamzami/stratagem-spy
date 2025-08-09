@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -68,7 +67,6 @@ export default function RefinedAutoPitchGenerator() {
       search_patterns: ['researching competitor tools', 'comparing analytics platforms'],
       competitor_references: ['Similarweb', 'SEMrush', 'Ahrefs'],
       urgency_score: 0.85,
-      last_activity: '2024-01-08T10:30:00Z',
       source: 'linkedin_intent',
       source_data: {
         recent_activity: 'Liked posts about competitive intelligence',
