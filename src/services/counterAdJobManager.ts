@@ -58,7 +58,11 @@ class CounterAdJobManager {
         hook_type: { scarcity: 0.8, urgency: 0.6, authority: 0.3 },
         primary_cta: 'learn more',
         color_palette: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
-        visual_elements: ['human-faces', 'text-overlay'],
+        visual_elements: {
+          human_face: true,
+          product_demo: false,
+          text_overlay_ratio: 0.3
+        },
         offer_type: 'discount',
         confidence: 0.85
       };

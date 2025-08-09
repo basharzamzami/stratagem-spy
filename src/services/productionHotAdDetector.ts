@@ -41,6 +41,15 @@ export interface CreativeDNA {
   confidence: number;
 }
 
+// Mock data stores since database tables don't exist yet
+const mockCompetitorsWatchlist: any[] = [
+  { competitor_id: 'comp-1', name: 'Competitor A', platform: 'facebook', status: 'active' },
+  { competitor_id: 'comp-2', name: 'Competitor B', platform: 'google', status: 'active' }
+];
+const mockEngagementEvents: EngagementEvent[] = [];
+const mockHotAdAlerts: HotAdAlert[] = [];
+const mockCreativeDNA: Record<string, CreativeDNA> = {};
+
 class ProductionHotAdDetector {
   private velocityThreshold: number = 75;
   private relativeIncreaseThreshold: number = 2.0;
@@ -84,13 +93,10 @@ class ProductionHotAdDetector {
     const startTime = Date.now();
     
     try {
-      // Get active competitors from watchlist
-      const { data: competitors } = await supabase
-        .from('competitors_watchlist')
-        .select('*')
-        .eq('status', 'active');
+      // Use mock competitors watchlist since table doesn't exist
+      const competitors = mockCompetitorsWatchlist.filter(c => c.status === 'active');
 
-      if (!competitors || competitors.length === 0) {
+      if (competitors.length === 0) {
         console.log('No active competitors in watchlist');
         return;
       }
@@ -123,23 +129,8 @@ class ProductionHotAdDetector {
       events.push(...mockEvents);
     }
 
-    // Store events in database
-    if (events.length > 0) {
-      await supabase
-        .from('engagement_events')
-        .insert(events.map(event => ({
-          ad_id: event.ad_id,
-          platform: event.platform,
-          timestamp: event.timestamp,
-          likes: event.likes,
-          shares: event.shares,
-          comments: event.comments,
-          impressions: event.impressions,
-          watch_time: event.watch_time || 0,
-          clicks: event.clicks || 0,
-          raw_event: event
-        })));
-    }
+    // Store events in mock data store instead of database
+    mockEngagementEvents.push(...events);
 
     return events;
   }
@@ -204,36 +195,29 @@ class ProductionHotAdDetector {
     const shortWindowStart = new Date(now.getTime() - this.shortWindowMinutes * 60 * 1000);
     const longWindowStart = new Date(now.getTime() - this.longWindowHours * 60 * 60 * 1000);
 
-    // Check cooldown
-    const { data: recentAlert } = await supabase
-      .from('hot_ad_alerts')
-      .select('cooldown_until')
-      .eq('ad_id', adId)
-      .gte('cooldown_until', now.toISOString())
-      .order('detect_time', { ascending: false })
-      .limit(1);
+    // Check cooldown using mock data
+    const recentAlert = mockHotAdAlerts.find(alert => 
+      alert.ad_id === adId && 
+      new Date(alert.detect_time).getTime() > now.getTime() - this.cooldownHours * 60 * 60 * 1000
+    );
 
-    if (recentAlert && recentAlert.length > 0) {
+    if (recentAlert) {
       return null; // Still in cooldown
     }
 
-    // Get historical engagement data
-    const { data: shortWindow } = await supabase
-      .from('engagement_events')
-      .select('*')
-      .eq('ad_id', adId)
-      .gte('timestamp', shortWindowStart.toISOString())
-      .order('timestamp', { ascending: false });
+    // Get historical engagement data from mock store
+    const shortWindow = mockEngagementEvents.filter(event => 
+      event.ad_id === adId &&
+      new Date(event.timestamp).getTime() >= shortWindowStart.getTime()
+    );
 
-    const { data: longWindow } = await supabase
-      .from('engagement_events')
-      .select('*')
-      .eq('ad_id', adId)
-      .gte('timestamp', longWindowStart.toISOString())
-      .lt('timestamp', shortWindowStart.toISOString())
-      .order('timestamp', { ascending: false });
+    const longWindow = mockEngagementEvents.filter(event => 
+      event.ad_id === adId &&
+      new Date(event.timestamp).getTime() >= longWindowStart.getTime() &&
+      new Date(event.timestamp).getTime() < shortWindowStart.getTime()
+    );
 
-    if (!shortWindow || !longWindow || longWindow.length === 0) {
+    if (shortWindow.length === 0 || longWindow.length === 0) {
       return null; // Insufficient data
     }
 
@@ -271,25 +255,8 @@ class ProductionHotAdDetector {
         status: 'detected'
       };
 
-      // Persist to database
-      const cooldownUntil = new Date(now.getTime() + this.cooldownHours * 60 * 60 * 1000);
-      
-      await supabase
-        .from('hot_ad_alerts')
-        .insert({
-          ad_id: alert.ad_id,
-          platform: alert.platform,
-          competitor_id: alert.competitor_id,
-          detect_time: alert.detect_time,
-          velocity_score: alert.velocity_score,
-          baseline: alert.baseline,
-          primary_triggers: alert.primary_triggers,
-          creative_dna_id: alert.creative_dna_id,
-          snapshot_url: alert.snapshot_url,
-          status: alert.status,
-          cooldown_until: cooldownUntil.toISOString(),
-          raw_data: currentEvent
-        });
+      // Store in mock data store
+      mockHotAdAlerts.push(alert);
 
       return alert;
     }
@@ -336,19 +303,8 @@ class ProductionHotAdDetector {
         confidence: confidence
       };
 
-      // Persist Creative DNA
-      await supabase
-        .from('creative_dna')
-        .insert({
-          creative_dna_id: creativeDNA.creative_dna_id,
-          ad_id: creativeDNA.ad_id,
-          hook_type: creativeDNA.hook_type,
-          primary_cta: creativeDNA.primary_cta,
-          color_palette: creativeDNA.color_palette,
-          visual_elements: creativeDNA.visual_elements,
-          offer_type: creativeDNA.offer_type,
-          confidence: creativeDNA.confidence
-        });
+      // Store in mock data store
+      mockCreativeDNA[creativeDNA.creative_dna_id] = creativeDNA;
 
       // Update alert with DNA reference and primary triggers
       const primaryTriggers = Object.entries(hookScores)
@@ -356,14 +312,16 @@ class ProductionHotAdDetector {
         .slice(0, 2)
         .map(([trigger]) => trigger);
 
-      await supabase
-        .from('hot_ad_alerts')
-        .update({
+      // Update the alert in mock store
+      const alertIndex = mockHotAdAlerts.findIndex(a => a.ad_id === alert.ad_id);
+      if (alertIndex >= 0) {
+        mockHotAdAlerts[alertIndex] = {
+          ...mockHotAdAlerts[alertIndex],
           creative_dna_id: creativeDNA.creative_dna_id,
           primary_triggers: primaryTriggers,
           status: 'processing'
-        })
-        .eq('ad_id', alert.ad_id);
+        };
+      }
 
       const extractionTime = Date.now() - extractionStart;
       console.log(`🧬 Creative DNA extracted for ${alert.ad_id} in ${extractionTime}ms`);
@@ -465,7 +423,7 @@ class ProductionHotAdDetector {
     return event.likes + event.shares + event.comments + (event.clicks || 0);
   }
 
-  private calculateAverageEngagement(events: any[]): number {
+  private calculateAverageEngagement(events: EngagementEvent[]): number {
     if (events.length === 0) return 0;
     
     const total = events.reduce((sum, event) => 
@@ -501,19 +459,18 @@ class ProductionHotAdDetector {
     const now = new Date();
     const hourAgo = new Date(now.getTime() - 60 * 60 * 1000);
     
-    const { data: recentAlerts } = await supabase
-      .from('hot_ad_alerts')
-      .select('*')
-      .gte('detect_time', hourAgo.toISOString());
+    // Use mock data for metrics
+    const recentAlerts = mockHotAdAlerts.filter(alert => 
+      new Date(alert.detect_time).getTime() >= hourAgo.getTime()
+    );
 
-    const { data: recentEvents } = await supabase
-      .from('engagement_events')
-      .select('*')
-      .gte('created_at', hourAgo.toISOString());
+    const recentEvents = mockEngagementEvents.filter(event => 
+      new Date(event.timestamp).getTime() >= hourAgo.getTime()
+    );
 
     return {
-      hot_ads_detected_last_hour: recentAlerts?.length || 0,
-      engagement_events_processed: recentEvents?.length || 0,
+      hot_ads_detected_last_hour: recentAlerts.length,
+      engagement_events_processed: recentEvents.length,
       avg_detection_latency: 2.3, // Mock metric
       system_status: this.isMonitoring ? 'active' : 'stopped'
     };
