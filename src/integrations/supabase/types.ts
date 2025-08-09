@@ -161,6 +161,165 @@ export type Database = {
         }
         Relationships: []
       }
+      external_crm_sync: {
+        Row: {
+          created_at: string | null
+          crm_type: string
+          error_message: string | null
+          external_id: string
+          id: string
+          last_synced: string | null
+          lead_id: string | null
+          sync_data: Json | null
+          sync_status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          crm_type: string
+          error_message?: string | null
+          external_id: string
+          id?: string
+          last_synced?: string | null
+          lead_id?: string | null
+          sync_data?: Json | null
+          sync_status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          crm_type?: string
+          error_message?: string | null
+          external_id?: string
+          id?: string
+          last_synced?: string | null
+          lead_id?: string | null
+          sync_data?: Json | null
+          sync_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_crm_sync_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follow_up_tasks: {
+        Row: {
+          auto_generated: boolean | null
+          created_at: string | null
+          id: string
+          lead_id: string | null
+          task_id: string | null
+          trigger_condition: Json | null
+          trigger_type: string
+        }
+        Insert: {
+          auto_generated?: boolean | null
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          task_id?: string | null
+          trigger_condition?: Json | null
+          trigger_type: string
+        }
+        Update: {
+          auto_generated?: boolean | null
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          task_id?: string | null
+          trigger_condition?: Json | null
+          trigger_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_up_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_journey: {
+        Row: {
+          id: string
+          lead_id: string | null
+          sequence_order: number | null
+          stage: string
+          stage_data: Json
+          timestamp: string | null
+        }
+        Insert: {
+          id?: string
+          lead_id?: string | null
+          sequence_order?: number | null
+          stage: string
+          stage_data: Json
+          timestamp?: string | null
+        }
+        Update: {
+          id?: string
+          lead_id?: string | null
+          sequence_order?: number | null
+          stage?: string
+          stage_data?: Json
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_journey_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_sources: {
+        Row: {
+          created_at: string | null
+          id: string
+          lead_id: string | null
+          source_data: Json | null
+          source_id: string
+          source_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          source_data?: Json | null
+          source_id: string
+          source_type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lead_id?: string | null
+          source_data?: Json | null
+          source_id?: string
+          source_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_sources_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           company: string | null
