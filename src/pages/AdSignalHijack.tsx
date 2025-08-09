@@ -22,6 +22,7 @@ import { ApiClient } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/PageHeader";
 import AdAnalysisModal from "@/components/ad-signal-hijack/AdAnalysisModal";
+import { AdItem as ServiceAdItem } from "@/services/adSignal";
 
 interface AdItem {
   id: number;
@@ -49,13 +50,35 @@ interface AdAnalytics {
   byPlatform: Record<string, number>;
 }
 
+// Helper function to convert backend AdItem to service AdItem for the modal
+const convertToServiceAdItem = (backendAd: AdItem): ServiceAdItem => ({
+  id: backendAd.id.toString(),
+  platform: backendAd.platform.toLowerCase() as "meta" | "google" | "youtube" | "tiktok",
+  competitor_name: backendAd.competitor,
+  creative_url: backendAd.image,
+  creative_type: "image",
+  headline: backendAd.title,
+  primary_text: backendAd.description,
+  cta: backendAd.cta,
+  first_seen: backendAd.date,
+  last_seen: backendAd.date,
+  active: backendAd.active,
+  metrics: {
+    engagement: backendAd.engagement,
+    spend: backendAd.spend,
+    impressions: backendAd.impressions,
+    clicks: backendAd.clicks,
+    ctr: backendAd.ctr
+  }
+});
+
 export default function AdSignalHijack() {
   const [ads, setAds] = useState<AdItem[]>([]);
   const [analytics, setAnalytics] = useState<AdAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [selectedCompetitor, setSelectedCompetitor] = useState<string>('all');
-  const [selectedAd, setSelectedAd] = useState<AdItem | null>(null);
+  const [selectedAd, setSelectedAd] = useState<ServiceAdItem | null>(null);
   const [isLive, setIsLive] = useState(true);
   const { toast } = useToast();
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
@@ -126,7 +149,8 @@ export default function AdSignalHijack() {
   };
 
   const handleAnalyzeAd = (ad: AdItem) => {
-    setSelectedAd(ad);
+    const serviceAd = convertToServiceAdItem(ad);
+    setSelectedAd(serviceAd);
     setShowAnalysisModal(true);
   };
 
