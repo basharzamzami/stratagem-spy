@@ -8,9 +8,14 @@ export const getAlerts = async (req: Request, res: Response) => {
     const alerts = await readJsonFile<Alert>('alerts.json');
     const { severity, dismissed } = req.query;
     
+    // Handle boolean conversion for dismissed parameter
+    let dismissedFilter: string | undefined;
+    if (dismissed === 'true') dismissedFilter = 'true';
+    else if (dismissed === 'false') dismissedFilter = 'false';
+    
     const filtered = filterByQuery(alerts, {
       severity: severity as string,
-      dismissed: dismissed === 'true' ? true : dismissed === 'false' ? false : undefined
+      dismissed: dismissedFilter
     }, ['summary', 'description', 'competitor', 'type']);
     
     res.json({ 
