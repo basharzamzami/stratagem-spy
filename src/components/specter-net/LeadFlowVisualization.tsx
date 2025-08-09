@@ -1,338 +1,327 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Map as MapIcon, 
-  BarChart3, 
-  TrendingUp, 
-  Filter,
-  RefreshCw,
-  MapPin,
-  Users,
-  Target
-} from 'lucide-react';
-import { EnhancedLead } from '@/services/specterNetIntegration';
-import { LeadSourceType } from '@/services/warmLeadProspector';
+import { Progress } from '@/components/ui/progress';
+import { Map, TrendingUp, Target, Users, MapPin, BarChart3, Zap } from 'lucide-react';
 
-interface LeadHeatmapData {
-  state: string;
-  city: string;
-  zip: string;
+interface RegionData {
+  region: string;
   leadCount: number;
-  avgScore: number;
-  topSource: LeadSourceType;
-  coordinates: [number, number];
-}
-
-interface SourcePerformance {
-  source: LeadSourceType;
-  leadCount: number;
-  avgScore: number;
   conversionRate: number;
-  growth: number;
+  averageValue: number;
+  topIndustries: string[];
+  growthTrend: number;
+  color: string;
 }
 
-interface LeadFlowVisualizationProps {
-  leads: EnhancedLead[];
-}
+const mockRegionData: RegionData[] = [
+  {
+    region: 'San Francisco Bay Area',
+    leadCount: 95,
+    conversionRate: 34,
+    averageValue: 8500,
+    topIndustries: ['SaaS', 'FinTech', 'HealthTech'],
+    growthTrend: 23,
+    color: 'bg-red-500'
+  },
+  {
+    region: 'Austin Metro',
+    leadCount: 75,
+    conversionRate: 28,
+    averageValue: 6200,
+    topIndustries: ['Technology', 'Real Estate', 'Healthcare'],
+    growthTrend: 31,
+    color: 'bg-orange-500'
+  },
+  {
+    region: 'New York Metropolitan',
+    leadCount: 60,
+    conversionRate: 25,
+    averageValue: 7800,
+    topIndustries: ['Finance', 'Media', 'Real Estate'],
+    growthTrend: 15,
+    color: 'bg-yellow-500'
+  },
+  {
+    region: 'Miami-Dade',
+    leadCount: 45,
+    conversionRate: 22,
+    averageValue: 5400,
+    topIndustries: ['Real Estate', 'Tourism', 'Healthcare'],
+    growthTrend: 42,
+    color: 'bg-green-500'
+  },
+  {
+    region: 'Denver Metro',
+    leadCount: 38,
+    conversionRate: 30,
+    averageValue: 6800,
+    topIndustries: ['Technology', 'Energy', 'Aerospace'],
+    growthTrend: 28,
+    color: 'bg-blue-500'
+  }
+];
 
-const LeadFlowVisualization = ({ leads }: LeadFlowVisualizationProps) => {
-  const [selectedRegion, setSelectedRegion] = useState<string>('all');
-  const [selectedSource, setSelectedSource] = useState<LeadSourceType | 'all'>('all');
-  const [viewMode, setViewMode] = useState<'heatmap' | 'source' | 'timeline'>('heatmap');
+const topPerformingZones = [
+  { name: 'Bay Area (SF, Oakland, San Jose)', leads: 95, conversion: 34, revenue: '$807,000' },
+  { name: 'Dallas-Fort Worth Metroplex', leads: 68, conversion: 29, revenue: '$445,000' },
+  { name: 'Miami Beach & Downtown', leads: 52, conversion: 31, revenue: '$380,000' }
+];
 
-  // Generate heatmap data
-  const generateHeatmapData = (): LeadHeatmapData[] => {
-    const regionMap = new Map<string, LeadHeatmapData>();
-    
-    leads.forEach(lead => {
-      const key = `${lead.geo_context.state}-${lead.geo_context.city}`;
-      
-      if (regionMap.has(key)) {
-        const existing = regionMap.get(key)!;
-        existing.leadCount += 1;
-        existing.avgScore = (existing.avgScore + lead.intent_score) / 2;
-      } else {
-        regionMap.set(key, {
-          state: lead.geo_context.state,
-          city: lead.geo_context.city,
-          zip: lead.geo_context.zip || '',
-          leadCount: 1,
-          avgScore: lead.intent_score,
-          topSource: (lead.source as LeadSourceType) || 'job_boards',
-          coordinates: getCoordinates(lead.geo_context.state, lead.geo_context.city)
-        });
-      }
-    });
-    
-    const result: LeadHeatmapData[] = [];
-    regionMap.forEach((value) => {
-      result.push(value);
-    });
-    
-    return result.sort((a, b) => b.leadCount - a.leadCount);
+const growthOpportunities = [
+  { name: 'Austin Downtown & Domain', potential: 'High', estimate: '+45 leads', investment: '$15K' },
+  { name: 'Denver Tech Center', potential: 'Medium', estimate: '+32 leads', investment: '$12K' },
+  { name: 'Raleigh Research Triangle', potential: 'High', estimate: '+38 leads', investment: '$18K' }
+];
+
+export default function LeadFlowVisualization() {
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'heatmap' | 'flow'>('heatmap');
+
+  const analyzeRegion = (region: string) => {
+    setSelectedRegion(region);
+    console.log(`Analyzing region: ${region}`);
+    // Here you would typically fetch detailed analytics for the region
   };
 
-  // Generate source performance data
-  const generateSourcePerformance = (): SourcePerformance[] => {
-    const sourceMap = new Map<LeadSourceType, SourcePerformance>();
-    const sources: LeadSourceType[] = ['job_boards', 'forums', 'review_sites', 'social_platforms', 'industry_publications', 'google_trends'];
-    
-    sources.forEach(source => {
-      const sourceLeads = leads.filter(lead => lead.source === source);
-      if (sourceLeads.length > 0) {
-        const avgScore = sourceLeads.reduce((sum, lead) => sum + lead.intent_score, 0) / sourceLeads.length;
-        
-        sourceMap.set(source, {
-          source,
-          leadCount: sourceLeads.length,
-          avgScore,
-          conversionRate: Math.random() * 0.3 + 0.1, // Mock conversion rate
-          growth: (Math.random() - 0.5) * 0.6 // Mock growth rate
-        });
-      }
-    });
-    
-    const result: SourcePerformance[] = [];
-    sourceMap.forEach((value) => {
-      result.push(value);
-    });
-    
-    return result.sort((a, b) => b.leadCount - a.leadCount);
+  const compareRegions = () => {
+    console.log('Comparing selected regions...');
+    // Here you would open a comparison modal or navigate to comparison view
   };
 
-  const getCoordinates = (state: string, city: string): [number, number] => {
-    // Mock coordinates - in real app would use geocoding service
-    const coords: Record<string, [number, number]> = {
-      'CA-San Francisco': [37.7749, -122.4194],
-      'TX-Austin': [30.2672, -97.7431],
-      'NY-New York': [40.7128, -74.0060],
-      'WA-Seattle': [47.6062, -122.3321],
-      'FL-Miami': [25.7617, -80.1918]
-    };
-    
-    return coords[`${state}-${city}`] || [39.8283, -98.5795]; // Default to US center
-  };
-
-  const getSourceColor = (source: LeadSourceType): string => {
-    const colors = {
-      job_boards: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-      forums: 'bg-green-500/20 text-green-400 border-green-500/30',
-      review_sites: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-      social_platforms: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
-      industry_publications: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-      google_trends: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-    };
-    return colors[source] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-  };
-
-  const heatmapData = generateHeatmapData();
-  const sourcePerformance = generateSourcePerformance();
-  const totalLeads = leads.length;
-  const avgScore = totalLeads > 0 ? leads.reduce((sum, lead) => sum + lead.intent_score, 0) / totalLeads : 0;
+  const totalLeads = mockRegionData.reduce((sum, region) => sum + region.leadCount, 0);
+  const avgConversion = Math.round(mockRegionData.reduce((sum, region) => sum + region.conversionRate, 0) / mockRegionData.length);
+  const totalRevenue = mockRegionData.reduce((sum, region) => sum + (region.leadCount * region.averageValue), 0);
 
   return (
     <div className="space-y-6">
-      {/* Control Panel */}
-      <Card className="bg-card border-border">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <MapIcon className="w-5 h-5" />
-              Lead Flow Visualization
+      {/* Overview Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Total Leads
             </CardTitle>
-            <div className="flex items-center gap-3">
-              <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Select region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Regions</SelectItem>
-                  {heatmapData.map(region => (
-                    <SelectItem key={`${region.state}-${region.city}`} value={`${region.state}-${region.city}`}>
-                      {region.city}, {region.state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="sm">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-foreground">{totalLeads}</div>
-                <div className="text-sm text-muted-foreground">Total Leads</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-success/20 rounded-xl flex items-center justify-center">
-                <Target className="w-6 h-6 text-success" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-success">{avgScore.toFixed(0)}</div>
-                <div className="text-sm text-muted-foreground">Avg Lead Score</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-warning/20 rounded-xl flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-warning" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-warning">{heatmapData.length}</div>
-                <div className="text-sm text-muted-foreground">Active Regions</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-info/20 rounded-xl flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-info" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-info">{sourcePerformance.length}</div>
-                <div className="text-sm text-muted-foreground">Lead Sources</div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-foreground">{totalLeads}</div>
+            <div className="text-sm text-muted-foreground">Across all regions</div>
+          </CardContent>
+        </Card>
 
-      {/* Visualization Tabs */}
-      <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as any)} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="heatmap" className="flex items-center gap-2">
-            <MapIcon className="w-4 h-4" />
-            Regional Heatmap
-          </TabsTrigger>
-          <TabsTrigger value="source" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            Source Performance
-          </TabsTrigger>
-          <TabsTrigger value="timeline" className="flex items-center gap-2">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <Target className="w-4 h-4" />
+              Avg Conversion
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-400">{avgConversion}%</div>
+            <div className="text-sm text-muted-foreground">Conversion rate</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Total Revenue
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-400">${(totalRevenue / 1000000).toFixed(1)}M</div>
+            <div className="text-sm text-muted-foreground">From warm leads</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              Growth Rate
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-400">+27%</div>
+            <div className="text-sm text-muted-foreground">Month over month</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* View Controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant={viewMode === 'heatmap' ? 'default' : 'outline'}
+            onClick={() => setViewMode('heatmap')}
+            className="flex items-center gap-2"
+          >
+            <Map className="w-4 h-4" />
+            Heatmap View
+          </Button>
+          <Button
+            variant={viewMode === 'flow' ? 'default' : 'outline'}
+            onClick={() => setViewMode('flow')}
+            className="flex items-center gap-2"
+          >
             <TrendingUp className="w-4 h-4" />
-            Timeline View
-          </TabsTrigger>
-        </TabsList>
+            Flow Analysis
+          </Button>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={compareRegions}>
+            Compare Regions
+          </Button>
+        </div>
+      </div>
 
-        <TabsContent value="heatmap">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Regional Data */}
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle>Regional Lead Distribution</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {heatmapData.slice(0, 10).map((region, index) => (
-                  <div key={`${region.state}-${region.city}`} className="flex items-center justify-between p-3 rounded-lg border border-border">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                        <span className="text-xs font-medium text-primary">{index + 1}</span>
-                      </div>
-                      <div>
-                        <div className="font-medium text-foreground">{region.city}, {region.state}</div>
-                        <div className="text-sm text-muted-foreground">Avg Score: {region.avgScore.toFixed(0)}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={getSourceColor(region.topSource)}>
-                        {region.topSource.replace('_', ' ')}
-                      </Badge>
-                      <Badge variant="secondary">{region.leadCount} leads</Badge>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Mock Map Placeholder */}
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle>Geographic Heatmap</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="w-full h-80 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-dashed border-primary/20 flex items-center justify-center">
-                  <div className="text-center">
-                    <MapIcon className="w-12 h-12 text-primary mx-auto mb-3" />
-                    <p className="text-muted-foreground">Interactive map visualization</p>
-                    <p className="text-sm text-muted-foreground">showing lead density by region</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="source">
-          <Card className="bg-card border-border">
+      {/* Main Visualization */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Regional Heatmap */}
+        <div className="lg:col-span-2">
+          <Card>
             <CardHeader>
-              <CardTitle>Lead Source Performance</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Map className="w-5 h-5" />
+                Lead Density Heatmap
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {sourcePerformance.map((source) => (
-                  <div key={source.source} className="p-4 rounded-lg border border-border">
+                {mockRegionData.map((region, index) => (
+                  <div 
+                    key={region.region}
+                    className={`p-4 rounded-lg border transition-all cursor-pointer hover:shadow-lg ${
+                      selectedRegion === region.region ? 'border-primary bg-primary/5' : 'border-border'
+                    }`}
+                    onClick={() => analyzeRegion(region.region)}
+                  >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <Badge variant="outline" className={getSourceColor(source.source)}>
-                          {source.source.replace('_', ' ')}
-                        </Badge>
-                        <div>
-                          <div className="font-medium text-foreground">{source.leadCount} Leads</div>
-                          <div className="text-sm text-muted-foreground">Avg Score: {source.avgScore.toFixed(0)}</div>
-                        </div>
+                        <div className={`w-4 h-4 rounded-full ${region.color}`} />
+                        <h4 className="font-semibold text-foreground">{region.region}</h4>
                       </div>
-                      <div className="text-right">
-                        <div className="font-medium text-foreground">{(source.conversionRate * 100).toFixed(1)}%</div>
-                        <div className={`text-sm ${source.growth > 0 ? 'text-success' : 'text-destructive'}`}>
-                          {source.growth > 0 ? '+' : ''}{(source.growth * 100).toFixed(1)}%
-                        </div>
+                      <Button size="sm" variant="outline">
+                        Analyze
+                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                      <div>
+                        <div className="text-sm text-muted-foreground">Leads</div>
+                        <div className="text-lg font-bold text-foreground">{region.leadCount}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Conversion</div>
+                        <div className="text-lg font-bold text-green-400">{region.conversionRate}%</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Avg Value</div>
+                        <div className="text-lg font-bold text-blue-400">${region.averageValue.toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">Growth</div>
+                        <div className="text-lg font-bold text-purple-400">+{region.growthTrend}%</div>
                       </div>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div 
-                        className="bg-primary rounded-full h-2 transition-all duration-300" 
-                        style={{ width: `${Math.min(100, (source.leadCount / Math.max(...sourcePerformance.map(s => s.leadCount))) * 100)}%` }}
-                      />
+                    
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm text-muted-foreground">Lead Density:</span>
+                      <Progress value={(region.leadCount / 95) * 100} className="flex-1 h-2" />
+                      <span className="text-sm font-medium">{Math.round((region.leadCount / 95) * 100)}%</span>
+                    </div>
+                    
+                    <div className="flex gap-2 flex-wrap">
+                      {region.topIndustries.map((industry, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">
+                          {industry}
+                        </Badge>
+                      ))}
                     </div>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
+        </div>
 
-        <TabsContent value="timeline">
-          <Card className="bg-card border-border">
+        {/* Side Panel */}
+        <div className="space-y-6">
+          {/* Top Performing Zones */}
+          <Card>
             <CardHeader>
-              <CardTitle>Lead Activity Timeline</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5" />
+                Top Performing Zones
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="w-full h-80 bg-gradient-to-br from-success/10 to-success/5 rounded-lg border border-dashed border-success/20 flex items-center justify-center">
-                <div className="text-center">
-                  <TrendingUp className="w-12 h-12 text-success mx-auto mb-3" />
-                  <p className="text-muted-foreground">Timeline visualization</p>
-                  <p className="text-sm text-muted-foreground">showing lead activity over time</p>
+            <CardContent className="space-y-4">
+              {topPerformingZones.map((zone, index) => (
+                <div key={index} className="p-3 bg-muted/20 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-sm">{zone.name}</h4>
+                    <Badge className="bg-green-500/20 text-green-400">#{index + 1}</Badge>
+                  </div>
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    <div className="flex justify-between">
+                      <span>Leads:</span>
+                      <span className="font-medium">{zone.leads}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Conversion:</span>
+                      <span className="font-medium">{zone.conversion}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Revenue:</span>
+                      <span className="font-medium">{zone.revenue}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+
+          {/* Growth Opportunities */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Growth Opportunities
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {growthOpportunities.map((opportunity, index) => (
+                <div key={index} className="p-3 bg-muted/20 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-sm">{opportunity.name}</h4>
+                    <Badge className={opportunity.potential === 'High' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}>
+                      {opportunity.potential}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    <div className="flex justify-between">
+                      <span>Potential:</span>
+                      <span className="font-medium">{opportunity.estimate}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Investment:</span>
+                      <span className="font-medium">{opportunity.investment}</span>
+                    </div>
+                  </div>
+                  <Button size="sm" className="w-full mt-2" variant="outline">
+                    Explore Opportunity
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default LeadFlowVisualization;
+}
