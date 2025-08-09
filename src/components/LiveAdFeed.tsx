@@ -1,9 +1,10 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Play, 
   Pause, 
@@ -19,31 +20,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface AdData {
-  id: string;
-  competitor: string;
-  platform: 'Meta' | 'Google' | 'YouTube' | 'TikTok';
-  creative: {
-    type: 'image' | 'video' | 'carousel';
-    thumbnail: string;
-    headline: string;
-    primaryText: string;
-    cta: string;
-  };
-  metrics: {
-    spend: string;
-    impressions: string;
-    engagement: string;
-    startDate: string;
-    status: 'active' | 'paused' | 'ended';
-  };
-  analysis: {
-    angle: 'emotional' | 'logical' | 'mixed';
-    offerType: string;
-    urgency: boolean;
-  };
-}
+import { fetchAdsFromDatabase, DatabaseAdItem } from '@/services/adDatabase';
 
 const LiveAdFeed = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,69 +28,33 @@ const LiveAdFeed = () => {
   const [selectedTab, setSelectedTab] = useState('all');
   const [isAnalyzing, setIsAnalyzing] = useState<string | null>(null);
   const { toast } = useToast();
-  
-  const mockAds: AdData[] = [
-    {
-      id: '1',
-      competitor: 'TechCorp Solutions',
-      platform: 'Meta',
-      creative: {
-        type: 'video',
-        thumbnail: '/placeholder.svg',
-        headline: 'Transform Your Business with AI-Powered Analytics',
-        primaryText: 'Join 50,000+ companies already using our platform to make data-driven decisions. Get started with our free 14-day trial and see results in 24 hours.',
-        cta: 'Start Free Trial'
-      },
-      metrics: {
-        spend: '$12,500/day',
-        impressions: '450K',
-        engagement: '3.2%',
-        startDate: '2024-01-15',
-        status: 'active'
-      },
-      analysis: {
-        angle: 'logical',
-        offerType: 'Free Trial',
-        urgency: true
+
+  console.log('LiveAdFeed: Component mounted, fetching ads...');
+
+  const { data: ads, isLoading, refetch, isError, error } = useQuery({
+    queryKey: ['live-ads-feed'],
+    queryFn: async () => {
+      console.log('LiveAdFeed: Fetching ads from database...');
+      try {
+        const result = await fetchAdsFromDatabase(20);
+        console.log('LiveAdFeed: Successfully fetched ads:', result);
+        return result;
+      } catch (err) {
+        console.error('LiveAdFeed: Error fetching ads:', err);
+        throw err;
       }
     },
-    {
-      id: '2',
-      competitor: 'Digital Innovate',
-      platform: 'Google',
-      creative: {
-        type: 'image',
-        thumbnail: '/placeholder.svg',
-        headline: 'Scale Your Revenue 10x Faster',
-        primaryText: 'Stop leaving money on the table. Our proven system helped 1,000+ businesses increase revenue by 300% in 90 days.',
-        cta: 'Get Case Studies'
-      },
-      metrics: {
-        spend: '$8,200/day',
-        impressions: '320K',
-        engagement: '4.1%',
-        startDate: '2024-01-12',
-        status: 'active'
-      },
-      analysis: {
-        angle: 'emotional',
-        offerType: 'Case Studies',
-        urgency: false
-      }
-    }
-  ];
+    refetchInterval: isLive ? 30000 : false, // Auto-refresh every 30 seconds when live
+    retry: 3,
+    retryDelay: 1000,
+  });
 
   const platformColors = {
     Meta: 'bg-blue-500/20 text-blue-700 border-blue-500/30',
     Google: 'bg-green-500/20 text-green-700 border-green-500/30',
     YouTube: 'bg-red-500/20 text-red-700 border-red-500/30',
-    TikTok: 'bg-pink-500/20 text-pink-700 border-pink-500/30'
-  };
-
-  const statusColors = {
-    active: 'bg-success/20 text-success border-success/30',
-    paused: 'bg-warning/20 text-warning border-warning/30',
-    ended: 'bg-muted text-muted-foreground border-muted'
+    TikTok: 'bg-pink-500/20 text-pink-700 border-pink-500/30',
+    LinkedIn: 'bg-blue-600/20 text-blue-600 border-blue-600/30'
   };
 
   const handleLiveToggle = () => {
@@ -136,8 +77,6 @@ const LiveAdFeed = () => {
         description: "Detailed insights have been generated for this ad"
       });
       
-      // In real implementation, this would open a detailed analysis modal or navigate to analysis page
-      
     } catch (error) {
       toast({
         title: "Analysis failed",
@@ -149,16 +88,15 @@ const LiveAdFeed = () => {
     }
   };
 
-  const handleCopyStrategy = async (ad: AdData) => {
+  const handleCopyStrategy = async (ad: DatabaseAdItem) => {
     const strategyText = `
 Ad Strategy Analysis:
 Competitor: ${ad.competitor}
 Platform: ${ad.platform}
-Headline: ${ad.creative.headline}
-Angle: ${ad.analysis.angle}
-Offer: ${ad.analysis.offerType}
-CTA: ${ad.creative.cta}
-Urgency: ${ad.analysis.urgency ? 'Yes' : 'No'}
+Headline: ${ad.headline || 'No headline'}
+Primary Text: ${ad.primary_text || 'No primary text'}
+CTA: ${ad.cta || 'No CTA'}
+Offer: ${ad.offer || 'No offer'}
     `.trim();
     
     try {
@@ -176,18 +114,15 @@ Urgency: ${ad.analysis.urgency ? 'Yes' : 'No'}
     }
   };
 
-  const handleViewOriginal = (ad: AdData) => {
-    // In real implementation, this would open the original ad in a new tab
-    const platformUrl = ad.platform === 'Meta' ? 'facebook.com' : 
-                       ad.platform === 'Google' ? 'ads.google.com' : 
-                       ad.platform === 'YouTube' ? 'youtube.com' : 'tiktok.com';
-    
-    toast({
-      title: "Opening original ad",
-      description: `Redirecting to ${ad.platform} to view the original ad`
-    });
-    
-    // window.open(`https://${platformUrl}`, '_blank');
+  const handleViewOriginal = (ad: DatabaseAdItem) => {
+    if (ad.ad_creative_url) {
+      window.open(ad.ad_creative_url, '_blank');
+    } else {
+      toast({
+        title: "No creative URL",
+        description: "This ad doesn't have a creative URL to view."
+      });
+    }
   };
 
   const handlePageChange = (direction: 'prev' | 'next') => {
@@ -199,6 +134,37 @@ Urgency: ${ad.analysis.urgency ? 'Yes' : 'No'}
       description: "Fetching more ads..."
     });
   };
+
+  const getFilteredAds = () => {
+    if (!ads) return [];
+    if (selectedTab === 'all') return ads;
+    return ads.filter(ad => ad.platform.toLowerCase() === selectedTab);
+  };
+
+  const filteredAds = getFilteredAds();
+
+  console.log('LiveAdFeed: Current state - isLoading:', isLoading, 'ads:', ads?.length || 0, 'filtered:', filteredAds.length);
+
+  if (isError) {
+    console.error('LiveAdFeed: Query error:', error);
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center py-12">
+            <Target className="w-12 h-12 text-destructive mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Feed Error</h3>
+            <p className="text-muted-foreground mb-4">
+              {(error as Error)?.message || 'Failed to load live ad feed'}
+            </p>
+            <Button onClick={() => refetch()}>
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Retry
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -219,7 +185,7 @@ Urgency: ${ad.analysis.urgency ? 'Yes' : 'No'}
             </Button>
             <Badge variant="secondary" className="bg-success/20 text-success border-success/30">
               <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
-              {mockAds.length} Active
+              {filteredAds.length} Active
             </Badge>
           </div>
         </div>
@@ -228,174 +194,213 @@ Urgency: ${ad.analysis.urgency ? 'Yes' : 'No'}
       <CardContent>
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">All ({mockAds.length})</TabsTrigger>
-            <TabsTrigger value="meta">Meta (1)</TabsTrigger>
-            <TabsTrigger value="google">Google (1)</TabsTrigger>
-            <TabsTrigger value="youtube">YouTube (0)</TabsTrigger>
-            <TabsTrigger value="tiktok">TikTok (0)</TabsTrigger>
+            <TabsTrigger value="all">All ({ads?.length || 0})</TabsTrigger>
+            <TabsTrigger value="meta">Meta ({ads?.filter(ad => ad.platform.toLowerCase() === 'meta').length || 0})</TabsTrigger>
+            <TabsTrigger value="google">Google ({ads?.filter(ad => ad.platform.toLowerCase() === 'google').length || 0})</TabsTrigger>
+            <TabsTrigger value="youtube">YouTube ({ads?.filter(ad => ad.platform.toLowerCase() === 'youtube').length || 0})</TabsTrigger>
+            <TabsTrigger value="tiktok">TikTok ({ads?.filter(ad => ad.platform.toLowerCase() === 'tiktok').length || 0})</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="space-y-4">
-            {mockAds.map((ad) => (
-              <Card key={ad.id} className="hover:shadow-lg transition-all duration-200">
-                <CardContent className="p-6">
-                  {/* Ad Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                        {ad.creative.type === 'video' ? (
-                          <Play className="w-6 h-6 text-primary" />
-                        ) : (
-                          <img src={ad.creative.thumbnail} alt="Ad thumbnail" className="w-full h-full object-cover rounded" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">{ad.competitor}</h3>
-                        <div className="flex items-center gap-2">
-                          <Badge className={platformColors[ad.platform]}>
-                            {ad.platform}
-                          </Badge>
-                          <Badge className={statusColors[ad.metrics.status]}>
-                            {ad.metrics.status}
-                          </Badge>
+          <TabsContent value={selectedTab} className="space-y-4">
+            {/* Debug Info */}
+            <div className="bg-yellow-100 dark:bg-yellow-900/20 p-2 rounded text-xs">
+              Debug: isLoading={String(isLoading)}, totalAds={ads?.length || 0}, filteredAds={filteredAds.length}, error={error ? 'yes' : 'no'}
+            </div>
+
+            {/* Loading State */}
+            {isLoading && (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                <span className="ml-2 text-muted-foreground">Loading live ads...</span>
+              </div>
+            )}
+
+            {/* No Ads State */}
+            {!isLoading && filteredAds.length === 0 && (
+              <div className="text-center py-12">
+                <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No ads found</h3>
+                <p className="text-muted-foreground">
+                  {selectedTab === 'all' 
+                    ? 'The live feed appears empty. Check the connection.' 
+                    : `No ${selectedTab} ads available in the current feed.`
+                  }
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => refetch()}
+                  className="mt-4"
+                >
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Refresh Feed
+                </Button>
+              </div>
+            )}
+
+            {/* Ads Display */}
+            {!isLoading && filteredAds.length > 0 && (
+              <>
+                {filteredAds.map((ad) => (
+                  <Card key={ad.id} className="hover:shadow-lg transition-all duration-200">
+                    <CardContent className="p-6">
+                      {/* Ad Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-16 bg-primary/10 rounded-lg overflow-hidden flex items-center justify-center">
+                            {ad.ad_creative_url ? (
+                              <img 
+                                src={ad.ad_creative_url} 
+                                alt="Ad creative" 
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = '/placeholder.svg';
+                                }}
+                              />
+                            ) : (
+                              <Eye className="w-8 h-8 text-primary" />
+                            )}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-foreground">{ad.competitor}</h3>
+                            <div className="flex items-center gap-2">
+                              <Badge className={platformColors[ad.platform as keyof typeof platformColors] || 'bg-gray-500/20 text-gray-700'}>
+                                {ad.platform}
+                              </Badge>
+                              {ad.active && (
+                                <Badge className="bg-success/20 text-success border-success/30">
+                                  Live
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-muted-foreground">Detected</div>
+                          <div className="flex items-center gap-1 text-sm">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(ad.fetched_at).toLocaleDateString()}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-muted-foreground">Launch Date</div>
-                      <div className="flex items-center gap-1 text-sm">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(ad.metrics.startDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Ad Creative Preview */}
-                  <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-primary mb-4">
-                    <h4 className="font-semibold text-foreground mb-2">{ad.creative.headline}</h4>
-                    <p className="text-sm text-foreground/80 mb-3 leading-relaxed">{ad.creative.primaryText}</p>
-                    <Button size="sm" variant="outline" className="text-xs">
-                      {ad.creative.cta}
-                    </Button>
-                  </div>
+                      {/* Ad Creative Preview */}
+                      <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-primary mb-4">
+                        <h4 className="font-semibold text-foreground mb-2">{ad.headline || 'No headline available'}</h4>
+                        {ad.primary_text && (
+                          <p className="text-sm text-foreground/80 mb-3 leading-relaxed">{ad.primary_text}</p>
+                        )}
+                        <div className="flex items-center gap-2">
+                          {ad.cta && (
+                            <Button size="sm" variant="outline" className="text-xs">
+                              {ad.cta}
+                            </Button>
+                          )}
+                          {ad.offer && (
+                            <Badge variant="secondary" className="text-xs">
+                              {ad.offer}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
 
-                  {/* Metrics Row */}
-                  <div className="grid grid-cols-4 gap-4 mb-4">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 mb-1">
-                        <DollarSign className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Daily Spend</span>
-                      </div>
-                      <div className="font-semibold text-foreground">{ad.metrics.spend}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 mb-1">
-                        <Eye className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Impressions</span>
-                      </div>
-                      <div className="font-semibold text-foreground">{ad.metrics.impressions}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 mb-1">
-                        <TrendingUp className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Engagement</span>
-                      </div>
-                      <div className="font-semibold text-foreground">{ad.metrics.engagement}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-xs text-muted-foreground mb-1">Analysis</div>
-                      <div className="flex justify-center gap-1">
-                        <Badge variant="secondary" className="text-xs">
-                          {ad.analysis.angle}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 pt-4 border-t">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex-1"
-                      onClick={() => handleAnalyzeAd(ad.id)}
-                      disabled={isAnalyzing === ad.id}
-                    >
-                      {isAnalyzing === ad.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Analyze
-                        </>
+                      {/* Engagement Metrics */}
+                      {ad.engagement && (
+                        <div className="grid grid-cols-4 gap-4 mb-4 p-3 bg-muted/20 rounded-lg">
+                          {Object.entries(ad.engagement).map(([key, value]) => (
+                            <div key={key} className="text-center">
+                              <div className="text-xs text-muted-foreground capitalize mb-1">{key}</div>
+                              <div className="font-semibold text-foreground">
+                                {typeof value === 'number' ? value.toLocaleString() : value}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       )}
-                    </Button>
+
+                      {/* Detected Patterns */}
+                      {ad.detected_patterns && (
+                        <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                          <div className="text-xs text-muted-foreground mb-2">Detected Patterns:</div>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            {Object.entries(ad.detected_patterns).map(([key, value]) => (
+                              <div key={key}>
+                                <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
+                                <span className="ml-1 font-medium">{value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 pt-4 border-t">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={() => handleAnalyzeAd(ad.id)}
+                          disabled={isAnalyzing === ad.id}
+                        >
+                          {isAnalyzing === ad.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Analyzing...
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="w-4 h-4 mr-2" />
+                              Analyze
+                            </>
+                          )}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={() => handleCopyStrategy(ad)}
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy Strategy
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleViewOriginal(ad)}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between pt-4">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {filteredAds.length} live ads
+                  </div>
+                  <div className="flex items-center gap-2">
                     <Button 
-                      size="sm" 
                       variant="outline" 
-                      className="flex-1"
-                      onClick={() => handleCopyStrategy(ad)}
+                      size="sm" 
+                      disabled={currentPage === 1}
+                      onClick={() => handlePageChange('prev')}
                     >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy Strategy
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
                     </Button>
                     <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleViewOriginal(ad)}
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handlePageChange('next')}
                     >
-                      <ExternalLink className="w-4 h-4" />
+                      Next
+                      <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {/* Pagination */}
-            <div className="flex items-center justify-between pt-4">
-              <div className="text-sm text-muted-foreground">
-                Showing {mockAds.length} of 847 ads
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  disabled={currentPage === 1}
-                  onClick={() => handlePageChange('prev')}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handlePageChange('next')}
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Other platform tabs with empty states */}
-          <TabsContent value="meta" className="py-8 text-center">
-            <div className="text-muted-foreground">Meta ads will appear here when found</div>
-          </TabsContent>
-          
-          <TabsContent value="google" className="py-8 text-center">
-            <div className="text-muted-foreground">Google ads will appear here when found</div>
-          </TabsContent>
-          
-          <TabsContent value="youtube" className="py-8 text-center">
-            <div className="text-muted-foreground">YouTube ads will appear here when found</div>
-          </TabsContent>
-          
-          <TabsContent value="tiktok" className="py-8 text-center">
-            <div className="text-muted-foreground">TikTok ads will appear here when found</div>
+                </div>
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>
