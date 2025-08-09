@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchLiveAds, SearchFilters, AdItem, fetchAdAnalytics } from '@/services/adSignal';
+import { fetchLiveAds, SearchFilters, AdItem, fetchAnalytics } from '@/services/adSignal';
 import { useToast } from '@/hooks/use-toast';
 
 export function useAdSignalData() {
@@ -26,7 +26,7 @@ export function useAdSignalData() {
 
   const analyticsQuery = useQuery({
     queryKey: ["ad-analytics", filters],
-    queryFn: () => fetchAdAnalytics(filters),
+    queryFn: () => fetchAnalytics(filters),
     enabled: hasApplied,
   });
 

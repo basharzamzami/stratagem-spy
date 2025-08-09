@@ -1,22 +1,24 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
-import { useQuery } from "@tanstack/react-query";
 import { SearchFilters } from "@/services/adSignal";
-import AnalyticsSkeleton from "./Analytics.Skeleton";
+import AnalyticsSkeleton from "./AnalyticsSkeleton";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, LineChart, Line, ResponsiveContainer } from 'recharts';
 
 const COLORS = ['#6E56CF', '#22C55E', '#EF4444', '#F59E0B', '#06B6D4', '#A78BFA'];
 
-export default function AnalyticsDashboard({ filters }: { filters: SearchFilters }) {
-  const { data, isFetching, isError } = useQuery({
-    queryKey: ["ad-analytics", filters],
-    queryFn: async () => {
-      const res = await fetch("/functions/v1/ad-signal-analytics", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ filters }) });
-      if (!res.ok) throw new Error("Failed to fetch analytics");
-      return res.json() as Promise<{ angles: { emotional: number; logical: number }; offers: Record<string, number>; formats: Record<string, number>; trends: Array<{ date: string; count: number }>; }>;
-    },
-  });
+interface AnalyticsDashboardProps {
+  filters: SearchFilters;
+  data?: {
+    angles: { emotional: number; logical: number };
+    offers: Record<string, number>;
+    formats: Record<string, number>;
+    trends: Array<{ date: string; count: number }>;
+  };
+  isLoading: boolean;
+}
 
+export default function AnalyticsDashboard({ filters, data, isLoading }: AnalyticsDashboardProps) {
   const angleData = data ? [
     { name: 'Emotional', value: data.angles.emotional },
     { name: 'Logical', value: data.angles.logical },
@@ -29,9 +31,9 @@ export default function AnalyticsDashboard({ filters }: { filters: SearchFilters
     <Card className="saas-card p-6">
       <CardContent>
         <h3 className="text-xl font-semibold mb-4">Ad Analysis Dashboard</h3>
-        {isFetching && <AnalyticsSkeleton />}
-        {isError && <div className="text-sm text-destructive">Failed to load analytics</div>}
-        {data && !isFetching && (
+        {isLoading && <AnalyticsSkeleton />}
+        {!data && !isLoading && <div className="text-sm text-muted-foreground">No analytics data available</div>}
+        {data && !isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ChartContainer config={{}}>
               <ResponsiveContainer width="100%" height={200}>
