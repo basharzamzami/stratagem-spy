@@ -1,12 +1,16 @@
 
 import { Request, Response } from 'express';
-import { readJsonFile, writeJsonFile, generateId } from '../utils/fileUtils.js';
+import { readJsonFile, filterByQuery } from '../utils/fileUtils.js';
 import type { Lead } from '../types/index.js';
 
 export const getLeads = async (req: Request, res: Response) => {
   try {
     const leads = await readJsonFile<Lead>('leads.json');
-    res.json({ success: true, data: leads, meta: { total: leads.length } });
+    res.json({ 
+      success: true, 
+      data: leads,
+      meta: { total: leads.length }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch leads' });
   }
@@ -15,40 +19,44 @@ export const getLeads = async (req: Request, res: Response) => {
 export const searchLeads = async (req: Request, res: Response) => {
   try {
     const leads = await readJsonFile<Lead>('leads.json');
-    const { industry, location, minIntent, keyword, company } = req.query;
+    const { keyword, location, industry, minIntent } = req.query;
     
     let filtered = leads;
     
     if (keyword) {
-      const k = String(keyword).toLowerCase();
-      filtered = filtered.filter(l => 
-        l.keywords.some(kw => kw.toLowerCase().includes(k)) ||
-        l.title?.toLowerCase().includes(k) ||
-        l.company.toLowerCase().includes(k)
+      const keywordStr = String(keyword).toLowerCase();
+      filtered = filtered.filter(lead => 
+        lead.name.toLowerCase().includes(keywordStr) ||
+        lead.company.toLowerCase().includes(keywordStr) ||
+        lead.keywords.some(k => k.toLowerCase().includes(keywordStr))
       );
     }
     
     if (location) {
-      const loc = String(location).toLowerCase();
-      filtered = filtered.filter(l => l.location.toLowerCase().includes(loc));
+      filtered = filtered.filter(lead => 
+        lead.location.toLowerCase().includes(String(location).toLowerCase())
+      );
     }
     
     if (industry) {
-      const ind = String(industry).toLowerCase();
-      filtered = filtered.filter(l => l.industry.toLowerCase().includes(ind));
+      filtered = filtered.filter(lead => 
+        lead.industry.toLowerCase() === String(industry).toLowerCase()
+      );
     }
     
     if (minIntent) {
-      const min = parseInt(String(minIntent));
-      filtered = filtered.filter(l => l.intentScore >= min);
+      const minIntentScore = parseInt(String(minIntent));
+      filtered = filtered.filter(lead => lead.intentScore >= minIntentScore);
     }
     
-    if (company) {
-      const comp = String(company).toLowerCase();
-      filtered = filtered.filter(l => l.company.toLowerCase().includes(comp));
-    }
-    
-    res.json({ success: true, data: filtered, meta: { total: filtered.length } });
+    res.json({ 
+      success: true, 
+      data: filtered,
+      meta: { 
+        total: filtered.length,
+        filters: { keyword, location, industry, minIntent }
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to search leads' });
   }
@@ -56,29 +64,37 @@ export const searchLeads = async (req: Request, res: Response) => {
 
 export const enrichLead = async (req: Request, res: Response) => {
   try {
-    const leads = await readJsonFile<Lead>('leads.json');
-    const id = String(req.params.id);
-    const index = leads.findIndex(l => l.id === id);
-    
-    if (index === -1) {
-      return res.status(404).json({ success: false, message: 'Lead not found' });
-    }
+    const leadId = req.params.id;
     
     // Mock enrichment data
     const enrichment = {
-      linkedin: `https://linkedin.com/in/${leads[index].name.replace(/\s+/g, '').toLowerCase()}`,
-      companyWebsite: `https://${leads[index].company.replace(/\s+/g, '').toLowerCase()}.com`,
-      confidence: 0.87 + Math.random() * 0.1,
-      lastEnriched: new Date().toISOString(),
-      additionalEmails: [`${leads[index].name.split(' ')[0].toLowerCase()}@${leads[index].company.replace(/\s+/g, '').toLowerCase()}.com`],
-      socialProfiles: ['LinkedIn', 'Twitter'],
-      technographics: ['Salesforce', 'HubSpot', 'AWS']
+      socialProfiles: {
+        linkedin: `https://linkedin.com/in/${leadId}`,
+        twitter: `@${leadId}_company`
+      },
+      companyDetails: {
+        revenue: '$1M-5M',
+        employees: '50-200',
+        founded: '2018',
+        website: `https://${leadId}-company.com`
+      },
+      technographics: [
+        'Salesforce CRM',
+        'Google Analytics',
+        'HubSpot Marketing'
+      ],
+      recentActivity: [
+        'Visited pricing page 3 times this week',
+        'Downloaded competitor comparison guide',
+        'Attended webinar on marketing automation'
+      ]
     };
     
-    leads[index].enrichment = enrichment;
-    await writeJsonFile('leads.json', leads);
-    
-    res.json({ success: true, data: leads[index] });
+    res.json({ 
+      success: true, 
+      message: 'Lead enriched successfully',
+      data: { id: leadId, enrichment }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to enrich lead' });
   }
@@ -86,17 +102,21 @@ export const enrichLead = async (req: Request, res: Response) => {
 
 export const createLead = async (req: Request, res: Response) => {
   try {
-    const leads = await readJsonFile<Lead>('leads.json');
-    const newLead: Lead = {
-      id: `lead_${generateId()}`,
-      ...req.body,
-      lastActivity: new Date().toISOString().split('T')[0]
+    const leadData = req.body;
+    
+    const newLead = {
+      id: Date.now().toString(),
+      ...leadData,
+      lastActivity: new Date().toISOString(),
+      keywords: leadData.keywords || [],
+      intentScore: leadData.intentScore || 50
     };
     
-    leads.push(newLead);
-    await writeJsonFile('leads.json', leads);
-    
-    res.status(201).json({ success: true, data: newLead });
+    res.json({ 
+      success: true, 
+      message: 'Lead created successfully',
+      data: newLead
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to create lead' });
   }

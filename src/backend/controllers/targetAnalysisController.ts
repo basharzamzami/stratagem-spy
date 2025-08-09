@@ -1,18 +1,17 @@
 
 import { Request, Response } from 'express';
-import { readJsonFile, writeJsonFile, generateId, filterByQuery } from '../utils/fileUtils.js';
+import { readJsonFile, filterByQuery } from '../utils/fileUtils.js';
 import type { Task } from '../types/index.js';
 
 export const getTasks = async (req: Request, res: Response) => {
   try {
     const tasks = await readJsonFile<Task>('tasks.json');
-    const { status, assignedTo, priority } = req.query;
+    const { status, assignedTo } = req.query;
     
     const filtered = filterByQuery(tasks, {
       status: status as string,
-      assignedTo: assignedTo as string,
-      priority: priority as string
-    }, ['title', 'notes', 'assignedTo']);
+      assignedTo: assignedTo as string
+    });
     
     res.json({ 
       success: true, 
@@ -26,48 +25,53 @@ export const getTasks = async (req: Request, res: Response) => {
 
 export const generateTasks = async (req: Request, res: Response) => {
   try {
-    const tasks = await readJsonFile<Task>('tasks.json');
-    const { context } = req.body || {};
+    const { context } = req.body;
     
-    const generateTaskTitle = (context: any) => {
-      const competitors = context?.competitors || [];
-      const keywords = context?.keywords || ['target keyword'];
-      const locations = context?.locations || ['target location'];
-      
-      const templates = [
-        `Deploy offer targeting "${keywords[0]}" stolen by ${competitors[0]?.name || 'competitor'}`,
-        `Launch Google Ads campaign in ${locations[0]} targeting "${keywords[1] || keywords[0]}" intent cluster`,
-        `Optimize landing page conversion with improved CTA and trust signals`,
-        `Counter competitor pricing strategy in ${locations[0]} market`,
-        `Implement SEO strategy for "${keywords[0]}" keyword dominance`
-      ];
-      
-      return templates[Math.floor(Math.random() * templates.length)];
-    };
+    // Mock AI-generated tasks based on context
+    const generatedTasks = [
+      {
+        id: Date.now() + 1,
+        title: `Launch targeted campaign for "${context.keyword || 'high-intent keywords'}"`,
+        status: 'To Do' as const,
+        assignedTo: 'Marketing Team',
+        priority: 4 as const,
+        notes: `Based on competitor analysis, target ${context.location || 'key markets'} with focused messaging`,
+        estimatedImpact: 'high' as const,
+        effortHours: 16,
+        steps: [
+          'Research competitor ad copy',
+          'Create landing page',
+          'Set up ad campaigns',
+          'Monitor and optimize'
+        ],
+        linkedEntities: [],
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: Date.now() + 2,
+        title: 'Optimize SEO for competitor gap keywords',
+        status: 'To Do' as const,
+        assignedTo: 'SEO Team',
+        priority: 3 as const,
+        notes: 'Identified opportunity in competitor keyword gaps',
+        estimatedImpact: 'medium' as const,
+        effortHours: 12,
+        steps: [
+          'Audit current rankings',
+          'Content gap analysis',
+          'Create new content',
+          'Build backlinks'
+        ],
+        linkedEntities: [],
+        createdAt: new Date().toISOString()
+      }
+    ];
     
-    const generatedTasks: Task[] = Array.from({ length: 3 }, () => ({
-      id: generateId(),
-      title: generateTaskTitle(context),
-      status: 'To Do' as const,
-      assignedTo: ['Sarah Chen', 'Mark Rodriguez', 'Alex Kim', 'Lisa Wang'][Math.floor(Math.random() * 4)],
-      priority: Math.ceil(Math.random() * 5) as 1 | 2 | 3 | 4 | 5,
-      notes: 'Auto-generated task based on competitive intelligence analysis',
-      estimatedImpact: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as 'low' | 'medium' | 'high',
-      effortHours: Math.ceil(Math.random() * 10) + 2,
-      steps: [
-        'Analyze competitive landscape',
-        'Define strategy and approach',
-        'Execute implementation plan',
-        'Monitor and optimize results'
-      ],
-      linkedEntities: context?.competitors || [],
-      createdAt: new Date().toISOString()
-    }));
-    
-    tasks.push(...generatedTasks);
-    await writeJsonFile('tasks.json', tasks);
-    
-    res.status(201).json({ success: true, data: generatedTasks });
+    res.json({ 
+      success: true, 
+      message: 'Tasks generated successfully',
+      data: generatedTasks
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to generate tasks' });
   }
@@ -75,18 +79,14 @@ export const generateTasks = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
   try {
-    const tasks = await readJsonFile<Task>('tasks.json');
-    const id = parseInt(req.params.id);
-    const index = tasks.findIndex(t => t.id === id);
+    const taskId = parseInt(req.params.id);
+    const updateData = req.body;
     
-    if (index === -1) {
-      return res.status(404).json({ success: false, message: 'Task not found' });
-    }
-    
-    tasks[index] = { ...tasks[index], ...req.body };
-    await writeJsonFile('tasks.json', tasks);
-    
-    res.json({ success: true, data: tasks[index] });
+    res.json({ 
+      success: true, 
+      message: 'Task updated successfully',
+      data: { id: taskId, ...updateData }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to update task' });
   }

@@ -8,8 +8,10 @@ import Index from "./pages/Index";
 import AdSignalHijack from "./pages/AdSignalHijack";
 import SpecterNetDashboard from "./pages/SpecterNetDashboard";
 import LeadLocator from "./pages/LeadLocator";
+import LeadLocatorPage from "./pages/LeadLocatorPage";
 import DominanceMap from "./pages/DominanceMap";
 import TaskGeneratorPage from "./pages/TaskGenerator";
+import TargetAnalysisPage from "./pages/TargetAnalysisPage";
 import ChangeAlerts from "./pages/ChangeAlerts";
 import CampaignManager from "./pages/CampaignManager";
 import CompetitiveCRM from "./pages/CompetitiveCRM";
@@ -25,8 +27,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<SpecterNetDashboard />} />
           <Route path="/ad-signal-hijack" element={<AdSignalHijack />} />
-          <Route path="/lead-locator" element={<LeadLocator />} />
+          <Route path="/lead-locator" element={<LeadLocatorPage />} />
           <Route path="/dominance-map" element={<DominanceMap />} />
+          <Route path="/target-analysis" element={<TargetAnalysisPage />} />
           <Route path="/task-generator" element={<TaskGeneratorPage />} />
           <Route path="/change-alerts" element={<ChangeAlerts />} />
           <Route path="/campaign-manager" element={<CampaignManager />} />
