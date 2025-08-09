@@ -28,7 +28,10 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
     queryFn: () => ApiClient.getCampaigns(),
   });
 
-  const campaigns: Campaign[] = Array.isArray(campaignsResponse?.data) ? campaignsResponse.data : [];
+  // Ensure campaigns is always an array
+  const campaigns: Campaign[] = Array.isArray(campaignsResponse?.data) 
+    ? (campaignsResponse.data as Campaign[])
+    : [];
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -151,11 +154,11 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                 <TableRow 
                   key={campaign.id} 
                   className="cursor-pointer hover:bg-muted/50 border-border"
-                  onClick={() => onCampaignSelect?.(campaign.id)}
+                  onClick={() => onCampaignSelect?.(campaign.id.toString())}
                 >
                   <TableCell>
                     <div className="font-medium text-card-foreground">{campaign.name}</div>
-                    <div className="text-xs text-card-foreground/60">{campaign.objective}</div>
+                    <div className="text-xs text-card-foreground/60">{campaign.channel} Campaign</div>
                   </TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(campaign.status)}>
