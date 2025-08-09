@@ -8,13 +8,15 @@ export async function fetchMetaAds(filters: SearchFilters, cursor?: string) {
   if (!token) {
     return { ads: [], nextCursor: undefined, total: 0 };
   }
-  // This is a placeholder; Meta Ad Library queries vary by country and params.
-  // Use Ad Library endpoint with proper fields and paging.
   const url = new URL(`${META_BASE}/ads_archive`);
   url.searchParams.set("access_token", token);
-  url.searchParams.set("ad_type", "POLITICAL_AND_ISSUE_ADS"); // placeholder to pass validation
-  url.searchParams.set("search_terms", filters.business || "");
+  // NOTE: fields and params must be adapted to your app’s permissions and use case.
+  url.searchParams.set("ad_type", "POLITICAL_AND_ISSUE_ADS"); // placeholder constraint
+  if (filters.business) url.searchParams.set("search_terms", filters.business);
   if (cursor) url.searchParams.set("after", cursor);
+  if (filters.dateRange?.from) url.searchParams.set("start_date", filters.dateRange.from);
+  if (filters.dateRange?.to) url.searchParams.set("end_date", filters.dateRange.to);
+
   const res = await fetch(url.toString());
   if (!res.ok) {
     return { ads: [], nextCursor: undefined, total: 0 };
@@ -25,7 +27,7 @@ export async function fetchMetaAds(filters: SearchFilters, cursor?: string) {
     platform: "meta",
     competitor_name: it.page_name || "Unknown",
     creative_url: it.ad_snapshot_url,
-    creative_type: "image",
+    creative_type: guessFormat(it),
     headline: it.ad_creative_bodies?.[0] || undefined,
     primary_text: it.ad_creative_bodies?.[0] || undefined,
     cta: undefined,
@@ -37,4 +39,10 @@ export async function fetchMetaAds(filters: SearchFilters, cursor?: string) {
   }));
   const nextCursor = json.paging?.cursors?.after;
   return { ads: normalized, nextCursor, total: normalized.length };
+}
+
+function guessFormat(it: any): string {
+  const snap: string | undefined = it?.ad_snapshot_url;
+  if (snap?.includes("video")) return "video";
+  return "image";
 }

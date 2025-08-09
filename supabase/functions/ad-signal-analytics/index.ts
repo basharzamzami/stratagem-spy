@@ -1,7 +1,19 @@
 // supabase/functions/ad-signal-analytics/index.ts
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { fetchMetaAds } from "../_shared/meta.ts";
-import type { SearchFilters, AdItem } from "../_shared/types.ts";
+import type { AdItem } from "../_shared/types.ts";
+import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
+
+const FiltersSchema = z.object({
+  business: z.string().optional(),
+  industry: z.string().optional(),
+  location: z.object({ city: z.string().optional(), state: z.string().optional(), zip: z.string().optional() }).optional(),
+  platforms: z.array(z.enum(["meta","google","youtube","tiktok"]).optional()).optional(),
+  dateRange: z.object({ from: z.string().optional(), to: z.string().optional() }).optional(),
+  adFormats: z.array(z.string()).optional(),
+  spendRange: z.object({ min: z.number(), max: z.number() }).optional(),
+  engagementRange: z.object({ min: z.number(), max: z.number() }).optional(),
+}).optional();
 
 function json(data: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(data), { ...init, headers: { "content-type": "application/json", ...(init.headers || {}) } });
@@ -51,13 +63,15 @@ function analyzeAds(ads: AdItem[]) {
 }
 
 serve(async (req) => {
-  const { filters = {} }: { filters?: SearchFilters } = await req.json().catch(() => ({} as any));
-  const platforms = (filters.platforms || ["meta"]).filter(Boolean);
+  const body = await req.json().catch(() => ({}));
+  const parsed = FiltersSchema.safeParse(body.filters);
+  const filters = parsed.success ? parsed.data : {};
+  const platforms = (filters?.platforms || ["meta"]).filter(Boolean) as string[];
   let ads: AdItem[] = [];
 
   try {
     if (platforms.includes("meta")) {
-      const meta = await fetchMetaAds(filters);
+      const meta = await fetchMetaAds(filters as any);
       ads = ads.concat(meta.ads);
     }
   } catch (e) {
