@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,10 +22,13 @@ import {
   Play, 
   Pause,
   BarChart3,
-  MousePointer
+  MousePointer,
+  Brain
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import InteractiveSpikeTooltip from './InteractiveSpikeTooltip';
+import { creativeDNAAnalyzer } from '@/services/creativeDNAExtractor';
+import EnhancedSpikeTooltip from './EnhancedSpikeTooltip';
+import AdPreviewModal from './AdPreviewModal';
 
 interface EngagementDataPoint {
   timestamp: string;
@@ -62,6 +64,8 @@ const RealTimeEngagementSpikes = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedSpike, setSelectedSpike] = useState<EngagementDataPoint | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [selectedAdId, setSelectedAdId] = useState<string>('');
   const intervalRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
@@ -181,17 +185,40 @@ const RealTimeEngagementSpikes = () => {
         y: event.chartY || 0 
       });
       
-      console.log("\n=== AD DETAILS ===");
+      console.log("\n=== AD DETAILS WITH CREATIVE DNA ===");
       console.log(`Ad ID: ${entry.payload.ad_id} | Platform: ${entry.payload.platform} | Competitor: ${entry.payload.competitor}`);
       console.log(`Impressions: ${entry.payload.impressions} | Clicks: ${entry.payload.clicks}`);
-      console.log("==================\n");
+      
+      const creativeDNA = creativeDNAAnalyzer.getCreativeDNA(entry.payload.ad_id);
+      if (creativeDNA) {
+        console.log(`Hook Type: ${creativeDNA.hook_type} | Tone: ${creativeDNA.tone}`);
+        console.log(`Psychological Triggers: ${creativeDNA.psychological_triggers.join(', ')}`);
+      }
+      console.log("=====================================\n");
     }
   };
 
   const handleViewSnapshot = (adId: string) => {
     const mockSnapshotUrl = `https://example.com/snapshots/${adId}`;
-    window.open(mockSnapshotUrl, '_blank');
-    console.log(`Opening snapshot URL: ${mockSnapshotUrl}`);
+    console.log(`Quick view for ad: ${adId}`);
+    
+    toast({
+      title: "Quick Snapshot",
+      description: `Opened snapshot for ${adId} - Mock URL: ${mockSnapshotUrl}`,
+    });
+  };
+
+  const handleViewFullPreview = (adId: string) => {
+    setSelectedAdId(adId);
+    setPreviewModalOpen(true);
+    setSelectedSpike(null); // Close tooltip
+    
+    console.log(`Opening full creative analysis for: ${adId}`);
+    
+    toast({
+      title: "Creative DNA Analysis",
+      description: `Loading comprehensive analysis for ${adId}`,
+    });
   };
 
   useEffect(() => {
@@ -205,6 +232,8 @@ const RealTimeEngagementSpikes = () => {
   const customTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      const creativeDNA = creativeDNAAnalyzer.getCreativeDNA(data.ad_id);
+      
       return (
         <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
           <p className="font-medium">{`Time: ${label}`}</p>
@@ -212,15 +241,27 @@ const RealTimeEngagementSpikes = () => {
           <p className="text-green-400">{`Clicks: ${data.clicks.toLocaleString()}`}</p>
           <p className="text-sm text-muted-foreground">{`${data.platform} - ${data.competitor}`}</p>
           <p className="text-sm text-muted-foreground">{`Ad: ${data.ad_id}`}</p>
+          
+          {creativeDNA && (
+            <div className="mt-2 pt-2 border-t border-border">
+              <div className="flex items-center gap-2 mb-1">
+                <Brain className="w-3 h-3 text-primary" />
+                <span className="text-xs font-medium">Creative DNA</span>
+              </div>
+              <p className="text-xs text-cyan-400">{`Hook: ${creativeDNA.hook_type.replace('_', ' ')}`}</p>
+              <p className="text-xs text-purple-400">{`Tone: ${creativeDNA.tone}`}</p>
+            </div>
+          )}
+          
           {data.isSpike && (
             <div className="mt-2">
               <Badge variant="destructive" className="mb-1">
                 <AlertTriangle className="w-3 h-3 mr-1" />
-                Spike Detected - Click for details
+                Spike Detected - Click for full analysis
               </Badge>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <MousePointer className="w-3 h-3" />
-                Click spike dot for ad details
+                Click spike dot for creative DNA insights
               </div>
             </div>
           )}
@@ -351,23 +392,32 @@ const RealTimeEngagementSpikes = () => {
         </CardContent>
       </Card>
 
-      {/* Interactive Spike Tooltip */}
+      {/* Enhanced Interactive Spike Tooltip */}
       {selectedSpike && (
         <div 
           style={{
             position: 'fixed',
-            left: `${Math.min(tooltipPosition.x + 20, window.innerWidth - 340)}px`,
-            top: `${Math.max(tooltipPosition.y - 100, 10)}px`,
+            left: `${Math.min(tooltipPosition.x + 20, window.innerWidth - 420)}px`,
+            top: `${Math.max(tooltipPosition.y - 120, 10)}px`,
             zIndex: 1000
           }}
         >
-          <InteractiveSpikeTooltip
+          <EnhancedSpikeTooltip
             data={selectedSpike}
+            creativeDNA={creativeDNAAnalyzer.getCreativeDNA(selectedSpike.ad_id)}
             onClose={() => setSelectedSpike(null)}
             onViewSnapshot={handleViewSnapshot}
+            onViewFullPreview={handleViewFullPreview}
           />
         </div>
       )}
+
+      {/* Ad Preview Modal */}
+      <AdPreviewModal
+        isOpen={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        adPreview={creativeDNAAnalyzer.getAdPreview(selectedAdId)}
+      />
 
       {/* Recent Spikes List */}
       {spikes.length > 0 && (
