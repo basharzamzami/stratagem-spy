@@ -1,7 +1,7 @@
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Zap } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchLiveAds, SearchFilters, AdItem } from "@/services/adSignal";
 import { FilterBar, LiveFeed, ExportControls } from "@/components/ad-signal-hijack";
@@ -12,6 +12,19 @@ export default function AdSignalHijack() {
   const [cursor, setCursor] = useState<string | undefined>(undefined);
   const [ads, setAds] = useState<AdItem[]>([]);
   const [hasApplied, setHasApplied] = useState(false);
+
+  useEffect(() => {
+    // Prefill from URL
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const f = params.get("filters");
+      if (f) {
+        const parsed = JSON.parse(decodeURIComponent(f));
+        setFilters(parsed);
+        setHasApplied(true);
+      }
+    } catch {}
+  }, []);
 
   const { isFetching, refetch, isError, error } = useQuery({
     queryKey: ["ad-feed", filters, cursor],
