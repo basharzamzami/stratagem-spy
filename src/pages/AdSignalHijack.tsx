@@ -19,7 +19,7 @@ export default function AdSignalHijack() {
         cta: "Sign Up Now",
         offer: "50% Off First Month",
         engagement: { likes: 120, comments: 15, shares: 8 },
-        detected_patterns: { angle: "Discount urgency", format: "Static image" }
+        detected_patterns: { angle: "Discount urgency", format: "Static image", theme: "Price-focused" }
       },
       {
         platform: "google",
@@ -28,7 +28,7 @@ export default function AdSignalHijack() {
         cta: "Get Started",
         offer: "Free Trial",
         engagement: { clicks: 250, impressions: 5000 },
-        detected_patterns: { angle: "Risk-free trial", format: "Text search ad" }
+        detected_patterns: { angle: "Risk-free trial", format: "Text search ad", strategy: "Lead generation" }
       },
       {
         platform: "youtube",
@@ -37,7 +37,7 @@ export default function AdSignalHijack() {
         cta: "Watch Now",
         offer: "Limited Time Offer",
         engagement: { views: 10000, likes: 450, comments: 23 },
-        detected_patterns: { angle: "FOMO", format: "Video ad" }
+        detected_patterns: { angle: "FOMO", format: "Video ad", theme: "Urgency-driven" }
       }
     ];
 
@@ -62,24 +62,26 @@ export default function AdSignalHijack() {
     <div className="min-h-screen bg-background flex">
       <Navigation />
       <div className="flex-1 overflow-auto">
-        <div className="p-8">
+        <div className="p-8 max-w-7xl mx-auto">
+          {/* Header Section - Better alignment */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Ad Signal Hijack</h1>
-                <p className="text-muted-foreground">Real-time competitor ad tracking from database</p>
+                <p className="text-muted-foreground mt-1">Real-time competitor ad tracking from database</p>
               </div>
-              <Button onClick={handleAddSampleData} className="gap-2">
+              <Button onClick={handleAddSampleData} className="gap-2 w-fit">
                 <Plus className="w-4 h-4" />
                 Add Sample Data
               </Button>
             </div>
           </div>
 
+          {/* Main Content */}
           <div className="space-y-6">
-            <Card className="saas-card p-6">
-              <CardContent>
-                <div className="flex items-center gap-3 mb-4">
+            <Card className="saas-card">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-6">
                   <Database className="w-6 h-6 text-primary" />
                   <h2 className="text-xl font-semibold">Database Ad Feed</h2>
                 </div>

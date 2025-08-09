@@ -22,6 +22,18 @@ export default function DatabaseAdCard({ ad, onAnalyze, onViewOriginal }: Databa
     ));
   };
 
+  const formatPatterns = (patterns: Record<string, any> | undefined) => {
+    if (!patterns) return "No patterns detected";
+    
+    const patternTexts: string[] = [];
+    if (patterns.angle) patternTexts.push(`Angle: ${patterns.angle}`);
+    if (patterns.format) patternTexts.push(`Format: ${patterns.format}`);
+    if (patterns.theme) patternTexts.push(`Theme: ${patterns.theme}`);
+    if (patterns.strategy) patternTexts.push(`Strategy: ${patterns.strategy}`);
+    
+    return patternTexts.length > 0 ? patternTexts.join(" • ") : "No patterns detected";
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
@@ -42,8 +54,8 @@ export default function DatabaseAdCard({ ad, onAnalyze, onViewOriginal }: Databa
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 border-border/50 hover:border-primary/20">
-      <CardContent className="p-4 space-y-3">
+    <Card className="group hover:shadow-lg transition-all duration-200 border-border/50 hover:border-primary/20 h-full flex flex-col">
+      <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between">
           <Badge className={`${getPlatformColor(ad.platform)} capitalize`}>
@@ -74,7 +86,7 @@ export default function DatabaseAdCard({ ad, onAnalyze, onViewOriginal }: Databa
         )}
 
         {/* CTA and Offer */}
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1">
           {ad.cta && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">CTA:</span>
@@ -101,18 +113,18 @@ export default function DatabaseAdCard({ ad, onAnalyze, onViewOriginal }: Databa
           </div>
         )}
 
-        {/* Patterns */}
+        {/* Patterns - Fixed display */}
         {ad.detected_patterns && (
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">Patterns:</span>
-            <div className="text-xs text-foreground">
-              {JSON.stringify(ad.detected_patterns, null, 1).slice(0, 100)}...
+            <div className="text-xs text-foreground leading-relaxed">
+              {formatPatterns(ad.detected_patterns)}
             </div>
           </div>
         )}
 
-        {/* Actions */}
-        <div className="flex gap-2 pt-2 border-t">
+        {/* Actions - Push to bottom */}
+        <div className="flex gap-2 pt-2 border-t mt-auto">
           {onAnalyze && (
             <Button size="sm" variant="outline" onClick={() => onAnalyze(ad.id)}>
               <TrendingUp className="w-3 h-3 mr-1" />

@@ -72,8 +72,8 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
 
   return (
     <div className="space-y-6">
-      {/* Feed Controls */}
-      <div className="flex items-center justify-between">
+      {/* Feed Controls - Better alignment */}
+      <div className="flex items-center justify-between bg-muted/30 rounded-lg p-4">
         <div className="flex items-center gap-4">
           <Badge variant="secondary" className="bg-success/20 text-success">
             <Database className="w-3 h-3 mr-2" />
@@ -98,7 +98,7 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
         </Button>
       </div>
 
-      {/* Ads Grid */}
+      {/* Ads Grid - Fixed alignment with equal height cards */}
       {ads.length === 0 && !isLoading ? (
         <div className="text-center py-12">
           <Database className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -108,7 +108,7 @@ export default function DatabaseLiveFeed({ onLoadMore }: DatabaseLiveFeedProps) 
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr">
           {ads.map((ad) => (
             <DatabaseAdCard
               key={ad.id}
