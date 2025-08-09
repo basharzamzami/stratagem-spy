@@ -95,7 +95,7 @@ export default function LeadLocatorPage() {
                       <SelectValue placeholder="Industry" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Industries</SelectItem>
+                      <SelectItem value="all">All Industries</SelectItem>
                       <SelectItem value="Technology">Technology</SelectItem>
                       <SelectItem value="Healthcare">Healthcare</SelectItem>
                       <SelectItem value="Finance">Finance</SelectItem>
