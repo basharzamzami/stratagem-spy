@@ -4,12 +4,10 @@ import Dashboard from '@/components/Dashboard';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background flex w-full">
+    <div className="min-h-screen bg-background flex">
       <Navigation />
-      <div className="flex-1 overflow-auto w-full">
-        <div className="w-full max-w-none">
-          <Dashboard />
-        </div>
+      <div className="flex-1 overflow-auto">
+        <Dashboard />
       </div>
     </div>
   );
