@@ -1,10 +1,6 @@
-{
-  "name": "vite_react_shadcn_ts",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": { ... "dev:server": "nodemon --watch src/backend src/backend/server.ts --exec ts-node" },
-  "dependencies": {
-    "@hello-pangea/dnd": "^18.0.1",
-    "@hookform/resolvers": "^3.10.0",
-    "@lucas-apiz
+"scripts": {
+  "dev": "vite",
+  "build": "tsc && vite build",
+  "preview": "vite preview",
+  "dev:server": "nodemon --watch src/backend src/backend/server.ts --exec ts-node"
+}
