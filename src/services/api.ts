@@ -1,4 +1,3 @@
-
 const API_BASE_URL = 'http://localhost:5000/api';
 
 export interface ApiResponse<T> {
@@ -142,6 +141,19 @@ export class ApiClient {
     return this.request('/campaign-manager', {
       method: 'POST',
       body: JSON.stringify(campaignData)
+    });
+  }
+
+  static async updateCampaign(id: number, updateData: any) {
+    return this.request(`/campaign-manager/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData)
+    });
+  }
+
+  static async deleteCampaign(id: number) {
+    return this.request(`/campaign-manager/${id}`, {
+      method: 'DELETE'
     });
   }
 

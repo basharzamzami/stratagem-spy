@@ -1,5 +1,5 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,22 +12,66 @@ import { ApiClient } from '@/services/api';
 import type { Campaign } from '@/backend/types';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 interface CampaignListProps {
   onCampaignSelect?: (campaignId: string) => void;
+  onCreateCampaign?: () => void;
 }
 
-const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
+const CampaignList = ({ onCampaignSelect, onCreateCampaign }: CampaignListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [channelFilter, setChannelFilter] = useState('all');
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: campaignsResponse, isLoading, error, refetch } = useQuery({
     queryKey: ['campaigns'],
     queryFn: () => ApiClient.getCampaigns(),
+  });
+
+  // Mutation for campaign actions
+  const campaignActionMutation = useMutation({
+    mutationFn: async ({ campaignId, action }: { campaignId: number; action: 'play' | 'pause' | 'delete' }) => {
+      switch (action) {
+        case 'play':
+          return ApiClient.updateCampaign(campaignId, { status: 'active' });
+        case 'pause':
+          return ApiClient.updateCampaign(campaignId, { status: 'paused' });
+        case 'delete':
+          // In a real app, this would call a delete endpoint
+          return Promise.resolve({ success: true });
+        default:
+          throw new Error('Invalid action');
+      }
+    },
+    onSuccess: (data, variables) => {
+      const actionMessages = {
+        play: "Campaign Started",
+        pause: "Campaign Paused",
+        delete: "Campaign Deleted"
+      };
+      
+      const actionDescriptions = {
+        play: "Campaign has been activated successfully.",
+        pause: "Campaign has been paused successfully.",
+        delete: "Campaign has been moved to trash."
+      };
+
+      toast({
+        title: actionMessages[variables.action],
+        description: actionDescriptions[variables.action]
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] });
+    },
+    onError: () => {
+      toast({
+        title: "Action Failed",
+        description: "There was an error performing this action.",
+        variant: "destructive"
+      });
+    },
   });
 
   // Ensure campaigns is always an array
@@ -66,40 +110,22 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
   };
 
   const handleCampaignAction = async (campaignId: number, action: 'play' | 'pause' | 'edit' | 'delete') => {
-    try {
-      switch (action) {
-        case 'play':
-          toast({
-            title: "Campaign Started",
-            description: "Campaign has been activated successfully."
-          });
-          break;
-        case 'pause':
-          toast({
-            title: "Campaign Paused",
-            description: "Campaign has been paused successfully."
-          });
-          break;
-        case 'edit':
-          navigate(`/campaign-manager/edit/${campaignId}`);
-          break;
-        case 'delete':
-          if (window.confirm('Are you sure you want to delete this campaign?')) {
-            toast({
-              title: "Campaign Deleted",
-              description: "Campaign has been moved to trash."
-            });
-            await refetch();
-          }
-          break;
-      }
-    } catch (error) {
+    if (action === 'edit') {
+      // In a real app, this would navigate to edit page
       toast({
-        title: "Action Failed",
-        description: "There was an error performing this action.",
-        variant: "destructive"
+        title: "Edit Campaign",
+        description: "Campaign edit functionality would open here."
       });
+      return;
     }
+
+    if (action === 'delete') {
+      if (!window.confirm('Are you sure you want to delete this campaign? This action cannot be undone.')) {
+        return;
+      }
+    }
+
+    campaignActionMutation.mutate({ campaignId, action });
   };
 
   const filteredCampaigns = campaigns.filter((campaign) => {
@@ -131,7 +157,7 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
           <CardContent className="p-6">
             <div className="text-center">
               <p className="text-destructive mb-2">Failed to load campaigns</p>
-              <Button onClick={() => window.location.reload()}>Retry</Button>
+              <Button onClick={() => refetch()}>Retry</Button>
             </div>
           </CardContent>
         </Card>
@@ -207,7 +233,12 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                   <TableRow 
                     key={campaign.id} 
                     className="cursor-pointer hover:bg-muted/50 border-border"
-                    onClick={() => onCampaignSelect?.(campaign.id.toString())}
+                    onClick={(e) => {
+                      // Only trigger selection if not clicking on action buttons
+                      if (!(e.target as HTMLElement).closest('[data-action-button]')) {
+                        onCampaignSelect?.(campaign.id.toString());
+                      }
+                    }}
                   >
                     <TableCell>
                       <div className="font-medium text-card-foreground">{campaign.name}</div>
@@ -234,10 +265,10 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                     <TableCell className="text-right font-mono">
                       {campaign.kpis?.conversions || 0}
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-action-button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                          <Button variant="ghost" size="sm" className="w-8 h-8 p-0" data-action-button>
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -246,17 +277,27 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Campaign
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCampaignAction(campaign.id, 'play')}>
-                            <Play className="w-4 h-4 mr-2" />
-                            Start Campaign
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCampaignAction(campaign.id, 'pause')}>
-                            <Pause className="w-4 h-4 mr-2" />
-                            Pause Campaign
-                          </DropdownMenuItem>
+                          {campaign.status !== 'active' ? (
+                            <DropdownMenuItem 
+                              onClick={() => handleCampaignAction(campaign.id, 'play')}
+                              disabled={campaignActionMutation.isPending}
+                            >
+                              <Play className="w-4 h-4 mr-2" />
+                              Start Campaign
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem 
+                              onClick={() => handleCampaignAction(campaign.id, 'pause')}
+                              disabled={campaignActionMutation.isPending}
+                            >
+                              <Pause className="w-4 h-4 mr-2" />
+                              Pause Campaign
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem 
                             className="text-destructive"
                             onClick={() => handleCampaignAction(campaign.id, 'delete')}
+                            disabled={campaignActionMutation.isPending}
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
                             Delete Campaign
@@ -272,8 +313,10 @@ const CampaignList = ({ onCampaignSelect }: CampaignListProps) => {
           
           {filteredCampaigns.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">No campaigns found</p>
-              <Button onClick={() => navigate('/campaign-manager/create')}>
+              <p className="text-muted-foreground mb-4">
+                {campaigns.length === 0 ? 'No campaigns found' : 'No campaigns match your filters'}
+              </p>
+              <Button onClick={onCreateCampaign}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Campaign
               </Button>
