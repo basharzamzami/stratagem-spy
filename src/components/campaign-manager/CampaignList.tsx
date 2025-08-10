@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Filter, MoreHorizontal, Play, Pause, Edit, Trash2, Plus } from 'lucide-react';
+import { Search, MoreHorizontal, Play, Pause, Trash2, Plus } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ApiClient } from '@/services/api';
 import type { Campaign } from '@/backend/types';
@@ -109,16 +109,7 @@ const CampaignList = ({ onCampaignSelect, onCreateCampaign }: CampaignListProps)
     }
   };
 
-  const handleCampaignAction = async (campaignId: number, action: 'play' | 'pause' | 'edit' | 'delete') => {
-    if (action === 'edit') {
-      // In a real app, this would navigate to edit page
-      toast({
-        title: "Edit Campaign",
-        description: "Campaign edit functionality would open here."
-      });
-      return;
-    }
-
+  const handleCampaignAction = async (campaignId: number, action: 'play' | 'pause' | 'delete') => {
     if (action === 'delete') {
       if (!window.confirm('Are you sure you want to delete this campaign? This action cannot be undone.')) {
         return;
@@ -273,10 +264,6 @@ const CampaignList = ({ onCampaignSelect, onCreateCampaign }: CampaignListProps)
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleCampaignAction(campaign.id, 'edit')}>
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit Campaign
-                          </DropdownMenuItem>
                           {campaign.status !== 'active' ? (
                             <DropdownMenuItem 
                               onClick={() => handleCampaignAction(campaign.id, 'play')}
