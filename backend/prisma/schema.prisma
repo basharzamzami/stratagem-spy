@@ -1,0 +1,66 @@
+// Prisma schema for Specter Net - Ad Signal Hijack
+// Datasource and generator
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdCreative {
+  id           String   @id @default(uuid())
+  accountId    String
+  competitorId String
+  platform     String   // e.g. "meta", "google", "tiktok"
+  copy         String
+  creativeUrls String[] // array of image/video URLs
+  cta          String?
+  landingUrl   String
+  snapshotUrl  String?  // S3 URL for screenshot
+  h1           String?  // extracted H1 text from landing page
+  h2           String?  // extracted H2 text from landing page
+  formPresent  Boolean  @default(false)
+  pixelPresent Boolean  @default(false)
+  fetchedAt    DateTime @default(now())
+  hash         String   @unique // for deduplication
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tasks        Task[]
+
+  @@index([accountId, competitorId])
+  @@index([platform, fetchedAt])
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  adId        String
+  title       String
+  priority    Int
+  description String?
+  status      String     @default("open")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  ad          AdCreative @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@index([adId])
+}
+
+// Optional: simple competitor directory used by the worker
+model Competitor {
+  id          String   @id @default(uuid())
+  accountId   String
+  name        String
+  platform    String    // which platform to query
+  advertiser  String    // e.g. Meta Ads Library advertiser name
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([accountId, platform, isActive])
+}
+

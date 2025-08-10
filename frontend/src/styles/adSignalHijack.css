@@ -1,0 +1,4 @@
+.adsh-bg{background:linear-gradient(160deg,#1e293b,#334155)}
+.animate-fade-in{animation:fade-in .2s ease-in-out}
+@keyframes fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
