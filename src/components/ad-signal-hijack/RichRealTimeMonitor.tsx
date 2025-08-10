@@ -13,7 +13,8 @@ import {
   Activity,
   BarChart3,
   Users,
-  DollarSign
+  DollarSign,
+  Flame
 } from 'lucide-react';
 import { useMockData } from './MockDataProvider';
 import EnhancedHotAdCard from './EnhancedHotAdCard';
