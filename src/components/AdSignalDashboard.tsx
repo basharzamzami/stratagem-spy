@@ -26,11 +26,11 @@ const AdSignalDashboard = () => {
     <div className="h-screen flex flex-col overflow-hidden">
       <ResizablePanelGroup direction="vertical" className="h-full">
         {/* Top Panel - Header, Search & Metrics */}
-        <ResizablePanel defaultSize={30} minSize={20} maxSize={45}>
+        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
           <div className="h-full flex flex-col overflow-hidden">
             {/* Header - Fixed */}
-            <div className="flex-shrink-0 p-6 border-b border-border bg-background">
-              <div className="flex items-center justify-between mb-6">
+            <div className="flex-shrink-0 p-4 border-b border-border bg-background">
+              <div className="flex items-center justify-between mb-4">
                 <div>
                   <h1 className="text-2xl font-bold text-foreground mb-2">Ad Signal Intelligence</h1>
                   <p className="text-muted-foreground">Real-time competitor ad tracking & decoding</p>
@@ -50,8 +50,8 @@ const AdSignalDashboard = () => {
               />
             </div>
 
-            {/* Metrics Overview */}
-            <div className="flex-1 overflow-auto p-6 bg-background border-b border-border">
+            {/* Metrics Overview - Scrollable */}
+            <div className="flex-1 overflow-auto p-4 bg-background border-b border-border">
               <CompetitorMetrics />
             </div>
           </div>
@@ -61,10 +61,10 @@ const AdSignalDashboard = () => {
         <ResizableHandle className="h-2 bg-border hover:bg-primary/20 transition-colors cursor-row-resize" />
 
         {/* Bottom Panel - Main Content Tabs */}
-        <ResizablePanel defaultSize={70} minSize={55}>
+        <ResizablePanel defaultSize={60} minSize={40}>
           <div className="h-full flex flex-col overflow-hidden">
             <Tabs defaultValue="feed" className="h-full flex flex-col overflow-hidden">
-              <div className="flex-shrink-0 px-6 pt-4 bg-background border-b border-border">
+              <div className="flex-shrink-0 px-4 pt-4 bg-background border-b border-border">
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="feed" className="flex items-center gap-2">
                     <Eye className="w-4 h-4" />
@@ -87,25 +87,23 @@ const AdSignalDashboard = () => {
 
               <div className="flex-1 overflow-hidden">
                 <TabsContent value="feed" className="h-full m-0 p-0 overflow-hidden">
-                  <div className="h-full p-6">
-                    <LiveAdFeed />
-                  </div>
+                  <LiveAdFeed />
                 </TabsContent>
 
                 <TabsContent value="analytics" className="h-full m-0 p-0 overflow-hidden">
-                  <div className="h-full overflow-auto p-6">
+                  <div className="h-full overflow-auto p-4">
                     <AdAnalyticsDashboard />
                   </div>
                 </TabsContent>
 
                 <TabsContent value="export" className="h-full m-0 p-0 overflow-hidden">
-                  <div className="h-full overflow-auto p-6">
+                  <div className="h-full overflow-auto p-4">
                     <AdExportTools />
                   </div>
                 </TabsContent>
 
                 <TabsContent value="insights" className="h-full m-0 p-0 overflow-hidden">
-                  <div className="h-full flex items-center justify-center p-6">
+                  <div className="h-full flex items-center justify-center p-4">
                     <div className="text-center">
                       <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-foreground mb-2">AI-Powered Insights</h3>

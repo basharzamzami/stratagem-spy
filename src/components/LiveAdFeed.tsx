@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -147,7 +146,7 @@ Offer: ${ad.offer || 'No offer'}
   if (isError) {
     console.error('LiveAdFeed: Query error:', error);
     return (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col p-4">
         <Card className="flex-1 flex flex-col">
           <CardContent className="p-6 h-full flex items-center justify-center">
             <div className="text-center py-12">
@@ -168,9 +167,9 @@ Offer: ${ad.offer || 'No offer'}
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden p-4">
       <Card className="flex-1 flex flex-col overflow-hidden">
-        <CardHeader className="flex-shrink-0 p-6">
+        <CardHeader className="flex-shrink-0 p-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5" />
@@ -193,9 +192,9 @@ Offer: ${ad.offer || 'No offer'}
           </div>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col overflow-hidden p-6">
+        <CardContent className="flex-1 flex flex-col overflow-hidden p-4">
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="grid w-full grid-cols-5 flex-shrink-0">
+            <TabsList className="grid w-full grid-cols-5 flex-shrink-0 mb-4">
               <TabsTrigger value="all">All ({ads?.length || 0})</TabsTrigger>
               <TabsTrigger value="meta">Meta ({ads?.filter(ad => ad.platform.toLowerCase() === 'meta').length || 0})</TabsTrigger>
               <TabsTrigger value="google">Google ({ads?.filter(ad => ad.platform.toLowerCase() === 'google').length || 0})</TabsTrigger>
@@ -203,7 +202,7 @@ Offer: ${ad.offer || 'No offer'}
               <TabsTrigger value="tiktok">TikTok ({ads?.filter(ad => ad.platform.toLowerCase() === 'tiktok').length || 0})</TabsTrigger>
             </TabsList>
 
-            <TabsContent value={selectedTab} className="flex-1 flex flex-col overflow-hidden mt-4">
+            <TabsContent value={selectedTab} className="flex-1 flex flex-col overflow-hidden m-0">
               {/* Loading State */}
               {isLoading && (
                 <div className="flex items-center justify-center flex-1">
@@ -239,11 +238,11 @@ Offer: ${ad.offer || 'No offer'}
               {/* Ads Display with ScrollArea */}
               {!isLoading && filteredAds.length > 0 && (
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  <ScrollArea className="flex-1">
-                    <div className="space-y-4 pr-4">
+                  <ScrollArea className="flex-1 h-full">
+                    <div className="space-y-4 pr-4 pb-4">
                       {filteredAds.map((ad) => (
                         <Card key={ad.id} className="hover:shadow-lg transition-all duration-200">
-                          <CardContent className="p-6">
+                          <CardContent className="p-4">
                             {/* Ad Header */}
                             <div className="flex items-start justify-between mb-4">
                               <div className="flex items-center gap-3">
