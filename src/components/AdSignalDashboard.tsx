@@ -23,10 +23,10 @@ const AdSignalDashboard = () => {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden">
       <ResizablePanelGroup direction="vertical" className="h-full">
         {/* Top Panel - Header, Search & Metrics */}
-        <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
+        <ResizablePanel defaultSize={30} minSize={20} maxSize={45}>
           <div className="h-full flex flex-col overflow-hidden">
             {/* Header - Fixed */}
             <div className="flex-shrink-0 p-6 border-b border-border bg-background">
@@ -51,19 +51,19 @@ const AdSignalDashboard = () => {
             </div>
 
             {/* Metrics Overview */}
-            <div className="flex-1 p-6 bg-background border-b border-border overflow-auto">
+            <div className="flex-1 overflow-auto p-6 bg-background border-b border-border">
               <CompetitorMetrics />
             </div>
           </div>
         </ResizablePanel>
 
         {/* Resizable Handle */}
-        <ResizableHandle className="h-2 bg-border hover:bg-primary/20 transition-colors" />
+        <ResizableHandle className="h-2 bg-border hover:bg-primary/20 transition-colors cursor-row-resize" />
 
         {/* Bottom Panel - Main Content Tabs */}
-        <ResizablePanel defaultSize={65} minSize={50}>
+        <ResizablePanel defaultSize={70} minSize={55}>
           <div className="h-full flex flex-col overflow-hidden">
-            <Tabs defaultValue="feed" className="h-full flex flex-col">
+            <Tabs defaultValue="feed" className="h-full flex flex-col overflow-hidden">
               <div className="flex-shrink-0 px-6 pt-4 bg-background border-b border-border">
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="feed" className="flex items-center gap-2">
@@ -85,26 +85,26 @@ const AdSignalDashboard = () => {
                 </TabsList>
               </div>
 
-              <div className="flex-1 min-h-0 overflow-hidden">
-                <TabsContent value="feed" className="h-full m-0 p-0">
-                  <div className="h-full">
+              <div className="flex-1 overflow-hidden">
+                <TabsContent value="feed" className="h-full m-0 p-0 overflow-hidden">
+                  <div className="h-full p-6">
                     <LiveAdFeed />
                   </div>
                 </TabsContent>
 
-                <TabsContent value="analytics" className="h-full m-0 p-0">
+                <TabsContent value="analytics" className="h-full m-0 p-0 overflow-hidden">
                   <div className="h-full overflow-auto p-6">
                     <AdAnalyticsDashboard />
                   </div>
                 </TabsContent>
 
-                <TabsContent value="export" className="h-full m-0 p-0">
+                <TabsContent value="export" className="h-full m-0 p-0 overflow-hidden">
                   <div className="h-full overflow-auto p-6">
                     <AdExportTools />
                   </div>
                 </TabsContent>
 
-                <TabsContent value="insights" className="h-full m-0 p-0">
+                <TabsContent value="insights" className="h-full m-0 p-0 overflow-hidden">
                   <div className="h-full flex items-center justify-center p-6">
                     <div className="text-center">
                       <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
