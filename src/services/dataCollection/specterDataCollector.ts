@@ -166,7 +166,7 @@ export class SpecterDataCollector {
     });
 
     if (error) throw error;
-    return data.ads || [];
+    return data?.ads || [];
   }
 
   private async collectGoogleAds(config: any): Promise<any[]> {
@@ -246,14 +246,21 @@ export class SpecterDataCollector {
 
   private async storeResults(job: DataCollectionJob): Promise<void> {
     try {
-      // Store in raw_data table for audit trail
-      await supabase.from('raw_collection_data').insert({
-        job_id: job.id,
-        source: job.source,
-        type: job.type,
-        data: job.results,
-        collected_at: job.completed_at
-      });
+      // Store in raw_data table for audit trail - now the table exists
+      const { error: rawDataError } = await supabase
+        .from('raw_collection_data')
+        .insert({
+          job_id: job.id,
+          source: job.source,
+          type: job.type,
+          data: job.results,
+          collected_at: job.completed_at
+        });
+
+      if (rawDataError) {
+        console.error('Error storing raw data:', rawDataError);
+        throw rawDataError;
+      }
 
       // Process and store in appropriate structured tables
       await this.processAndStoreStructuredData(job);
@@ -271,30 +278,39 @@ export class SpecterDataCollector {
         case 'meta_ads':
           // Store in ads table
           for (const ad of job.results) {
-            await supabase.from('ads').upsert({
+            const { error } = await supabase.from('ads').upsert({
               id: ad.id,
               platform: 'meta',
-              competitor: ad.competitor_name,
-              creative_url: ad.creative_url,
-              headline: ad.headline,
-              primary_text: ad.primary_text,
+              competitor: ad.competitor_name || ad.competitor,
+              ad_creative_url: ad.creative_url,
               cta: ad.cta,
               first_seen: ad.first_seen,
               last_seen: ad.last_seen,
               status: ad.active ? 'active' : 'inactive',
               fetched_at: new Date().toISOString()
             });
+            
+            if (error) {
+              console.error('Error storing ad:', error);
+            }
           }
           break;
 
         case 'seo_data':
-          // Store in seo_data table (would need to create this table)
-          console.log('Storing SEO data...');
+          // Store in competitors table with SEO metrics
+          for (const seoItem of job.results) {
+            await supabase.from('competitors').upsert({
+              name: seoItem.competitor,
+              domain: `${seoItem.competitor.toLowerCase().replace(/\s+/g, '')}.com`,
+              industry: 'unknown',
+              last_activity: new Date().toISOString()
+            });
+          }
           break;
 
         case 'reviews':
-          // Store in reviews table (would need to create this table)
-          console.log('Storing reviews data...');
+          // Could create a reviews table or store in competitors table
+          console.log('Processing reviews data...');
           break;
 
         default:

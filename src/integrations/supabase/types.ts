@@ -430,6 +430,36 @@ export type Database = {
           },
         ]
       }
+      raw_collection_data: {
+        Row: {
+          collected_at: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          job_id: string
+          source: string
+          type: string
+        }
+        Insert: {
+          collected_at?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          job_id: string
+          source: string
+          type: string
+        }
+        Update: {
+          collected_at?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          job_id?: string
+          source?: string
+          type?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to: string | null
