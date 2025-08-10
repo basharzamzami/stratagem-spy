@@ -17,6 +17,3 @@
     "strictNullChecks": false
   }
 }
-"scripts": {
-  "dev:server": "nodemon --watch src/backend src/backend/server.ts --exec ts-node"
-}
