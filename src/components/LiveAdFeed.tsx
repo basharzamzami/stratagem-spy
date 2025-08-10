@@ -1,9 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Play, 
@@ -146,20 +146,18 @@ Offer: ${ad.offer || 'No offer'}
   if (isError) {
     console.error('LiveAdFeed: Query error:', error);
     return (
-      <div className="h-full flex flex-col p-4">
-        <Card className="flex-1 flex flex-col">
-          <CardContent className="p-6 h-full flex items-center justify-center">
-            <div className="text-center py-12">
-              <Target className="w-12 h-12 text-destructive mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">Feed Error</h3>
-              <p className="text-muted-foreground mb-4">
-                {(error as Error)?.message || 'Failed to load live ad feed'}
-              </p>
-              <Button onClick={() => refetch()}>
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Retry
-              </Button>
-            </div>
+      <div className="w-full">
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Target className="w-16 h-16 text-destructive mx-auto mb-6" />
+            <h3 className="text-xl font-semibold text-foreground mb-4">Feed Error</h3>
+            <p className="text-muted-foreground mb-6 text-lg">
+              {(error as Error)?.message || 'Failed to load live ad feed'}
+            </p>
+            <Button onClick={() => refetch()} size="lg">
+              <TrendingUp className="w-5 h-5 mr-2" />
+              Retry
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -167,15 +165,15 @@ Offer: ${ad.offer || 'No offer'}
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden p-4">
-      <Card className="flex-1 flex flex-col overflow-hidden">
-        <CardHeader className="flex-shrink-0 p-4">
+    <div className="w-full">
+      <Card>
+        <CardHeader className="p-6">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Target className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <Target className="w-6 h-6" />
               Live Ad Feed
             </CardTitle>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Button
                 variant={isLive ? "default" : "outline"}
                 size="sm"
@@ -184,7 +182,7 @@ Offer: ${ad.offer || 'No offer'}
                 {isLive ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
                 {isLive ? 'Live' : 'Paused'}
               </Button>
-              <Badge variant="secondary" className="bg-success/20 text-success border-success/30">
+              <Badge variant="secondary" className="bg-success/20 text-success border-success/30 px-3 py-1">
                 <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
                 {filteredAds.length} Active
               </Badge>
@@ -192,9 +190,9 @@ Offer: ${ad.offer || 'No offer'}
           </div>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col overflow-hidden p-4">
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="grid w-full grid-cols-5 flex-shrink-0 mb-4">
+        <CardContent className="p-6">
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-5 mb-6">
               <TabsTrigger value="all">All ({ads?.length || 0})</TabsTrigger>
               <TabsTrigger value="meta">Meta ({ads?.filter(ad => ad.platform.toLowerCase() === 'meta').length || 0})</TabsTrigger>
               <TabsTrigger value="google">Google ({ads?.filter(ad => ad.platform.toLowerCase() === 'google').length || 0})</TabsTrigger>
@@ -202,186 +200,182 @@ Offer: ${ad.offer || 'No offer'}
               <TabsTrigger value="tiktok">TikTok ({ads?.filter(ad => ad.platform.toLowerCase() === 'tiktok').length || 0})</TabsTrigger>
             </TabsList>
 
-            <TabsContent value={selectedTab} className="flex-1 flex flex-col overflow-hidden m-0">
+            <TabsContent value={selectedTab} className="w-full">
               {/* Loading State */}
               {isLoading && (
-                <div className="flex items-center justify-center flex-1">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                  <span className="ml-2 text-muted-foreground">Loading live ads...</span>
+                <div className="flex items-center justify-center py-24">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mr-4" />
+                  <span className="text-muted-foreground text-lg">Loading live ads...</span>
                 </div>
               )}
 
               {/* No Ads State */}
               {!isLoading && filteredAds.length === 0 && (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center py-12">
-                    <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">No ads found</h3>
-                    <p className="text-muted-foreground">
-                      {selectedTab === 'all' 
-                        ? 'The live feed appears empty. Check the connection.' 
-                        : `No ${selectedTab} ads available in the current feed.`
-                      }
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      onClick={() => refetch()}
-                      className="mt-4"
-                    >
-                      <TrendingUp className="w-4 h-4 mr-2" />
-                      Refresh Feed
-                    </Button>
-                  </div>
+                <div className="text-center py-24">
+                  <Target className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+                  <h3 className="text-xl font-semibold text-foreground mb-4">No ads found</h3>
+                  <p className="text-muted-foreground text-lg mb-6">
+                    {selectedTab === 'all' 
+                      ? 'The live feed appears empty. Check the connection.' 
+                      : `No ${selectedTab} ads available in the current feed.`
+                    }
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => refetch()}
+                    size="lg"
+                  >
+                    <TrendingUp className="w-5 h-5 mr-2" />
+                    Refresh Feed
+                  </Button>
                 </div>
               )}
 
-              {/* Ads Display with ScrollArea */}
+              {/* Ads Display - Full expansion */}
               {!isLoading && filteredAds.length > 0 && (
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <ScrollArea className="flex-1 h-full">
-                    <div className="space-y-4 pr-4 pb-4">
-                      {filteredAds.map((ad) => (
-                        <Card key={ad.id} className="hover:shadow-lg transition-all duration-200">
-                          <CardContent className="p-4">
-                            {/* Ad Header */}
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-16 h-16 bg-primary/10 rounded-lg overflow-hidden flex items-center justify-center">
-                                  {ad.ad_creative_url ? (
-                                    <img 
-                                      src={ad.ad_creative_url} 
-                                      alt="Ad creative" 
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        e.currentTarget.src = '/placeholder.svg';
-                                      }}
-                                    />
-                                  ) : (
-                                    <Eye className="w-8 h-8 text-primary" />
+                <div className="w-full">
+                  <div className="space-y-6">
+                    {filteredAds.map((ad) => (
+                      <Card key={ad.id} className="hover:shadow-lg transition-all duration-200">
+                        <CardContent className="p-6">
+                          {/* Ad Header */}
+                          <div className="flex items-start justify-between mb-6">
+                            <div className="flex items-center gap-4">
+                              <div className="w-20 h-20 bg-primary/10 rounded-lg overflow-hidden flex items-center justify-center">
+                                {ad.ad_creative_url ? (
+                                  <img 
+                                    src={ad.ad_creative_url} 
+                                    alt="Ad creative" 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.src = '/placeholder.svg';
+                                    }}
+                                  />
+                                ) : (
+                                  <Eye className="w-10 h-10 text-primary" />
+                                )}
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-foreground text-lg">{ad.competitor}</h3>
+                                <div className="flex items-center gap-3 mt-2">
+                                  <Badge className={platformColors[ad.platform as keyof typeof platformColors] || 'bg-gray-500/20 text-gray-700'}>
+                                    {ad.platform}
+                                  </Badge>
+                                  {ad.active && (
+                                    <Badge className="bg-success/20 text-success border-success/30">
+                                      Live
+                                    </Badge>
                                   )}
                                 </div>
-                                <div>
-                                  <h3 className="font-semibold text-foreground">{ad.competitor}</h3>
-                                  <div className="flex items-center gap-2">
-                                    <Badge className={platformColors[ad.platform as keyof typeof platformColors] || 'bg-gray-500/20 text-gray-700'}>
-                                      {ad.platform}
-                                    </Badge>
-                                    {ad.active && (
-                                      <Badge className="bg-success/20 text-success border-success/30">
-                                        Live
-                                      </Badge>
-                                    )}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-muted-foreground">Detected</div>
+                              <div className="flex items-center gap-1 text-sm mt-1">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(ad.fetched_at).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Ad Creative Preview */}
+                          <div className="bg-muted/30 rounded-lg p-6 border-l-4 border-primary mb-6">
+                            <h4 className="font-semibold text-foreground mb-3 text-lg">{ad.headline || 'No headline available'}</h4>
+                            {ad.primary_text && (
+                              <p className="text-sm text-foreground/80 mb-4 leading-relaxed">{ad.primary_text}</p>
+                            )}
+                            <div className="flex items-center gap-3">
+                              {ad.cta && (
+                                <Button size="sm" variant="outline" className="text-sm">
+                                  {ad.cta}
+                                </Button>
+                              )}
+                              {ad.offer && (
+                                <Badge variant="secondary" className="text-sm">
+                                  {ad.offer}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Engagement Metrics */}
+                          {ad.engagement && (
+                            <div className="grid grid-cols-4 gap-6 mb-6 p-4 bg-muted/20 rounded-lg">
+                              {Object.entries(ad.engagement).map(([key, value]) => (
+                                <div key={key} className="text-center">
+                                  <div className="text-sm text-muted-foreground capitalize mb-2">{key}</div>
+                                  <div className="font-semibold text-foreground text-lg">
+                                    {typeof value === 'number' ? value.toLocaleString() : value}
                                   </div>
                                 </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-sm text-muted-foreground">Detected</div>
-                                <div className="flex items-center gap-1 text-sm">
-                                  <Calendar className="w-3 h-3" />
-                                  {new Date(ad.fetched_at).toLocaleDateString()}
-                                </div>
-                              </div>
+                              ))}
                             </div>
+                          )}
 
-                            {/* Ad Creative Preview */}
-                            <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-primary mb-4">
-                              <h4 className="font-semibold text-foreground mb-2">{ad.headline || 'No headline available'}</h4>
-                              {ad.primary_text && (
-                                <p className="text-sm text-foreground/80 mb-3 leading-relaxed">{ad.primary_text}</p>
-                              )}
-                              <div className="flex items-center gap-2">
-                                {ad.cta && (
-                                  <Button size="sm" variant="outline" className="text-xs">
-                                    {ad.cta}
-                                  </Button>
-                                )}
-                                {ad.offer && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {ad.offer}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Engagement Metrics */}
-                            {ad.engagement && (
-                              <div className="grid grid-cols-4 gap-4 mb-4 p-3 bg-muted/20 rounded-lg">
-                                {Object.entries(ad.engagement).map(([key, value]) => (
-                                  <div key={key} className="text-center">
-                                    <div className="text-xs text-muted-foreground capitalize mb-1">{key}</div>
-                                    <div className="font-semibold text-foreground">
-                                      {typeof value === 'number' ? value.toLocaleString() : value}
-                                    </div>
+                          {/* Detected Patterns */}
+                          {ad.detected_patterns && (
+                            <div className="mb-6 p-4 bg-primary/5 rounded-lg border border-primary/10">
+                              <div className="text-sm text-muted-foreground mb-3">Detected Patterns:</div>
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                {Object.entries(ad.detected_patterns).map(([key, value]) => (
+                                  <div key={key}>
+                                    <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
+                                    <span className="ml-2 font-medium">{value}</span>
                                   </div>
                                 ))}
                               </div>
-                            )}
-
-                            {/* Detected Patterns */}
-                            {ad.detected_patterns && (
-                              <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
-                                <div className="text-xs text-muted-foreground mb-2">Detected Patterns:</div>
-                                <div className="grid grid-cols-2 gap-2 text-xs">
-                                  {Object.entries(ad.detected_patterns).map(([key, value]) => (
-                                    <div key={key}>
-                                      <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
-                                      <span className="ml-1 font-medium">{value}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-2 pt-4 border-t">
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="flex-1"
-                                onClick={() => handleAnalyzeAd(ad.id)}
-                                disabled={isAnalyzing === ad.id}
-                              >
-                                {isAnalyzing === ad.id ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Analyzing...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Eye className="w-4 h-4 mr-2" />
-                                    Analyze
-                                  </>
-                                )}
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="flex-1"
-                                onClick={() => handleCopyStrategy(ad)}
-                              >
-                                <Copy className="w-4 h-4 mr-2" />
-                                Copy Strategy
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => handleViewOriginal(ad)}
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </Button>
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </ScrollArea>
+                          )}
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-3 pt-6 border-t">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="flex-1"
+                              onClick={() => handleAnalyzeAd(ad.id)}
+                              disabled={isAnalyzing === ad.id}
+                            >
+                              {isAnalyzing === ad.id ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Analyzing...
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  Analyze
+                                </>
+                              )}
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="flex-1"
+                              onClick={() => handleCopyStrategy(ad)}
+                            >
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy Strategy
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleViewOriginal(ad)}
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
 
                   {/* Pagination */}
-                  <div className="flex items-center justify-between pt-4 flex-shrink-0 border-t">
+                  <div className="flex items-center justify-between pt-8 mt-8 border-t">
                     <div className="text-sm text-muted-foreground">
                       Showing {filteredAds.length} live ads
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Button 
                         variant="outline" 
                         size="sm" 
