@@ -119,7 +119,7 @@ export default function EnhancedWarmLeadCard({ lead }: EnhancedWarmLeadCardProps
                     <Clock className="w-3 h-3" />
                     {lead.lastActivity}
                   </div>
-                  <Badge className={getSourceColor(lead.source)} variant="outline" className="text-xs">
+                  <Badge className={getSourceColor(lead.source)} variant="outline">
                     {lead.source}
                   </Badge>
                 </div>
