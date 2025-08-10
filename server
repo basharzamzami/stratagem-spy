@@ -1,0 +1,16 @@
+import express from "express";
+import cors from "cors";
+import adSignalHijackRoutes from "./routes/adSignalHijack";
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.use("/api/ad-signal-hijack", adSignalHijackRoutes);
+
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+});

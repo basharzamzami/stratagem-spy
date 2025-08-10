@@ -1,0 +1,23 @@
+import { Request, Response } from "express";
+import ads from "../data/ads.json";
+
+export const getAds = (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    data: ads
+  });
+};
+
+export const getAdById = (req: Request, res: Response) => {
+  const adId = parseInt(req.params.id);
+  const ad = ads.find(a => a.id === adId);
+
+  if (!ad) {
+    return res.status(404).json({ success: false, message: "Ad not found" });
+  }
+
+  res.json({
+    success: true,
+    data: ad
+  });
+};

@@ -1,0 +1,9 @@
+import { Router } from "express";
+import { getAds, getAdById } from "../controllers/adSignalHijackController";
+
+const router = Router();
+
+router.get("/", getAds);
+router.get("/:id", getAdById);
+
+export default router;

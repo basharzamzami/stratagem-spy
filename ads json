@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "platform": "Facebook",
+    "creative": "image1.png",
+    "headline": "Get Fit in 30 Days!",
+    "cta": "Sign Up Now",
+    "engagement": {
+      "likes": 234,
+      "comments": 45,
+      "shares": 12
+    },
+    "targeting": {
+      "location": "New York",
+      "ageRange": "25-40",
+      "interests": ["Fitness", "Wellness"]
+    }
+  },
+  {
+    "id": 2,
+    "platform": "Google",
+    "creative": "headline",
+    "headline": "Best Marketing Software for Agencies",
+    "cta": "Try for Free",
+    "engagement": {
+      "clicks": 321,
+      "impressions": 1400
+    },
+    "targeting": {
+      "keywords": ["marketing automation", "ad intelligence"]
+    }
+  }
+]
