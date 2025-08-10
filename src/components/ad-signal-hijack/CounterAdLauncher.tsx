@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,13 +28,15 @@ interface CounterAdLauncherProps {
   competitor?: string;
   creativeDNA?: CreativeDNA;
   originalContent?: string;
+  onLaunchComplete?: () => void;
 }
 
 const CounterAdLauncher = ({ 
   originalAdId = 'demo_001',
   competitor = 'Competitor',
   creativeDNA,
-  originalContent = 'Sample ad content'
+  originalContent = 'Sample ad content',
+  onLaunchComplete
 }: CounterAdLauncherProps) => {
   const [counterAd, setCounterAd] = useState<CounterAd | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -55,6 +56,13 @@ const CounterAdLauncher = ({
     cta_style: 'learn more',
     psychological_triggers: ['authority', 'social_proof']
   };
+
+  // Auto-generate if we have all required data
+  useEffect(() => {
+    if (originalAdId && competitor && originalContent && !counterAd) {
+      generateCounterAd();
+    }
+  }, [originalAdId, competitor, originalContent]);
 
   const generateCounterAd = async () => {
     setGenerating(true);
@@ -114,6 +122,12 @@ const CounterAdLauncher = ({
           title: "🚀 Counter-Ad Launched!",
           description: "Your hijack campaign is now live"
         });
+        
+        // Mark step as complete
+        if (onLaunchComplete) {
+          onLaunchComplete();
+        }
+        
         setLaunching(false);
         setLaunchProgress(0);
       }, 5000);
@@ -404,7 +418,7 @@ const CounterAdLauncher = ({
                     </div>
                     <div className="flex justify-between">
                       <span>ROI Projection:</span>
-                      <span className="font-medium text-success">+240%</span>
+                      <span className="font-medium text-green-500">+240%</span>
                     </div>
                   </div>
                 </div>

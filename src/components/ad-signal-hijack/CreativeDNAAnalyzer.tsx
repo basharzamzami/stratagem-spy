@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,15 +22,31 @@ import { psychTriggerMapper, TriggerAnalysis } from '@/services/psychTriggerMapp
 import { CreativeDNA } from '@/services/engagementMonitor';
 import { useToast } from '@/hooks/use-toast';
 
-const CreativeDNAAnalyzer = () => {
-  const [adContent, setAdContent] = useState('');
-  const [adImageUrl, setAdImageUrl] = useState('');
-  const [headline, setHeadline] = useState('');
+interface CreativeDNAAnalyzerProps {
+  initialData?: {
+    headline?: string;
+    content?: string;
+    imageUrl?: string;
+  };
+  onAnalysisComplete?: () => void;
+}
+
+const CreativeDNAAnalyzer = ({ initialData, onAnalysisComplete }: CreativeDNAAnalyzerProps) => {
+  const [adContent, setAdContent] = useState(initialData?.content || '');
+  const [adImageUrl, setAdImageUrl] = useState(initialData?.imageUrl || '');
+  const [headline, setHeadline] = useState(initialData?.headline || '');
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [creativeDNA, setCreativeDNA] = useState<CreativeDNA | null>(null);
   const [triggerAnalysis, setTriggerAnalysis] = useState<TriggerAnalysis | null>(null);
   const { toast } = useToast();
+
+  // Auto-analyze if initial data is provided
+  useEffect(() => {
+    if (initialData?.content && !creativeDNA) {
+      analyzeAd();
+    }
+  }, [initialData]);
 
   const analyzeAd = async () => {
     if (!adContent.trim()) {
@@ -73,6 +89,11 @@ const CreativeDNAAnalyzer = () => {
         title: "🧬 Complete Analysis Ready",
         description: "Creative DNA + psychological triggers mapped"
       });
+
+      // Mark step as complete
+      if (onAnalysisComplete) {
+        onAnalysisComplete();
+      }
     } catch (error) {
       toast({
         title: "Analysis Failed",
@@ -124,71 +145,73 @@ const CreativeDNAAnalyzer = () => {
 
   return (
     <div className="space-y-6">
-      {/* Input Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Dna className="w-5 h-5" />
-            Enhanced Creative DNA Extractor
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Ad Headline (Optional)</label>
-            <Input
-              placeholder="Enter competitor's headline..."
-              value={headline}
-              onChange={(e) => setHeadline(e.target.value)}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Ad Content</label>
-            <Textarea
-              placeholder="Paste competitor ad text here..."
-              value={adContent}
-              onChange={(e) => setAdContent(e.target.value)}
-              className="min-h-[100px]"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Ad Image URL (Optional)</label>
-            <Input
-              placeholder="https://example.com/ad-image.jpg"
-              value={adImageUrl}
-              onChange={(e) => setAdImageUrl(e.target.value)}
-            />
-          </div>
-
-          <Button 
-            onClick={analyzeAd} 
-            disabled={analyzing || !adContent.trim()}
-            className="w-full"
-          >
-            {analyzing ? (
-              <>
-                <Zap className="w-4 h-4 mr-2 animate-spin" />
-                Extracting DNA...
-              </>
-            ) : (
-              <>
-                <Dna className="w-4 h-4 mr-2" />
-                Analyze Creative DNA + Triggers
-              </>
-            )}
-          </Button>
-
-          {analyzing && (
+      {/* Input Section - Only show if no initial data */}
+      {!initialData && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Dna className="w-5 h-5" />
+              Enhanced Creative DNA Extractor
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Progress value={analysisProgress} className="h-2" />
-              <p className="text-xs text-center text-muted-foreground">
-                Deep analysis in progress... {analysisProgress}%
-              </p>
+              <label className="text-sm font-medium">Ad Headline (Optional)</label>
+              <Input
+                placeholder="Enter competitor's headline..."
+                value={headline}
+                onChange={(e) => setHeadline(e.target.value)}
+              />
             </div>
-          )}
-        </CardContent>
-      </Card>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Ad Content</label>
+              <Textarea
+                placeholder="Paste competitor ad text here..."
+                value={adContent}
+                onChange={(e) => setAdContent(e.target.value)}
+                className="min-h-[100px]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Ad Image URL (Optional)</label>
+              <Input
+                placeholder="https://example.com/ad-image.jpg"
+                value={adImageUrl}
+                onChange={(e) => setAdImageUrl(e.target.value)}
+              />
+            </div>
+
+            <Button 
+              onClick={analyzeAd} 
+              disabled={analyzing || !adContent.trim()}
+              className="w-full"
+            >
+              {analyzing ? (
+                <>
+                  <Zap className="w-4 h-4 mr-2 animate-spin" />
+                  Extracting DNA...
+                </>
+              ) : (
+                <>
+                  <Dna className="w-4 h-4 mr-2" />
+                  Analyze Creative DNA + Triggers
+                </>
+              )}
+            </Button>
+
+            {analyzing && (
+              <div className="space-y-2">
+                <Progress value={analysisProgress} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">
+                  Deep analysis in progress... {analysisProgress}%
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Analysis Results */}
       {creativeDNA && triggerAnalysis && (

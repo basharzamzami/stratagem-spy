@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,15 +21,31 @@ import { adSkeletonExtractor, HijackIntelligence } from '@/services/adSkeletonEx
 import { counterAdWeaponizer, CounterAdWeapon } from '@/services/counterAdWeaponizer';
 import { useToast } from '@/hooks/use-toast';
 
-const AdHijackIntelligence = () => {
-  const [adContent, setAdContent] = useState('');
-  const [headline, setHeadline] = useState('');
-  const [competitor, setCompetitor] = useState('');
+interface AdHijackIntelligenceProps {
+  initialData?: {
+    headline?: string;
+    content?: string;
+    competitor?: string;
+  };
+  onAnalysisComplete?: () => void;
+}
+
+const AdHijackIntelligence = ({ initialData, onAnalysisComplete }: AdHijackIntelligenceProps) => {
+  const [adContent, setAdContent] = useState(initialData?.content || '');
+  const [headline, setHeadline] = useState(initialData?.headline || '');
+  const [competitor, setCompetitor] = useState(initialData?.competitor || '');
   const [analyzing, setAnalyzing] = useState(false);
   const [weaponizing, setWeaponizing] = useState(false);
   const [intelligence, setIntelligence] = useState<HijackIntelligence | null>(null);
   const [counterWeapon, setCounterWeapon] = useState<CounterAdWeapon | null>(null);
   const { toast } = useToast();
+
+  // Auto-analyze if initial data is provided
+  useEffect(() => {
+    if (initialData?.headline && initialData?.content && !intelligence) {
+      extractIntelligence();
+    }
+  }, [initialData]);
 
   const extractIntelligence = async () => {
     if (!adContent.trim() || !headline.trim()) {
@@ -54,6 +69,11 @@ const AdHijackIntelligence = () => {
         title: "🧠 Intelligence Extracted",
         description: "Ad DNA decoded and ready for weaponization"
       });
+      
+      // Mark step as complete
+      if (onAnalysisComplete) {
+        onAnalysisComplete();
+      }
     } catch (error) {
       toast({
         title: "Extraction Failed",
@@ -106,87 +126,89 @@ const AdHijackIntelligence = () => {
 
   return (
     <div className="space-y-6">
-      {/* Input Section */}
-      <Card className="bg-gradient-to-r from-red-500/10 to-orange-500/5 border-red-500/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5" />
-            Ad Intelligence Extractor
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Input Section - Only show if no initial data */}
+      {!initialData && (
+        <Card className="bg-gradient-to-r from-red-500/10 to-orange-500/5 border-red-500/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5" />
+              Ad Intelligence Extractor
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Competitor Name</label>
+                <Input
+                  placeholder="e.g., HubSpot, Salesforce, etc."
+                  value={competitor}
+                  onChange={(e) => setCompetitor(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Ad Headline</label>
+                <Input
+                  placeholder="Their exact headline..."
+                  value={headline}
+                  onChange={(e) => setHeadline(e.target.value)}
+                />
+              </div>
+            </div>
+            
             <div className="space-y-2">
-              <label className="text-sm font-medium">Competitor Name</label>
-              <Input
-                placeholder="e.g., HubSpot, Salesforce, etc."
-                value={competitor}
-                onChange={(e) => setCompetitor(e.target.value)}
+              <label className="text-sm font-medium">Full Ad Content</label>
+              <Textarea
+                placeholder="Paste their complete ad text here..."
+                value={adContent}
+                onChange={(e) => setAdContent(e.target.value)}
+                className="min-h-[120px]"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Ad Headline</label>
-              <Input
-                placeholder="Their exact headline..."
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Full Ad Content</label>
-            <Textarea
-              placeholder="Paste their complete ad text here..."
-              value={adContent}
-              onChange={(e) => setAdContent(e.target.value)}
-              className="min-h-[120px]"
-            />
-          </div>
 
-          <div className="flex gap-2">
-            <Button 
-              onClick={extractIntelligence}
-              disabled={analyzing}
-              className="flex-1"
-            >
-              {analyzing ? (
-                <>
-                  <Brain className="w-4 h-4 mr-2 animate-pulse" />
-                  Extracting DNA...
-                </>
-              ) : (
-                <>
-                  <Target className="w-4 h-4 mr-2" />
-                  Extract Intelligence
-                </>
-              )}
-            </Button>
-
-            {intelligence && (
+            <div className="flex gap-2">
               <Button 
-                onClick={weaponizeAd}
-                disabled={weaponizing}
-                className="flex-1 bg-orange-600 hover:bg-orange-700"
+                onClick={extractIntelligence}
+                disabled={analyzing}
+                className="flex-1"
               >
-                {weaponizing ? (
+                {analyzing ? (
                   <>
-                    <Sword className="w-4 h-4 mr-2 animate-bounce" />
-                    Weaponizing...
+                    <Brain className="w-4 h-4 mr-2 animate-pulse" />
+                    Extracting DNA...
                   </>
                 ) : (
                   <>
-                    <Zap className="w-4 h-4 mr-2" />
-                    Generate Weapon
+                    <Target className="w-4 h-4 mr-2" />
+                    Extract Intelligence
                   </>
                 )}
               </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Intelligence Analysis */}
+              {intelligence && (
+                <Button 
+                  onClick={weaponizeAd}
+                  disabled={weaponizing}
+                  className="flex-1 bg-orange-600 hover:bg-orange-700"
+                >
+                  {weaponizing ? (
+                    <>
+                      <Sword className="w-4 h-4 mr-2 animate-bounce" />
+                      Weaponizing...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Generate Weapon
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Intelligence Analysis - Always show if we have intelligence data */}
       {intelligence && (
         <Tabs defaultValue="skeleton" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
@@ -427,10 +449,10 @@ const AdHijackIntelligence = () => {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-3 text-success">Counter-Positioning</h4>
+                  <h4 className="font-semibold mb-3 text-green-500">Counter-Positioning</h4>
                   <div className="space-y-2">
                     {intelligence.hijack_opportunities.counter_positioning.map((position, idx) => (
-                      <div key={idx} className="p-2 bg-success/10 border border-success/20 rounded text-sm">
+                      <div key={idx} className="p-2 bg-green-500/10 border border-green-500/20 rounded text-sm">
                         {position}
                       </div>
                     ))}
