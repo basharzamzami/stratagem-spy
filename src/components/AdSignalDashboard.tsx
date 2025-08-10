@@ -87,7 +87,7 @@ const AdSignalDashboard = () => {
 
               <div className="flex-1 min-h-0 overflow-hidden">
                 <TabsContent value="feed" className="h-full m-0 p-0">
-                  <div className="h-full p-6">
+                  <div className="h-full">
                     <LiveAdFeed />
                   </div>
                 </TabsContent>
