@@ -1,270 +1,252 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   Target, 
-  TrendingUp, 
+  Zap, 
   Eye, 
-  Zap,
-  AlertTriangle,
-  Users,
-  DollarSign,
-  Clock,
-  Activity
+  Users, 
+  Activity,
+  Brain,
+  Settings,
+  BarChart3,
+  TrendingUp,
+  Flame
 } from 'lucide-react';
-import AdHijackIntelligence from '@/components/ad-signal-hijack/AdHijackIntelligence';
-import CompetitorHijackAnalysis from '@/components/ad-signal-hijack/CompetitorHijackAnalysis';
-import CreativeDNAAnalyzer from '@/components/ad-signal-hijack/CreativeDNAAnalyzer';
-import CounterAdLauncher from '@/components/ad-signal-hijack/CounterAdLauncher';
 
-// Live Engagement Pulse Component
-const LiveEngagementPulse = () => {
-  const [pulseData, setPulseData] = useState({
-    totalAds: 247,
-    activeSpikes: 12,
-    avgEngagement: 3.2,
-    topCompetitor: 'HubSpot'
-  });
+// Import mock data components
+import { MockDataProvider, useMockData } from '@/components/ad-signal-hijack/MockDataProvider';
+import EnhancedHotAdCard from '@/components/ad-signal-hijack/EnhancedHotAdCard';
+import RichWarmLeadDetector from '@/components/ad-signal-hijack/RichWarmLeadDetector';
+import RichRealTimeMonitor from '@/components/ad-signal-hijack/RichRealTimeMonitor';
+import PsychTriggerAnalyzer from '@/components/ad-signal-hijack/PsychTriggerAnalyzer';
+import WatchlistManager from '@/components/ad-signal-hijack/WatchlistManager';
 
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Activity className="w-4 h-4 text-success" />
-          Live Pulse
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">Monitored Ads</span>
-          <span className="font-medium">{pulseData.totalAds}</span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">Active Spikes</span>
-          <span className="font-medium text-destructive">{pulseData.activeSpikes}</span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">Avg Engagement</span>
-          <span className="font-medium">{pulseData.avgEngagement}%</span>
-        </div>
-        <div className="pt-2 border-t">
-          <div className="text-xs text-muted-foreground mb-1">Top Threat</div>
-          <Badge variant="destructive" className="text-xs">
-            {pulseData.topCompetitor}
-          </Badge>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-// Competitor Watchlist Component
-const CompetitorWatchlist = () => {
-  const competitors = [
-    { name: 'HubSpot', ads: 45, trend: 'up', threat: 'high' },
-    { name: 'Salesforce', ads: 32, trend: 'stable', threat: 'medium' },
-    { name: 'Pipedrive', ads: 28, trend: 'down', threat: 'low' },
-    { name: 'Monday.com', ads: 19, trend: 'up', threat: 'medium' }
-  ];
-
-  const getThreatColor = (threat: string) => {
-    switch (threat) {
-      case 'high': return 'text-destructive';
-      case 'medium': return 'text-yellow-500';
-      case 'low': return 'text-success';
-      default: return 'text-muted-foreground';
-    }
-  };
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up': return '↗️';
-      case 'down': return '↘️';
-      case 'stable': return '→';
-      default: return '→';
-    }
-  };
+function EnhancedAdSignalHijackContent() {
+  const { hotAds, alerts, tasks } = useMockData();
+  
+  // Get critical metrics for header
+  const criticalAds = hotAds.filter(ad => ad.velocity === 'critical' || ad.velocity === 'viral').length;
+  const totalEngagementSpikes = hotAds.reduce((sum, ad) => sum + ad.engagementSpike, 0);
+  const activeAlerts = alerts.filter(alert => !alert.dismissed).length;
+  const urgentTasks = tasks.filter(task => task.priority === 1).length;
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Target className="w-4 h-4 text-primary" />
-          Watchlist
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {competitors.map((comp, idx) => (
-          <div key={idx} className="flex items-center justify-between p-2 bg-muted/20 rounded text-xs">
+    <div className="min-h-screen bg-background">
+      {/* Header with Live Stats */}
+      <div className="border-b bg-muted/20">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <div className="font-medium">{comp.name}</div>
-              <div className="text-muted-foreground">{comp.ads} ads</div>
+              <h1 className="text-3xl font-bold">Ad Signal Hijack Command Center</h1>
+              <p className="text-muted-foreground">Real-time competitor intelligence & campaign weaponization</p>
             </div>
-            <div className="flex items-center gap-1">
-              <span>{getTrendIcon(comp.trend)}</span>
-              <span className={getThreatColor(comp.threat)}>●</span>
+            <div className="flex gap-2">
+              <Badge className="bg-success/20 text-success animate-pulse">
+                LIVE MONITORING
+              </Badge>
+              <Badge className="bg-primary/20 text-primary">
+                {hotAds.length} Hot Ads Tracked
+              </Badge>
             </div>
           </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
-};
-
-// Quick Actions Panel Component
-const QuickActionsPanel = () => {
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Zap className="w-4 h-4 text-orange-500" />
-          Quick Actions
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <Button variant="outline" size="sm" className="w-full justify-start text-xs">
-          <Eye className="w-3 h-3 mr-2" />
-          View Top Spike
-        </Button>
-        <Button variant="outline" size="sm" className="w-full justify-start text-xs">
-          <Target className="w-3 h-3 mr-2" />
-          Launch Counter
-        </Button>
-        <Button variant="outline" size="sm" className="w-full justify-start text-xs">
-          <AlertTriangle className="w-3 h-3 mr-2" />
-          Set Alert
-        </Button>
-        <Button variant="outline" size="sm" className="w-full justify-start text-xs">
-          <TrendingUp className="w-3 h-3 mr-2" />
-          View Analytics
-        </Button>
-      </CardContent>
-    </Card>
-  );
-};
-
-// Competitor Insights Component
-const CompetitorInsights = () => {
-  const insights = [
-    {
-      type: 'threat',
-      message: 'HubSpot increased spend 40%',
-      time: '2h ago',
-      icon: AlertTriangle,
-      color: 'text-destructive'
-    },
-    {
-      type: 'opportunity',
-      message: 'Gap in "AI automation" keywords',
-      time: '4h ago',
-      icon: Target,
-      color: 'text-success'
-    },
-    {
-      type: 'trend',
-      message: 'Video ads +230% engagement',
-      time: '6h ago',
-      icon: TrendingUp,
-      color: 'text-blue-500'
-    }
-  ];
-
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Eye className="w-4 h-4 text-blue-500" />
-          Insights
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {insights.map((insight, idx) => (
-          <div key={idx} className="space-y-1">
-            <div className="flex items-start gap-2">
-              <insight.icon className={`w-3 h-3 mt-0.5 ${insight.color}`} />
-              <div className="flex-1">
-                <p className="text-xs font-medium">{insight.message}</p>
-                <p className="text-xs text-muted-foreground">{insight.time}</p>
+          
+          {/* Live Metrics Bar */}
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <div className="bg-card rounded-lg p-3 border">
+              <div className="flex items-center gap-2">
+                <Flame className="w-4 h-4 text-red-400" />
+                <div>
+                  <div className="text-lg font-bold text-red-400">{criticalAds}</div>
+                  <div className="text-xs text-muted-foreground">Critical Ads</div>
+                </div>
               </div>
             </div>
-            {idx < insights.length - 1 && <div className="border-b border-muted/20" />}
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
-};
-
-const EnhancedAdSignalHijack = () => {
-  const [activeTab, setActiveTab] = useState('intelligence');
-
-  return (
-    <div className="p-6 max-w-[1600px] mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Main Content Area */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
-                Ad Signal Hijack
-              </h1>
-              <p className="text-muted-foreground">
-                Decode competitor ads and weaponize counter-intelligence
-              </p>
-            </div>
-            <Badge variant="outline" className="bg-destructive/10 text-destructive">
-              🎯 Active Intelligence
-            </Badge>
-          </div>
-
-          {/* Main Intelligence System */}
-          <AdHijackIntelligence />
-
-          {/* Existing components in tabs */}
-          <Tabs defaultValue="intelligence" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="intelligence">🧠 Intelligence</TabsTrigger>
-              <TabsTrigger value="analysis">🔍 Analysis</TabsTrigger>
-              <TabsTrigger value="creative">🎨 Creative DNA</TabsTrigger>
-              <TabsTrigger value="launcher">🚀 Launcher</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="intelligence">
-              <div className="text-center py-8 text-muted-foreground">
-                Use the Intelligence Extractor above to decode competitor ads
+            
+            <div className="bg-card rounded-lg p-3 border">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-success" />
+                <div>
+                  <div className="text-lg font-bold text-success">{totalEngagementSpikes}</div>
+                  <div className="text-xs text-muted-foreground">Total Spikes</div>
+                </div>
               </div>
-            </TabsContent>
-
-            <TabsContent value="analysis">
-              <CompetitorHijackAnalysis />
-            </TabsContent>
-
-            <TabsContent value="creative">
-              <CreativeDNAAnalyzer />
-            </TabsContent>
-
-            <TabsContent value="launcher">
-              <CounterAdLauncher />
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Intelligence Rail */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-6 space-y-4">
-            <LiveEngagementPulse />
-            <CompetitorWatchlist />
-            <QuickActionsPanel />
-            <CompetitorInsights />
+            </div>
+            
+            <div className="bg-card rounded-lg p-3 border">
+              <div className="flex items-center gap-2">
+                <Eye className="w-4 h-4 text-primary" />
+                <div>
+                  <div className="text-lg font-bold">{activeAlerts}</div>
+                  <div className="text-xs text-muted-foreground">Active Alerts</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card rounded-lg p-3 border">
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-orange-400" />
+                <div>
+                  <div className="text-lg font-bold text-orange-400">{urgentTasks}</div>
+                  <div className="text-xs text-muted-foreground">Urgent Tasks</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card rounded-lg p-3 border">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-purple-400" />
+                <div>
+                  <div className="text-lg font-bold">4.8x</div>
+                  <div className="text-xs text-muted-foreground">Avg ROAS</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-card rounded-lg p-3 border">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-blue-400" />
+                <div>
+                  <div className="text-lg font-bold">147</div>
+                  <div className="text-xs text-muted-foreground">Warm Leads</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6">
+        <Tabs defaultValue="hot-ads" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="hot-ads" className="flex items-center gap-2">
+              <Flame className="w-4 h-4" />
+              Hot Ads
+            </TabsTrigger>
+            <TabsTrigger value="warm-leads" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Warm Leads
+            </TabsTrigger>
+            <TabsTrigger value="monitor" className="flex items-center gap-2">
+              <Activity className="w-4 h-4" />
+              Monitor
+            </TabsTrigger>
+            <TabsTrigger value="psych-analyzer" className="flex items-center gap-2">
+              <Brain className="w-4 h-4" />
+              Psych Analyzer
+            </TabsTrigger>
+            <TabsTrigger value="watchlist" className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              Watchlist
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="hot-ads" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-5 h-5 text-red-400" />
+                    Hot Ads Intelligence
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline">
+                      <Eye className="w-3 h-3 mr-1" />
+                      View All
+                    </Button>
+                    <Button size="sm">
+                      <Zap className="w-3 h-3 mr-1" />
+                      Mass Deploy
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {hotAds.map((ad) => (
+                  <EnhancedHotAdCard key={ad.id} ad={ad} />
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="warm-leads" className="space-y-6">
+            <RichWarmLeadDetector />
+          </TabsContent>
+
+          <TabsContent value="monitor" className="space-y-6">
+            <RichRealTimeMonitor />
+          </TabsContent>
+
+          <TabsContent value="psych-analyzer" className="space-y-6">
+            <PsychTriggerAnalyzer />
+          </TabsContent>
+
+          <TabsContent value="watchlist" className="space-y-6">
+            <WatchlistManager />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Configuration & Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-3">Monitoring Settings</h3>
+                    <div className="space-y-3">
+                      <div className="p-3 border rounded-lg">
+                        <div className="font-medium">Scan Frequency</div>
+                        <div className="text-sm text-muted-foreground">Every 2 minutes</div>
+                      </div>
+                      <div className="p-3 border rounded-lg">
+                        <div className="font-medium">Alert Threshold</div>
+                        <div className="text-sm text-muted-foreground">200% engagement spike</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-3">Integration Status</h3>
+                    <div className="space-y-3">
+                      <div className="p-3 border rounded-lg flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">Meta Ads Library</div>
+                          <div className="text-sm text-muted-foreground">Connected</div>
+                        </div>
+                        <Badge className="bg-success/20 text-success">Active</Badge>
+                      </div>
+                      <div className="p-3 border rounded-lg flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">Google Ads API</div>
+                          <div className="text-sm text-muted-foreground">Connected</div>
+                        </div>
+                        <Badge className="bg-success/20 text-success">Active</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
-};
+}
 
-export default EnhancedAdSignalHijack;
+export default function EnhancedAdSignalHijack() {
+  return (
+    <MockDataProvider>
+      <EnhancedAdSignalHijackContent />
+    </MockDataProvider>
+  );
+}
