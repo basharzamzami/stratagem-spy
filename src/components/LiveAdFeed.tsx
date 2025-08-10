@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Play, 
@@ -168,7 +169,7 @@ Offer: ${ad.offer || 'No offer'}
   return (
     <div className="h-full w-full flex flex-col">
       <Card className="flex-1 flex flex-col min-h-0">
-        <CardHeader className="flex-shrink-0">
+        <CardHeader className="flex-shrink-0 p-6">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5" />
@@ -191,7 +192,7 @@ Offer: ${ad.offer || 'No offer'}
           </div>
         </CardHeader>
         
-        <CardContent className="flex-1 flex flex-col min-h-0">
+        <CardContent className="flex-1 flex flex-col min-h-0 p-6">
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="flex-1 flex flex-col">
             <TabsList className="grid w-full grid-cols-5 flex-shrink-0">
               <TabsTrigger value="all">All ({ads?.length || 0})</TabsTrigger>
@@ -234,147 +235,149 @@ Offer: ${ad.offer || 'No offer'}
                 </div>
               )}
 
-              {/* Ads Display */}
+              {/* Ads Display with ScrollArea */}
               {!isLoading && filteredAds.length > 0 && (
                 <div className="flex-1 flex flex-col min-h-0">
-                  <div className="flex-1 overflow-auto space-y-4 pr-2">
-                    {filteredAds.map((ad) => (
-                      <Card key={ad.id} className="hover:shadow-lg transition-all duration-200">
-                        <CardContent className="p-6">
-                          {/* Ad Header */}
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-16 h-16 bg-primary/10 rounded-lg overflow-hidden flex items-center justify-center">
-                                {ad.ad_creative_url ? (
-                                  <img 
-                                    src={ad.ad_creative_url} 
-                                    alt="Ad creative" 
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.currentTarget.src = '/placeholder.svg';
-                                    }}
-                                  />
-                                ) : (
-                                  <Eye className="w-8 h-8 text-primary" />
-                                )}
-                              </div>
-                              <div>
-                                <h3 className="font-semibold text-foreground">{ad.competitor}</h3>
-                                <div className="flex items-center gap-2">
-                                  <Badge className={platformColors[ad.platform as keyof typeof platformColors] || 'bg-gray-500/20 text-gray-700'}>
-                                    {ad.platform}
-                                  </Badge>
-                                  {ad.active && (
-                                    <Badge className="bg-success/20 text-success border-success/30">
-                                      Live
-                                    </Badge>
+                  <ScrollArea className="flex-1">
+                    <div className="space-y-4 pr-4">
+                      {filteredAds.map((ad) => (
+                        <Card key={ad.id} className="hover:shadow-lg transition-all duration-200">
+                          <CardContent className="p-6">
+                            {/* Ad Header */}
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-16 h-16 bg-primary/10 rounded-lg overflow-hidden flex items-center justify-center">
+                                  {ad.ad_creative_url ? (
+                                    <img 
+                                      src={ad.ad_creative_url} 
+                                      alt="Ad creative" 
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.src = '/placeholder.svg';
+                                      }}
+                                    />
+                                  ) : (
+                                    <Eye className="w-8 h-8 text-primary" />
                                   )}
                                 </div>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-sm text-muted-foreground">Detected</div>
-                              <div className="flex items-center gap-1 text-sm">
-                                <Calendar className="w-3 h-3" />
-                                {new Date(ad.fetched_at).toLocaleDateString()}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Ad Creative Preview */}
-                          <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-primary mb-4">
-                            <h4 className="font-semibold text-foreground mb-2">{ad.headline || 'No headline available'}</h4>
-                            {ad.primary_text && (
-                              <p className="text-sm text-foreground/80 mb-3 leading-relaxed">{ad.primary_text}</p>
-                            )}
-                            <div className="flex items-center gap-2">
-                              {ad.cta && (
-                                <Button size="sm" variant="outline" className="text-xs">
-                                  {ad.cta}
-                                </Button>
-                              )}
-                              {ad.offer && (
-                                <Badge variant="secondary" className="text-xs">
-                                  {ad.offer}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Engagement Metrics */}
-                          {ad.engagement && (
-                            <div className="grid grid-cols-4 gap-4 mb-4 p-3 bg-muted/20 rounded-lg">
-                              {Object.entries(ad.engagement).map(([key, value]) => (
-                                <div key={key} className="text-center">
-                                  <div className="text-xs text-muted-foreground capitalize mb-1">{key}</div>
-                                  <div className="font-semibold text-foreground">
-                                    {typeof value === 'number' ? value.toLocaleString() : value}
+                                <div>
+                                  <h3 className="font-semibold text-foreground">{ad.competitor}</h3>
+                                  <div className="flex items-center gap-2">
+                                    <Badge className={platformColors[ad.platform as keyof typeof platformColors] || 'bg-gray-500/20 text-gray-700'}>
+                                      {ad.platform}
+                                    </Badge>
+                                    {ad.active && (
+                                      <Badge className="bg-success/20 text-success border-success/30">
+                                        Live
+                                      </Badge>
+                                    )}
                                   </div>
                                 </div>
-                              ))}
+                              </div>
+                              <div className="text-right">
+                                <div className="text-sm text-muted-foreground">Detected</div>
+                                <div className="flex items-center gap-1 text-sm">
+                                  <Calendar className="w-3 h-3" />
+                                  {new Date(ad.fetched_at).toLocaleDateString()}
+                                </div>
+                              </div>
                             </div>
-                          )}
 
-                          {/* Detected Patterns */}
-                          {ad.detected_patterns && (
-                            <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
-                              <div className="text-xs text-muted-foreground mb-2">Detected Patterns:</div>
-                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                {Object.entries(ad.detected_patterns).map(([key, value]) => (
-                                  <div key={key}>
-                                    <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
-                                    <span className="ml-1 font-medium">{value}</span>
+                            {/* Ad Creative Preview */}
+                            <div className="bg-muted/30 rounded-lg p-4 border-l-4 border-primary mb-4">
+                              <h4 className="font-semibold text-foreground mb-2">{ad.headline || 'No headline available'}</h4>
+                              {ad.primary_text && (
+                                <p className="text-sm text-foreground/80 mb-3 leading-relaxed">{ad.primary_text}</p>
+                              )}
+                              <div className="flex items-center gap-2">
+                                {ad.cta && (
+                                  <Button size="sm" variant="outline" className="text-xs">
+                                    {ad.cta}
+                                  </Button>
+                                )}
+                                {ad.offer && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {ad.offer}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Engagement Metrics */}
+                            {ad.engagement && (
+                              <div className="grid grid-cols-4 gap-4 mb-4 p-3 bg-muted/20 rounded-lg">
+                                {Object.entries(ad.engagement).map(([key, value]) => (
+                                  <div key={key} className="text-center">
+                                    <div className="text-xs text-muted-foreground capitalize mb-1">{key}</div>
+                                    <div className="font-semibold text-foreground">
+                                      {typeof value === 'number' ? value.toLocaleString() : value}
+                                    </div>
                                   </div>
                                 ))}
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {/* Action Buttons */}
-                          <div className="flex gap-2 pt-4 border-t">
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="flex-1"
-                              onClick={() => handleAnalyzeAd(ad.id)}
-                              disabled={isAnalyzing === ad.id}
-                            >
-                              {isAnalyzing === ad.id ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  Analyzing...
-                                </>
-                              ) : (
-                                <>
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Analyze
-                                </>
-                              )}
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="flex-1"
-                              onClick={() => handleCopyStrategy(ad)}
-                            >
-                              <Copy className="w-4 h-4 mr-2" />
-                              Copy Strategy
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewOriginal(ad)}
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                            {/* Detected Patterns */}
+                            {ad.detected_patterns && (
+                              <div className="mb-4 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                                <div className="text-xs text-muted-foreground mb-2">Detected Patterns:</div>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  {Object.entries(ad.detected_patterns).map(([key, value]) => (
+                                    <div key={key}>
+                                      <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
+                                      <span className="ml-1 font-medium">{value}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 pt-4 border-t">
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="flex-1"
+                                onClick={() => handleAnalyzeAd(ad.id)}
+                                disabled={isAnalyzing === ad.id}
+                              >
+                                {isAnalyzing === ad.id ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Analyzing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    Analyze
+                                  </>
+                                )}
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="flex-1"
+                                onClick={() => handleCopyStrategy(ad)}
+                              >
+                                <Copy className="w-4 h-4 mr-2" />
+                                Copy Strategy
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleViewOriginal(ad)}
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </ScrollArea>
 
                   {/* Pagination */}
-                  <div className="flex items-center justify-between pt-4 flex-shrink-0">
+                  <div className="flex items-center justify-between pt-4 flex-shrink-0 border-t">
                     <div className="text-sm text-muted-foreground">
                       Showing {filteredAds.length} live ads
                     </div>
