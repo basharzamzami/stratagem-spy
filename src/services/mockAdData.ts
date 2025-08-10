@@ -1,3 +1,23 @@
+export interface HotAd {
+  id: string;
+  competitor: string;
+  platform: string;
+  headline: string;
+  description: string;
+  cta: string;
+  image: string;
+  engagementSpike: number;
+  spendIncrease: number;
+  velocity: string;
+  firstSeen: string;
+  metrics: Record<string, number>;
+  psychTriggers: string[];
+  targetAudience: string;
+  copy?: string;
+  imageUrl?: string;
+  estimatedSpend?: string;
+  engagementRate?: string;
+}
 
 export const mockCompetitors = [
   { id: 'hubspot', name: 'HubSpot', industry: 'Marketing Automation' },
