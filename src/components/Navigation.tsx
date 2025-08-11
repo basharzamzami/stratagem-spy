@@ -1,15 +1,11 @@
 
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ApiClient } from '@/services/api';
 
-interface NavigationProps {
-  onPanelSelect?: (panel: string | null) => void;
-  activePanel?: string;
-}
-
-const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
+const Navigation = () => {
+  const navigate = useNavigate();
   const location = useLocation();
 
   // Fetch data for dynamic badges
@@ -39,18 +35,18 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
     { 
       name: "Specter Net", 
       icon: Shield, 
-      active: location.pathname === '/' && !activePanel, 
+      active: location.pathname === '/', 
       badge: "NEW",
       description: "Intelligence dashboard",
-      action: () => onPanelSelect?.(null)
+      path: "/"
     },
     { 
       name: "Ad Signal Hijack", 
       icon: Zap, 
-      active: activePanel === 'ad-signal-hijack', 
+      active: location.pathname === '/ad-signal-hijack', 
       badge: adsCount > 0 ? adsCount.toString() : null,
       description: "Competitor ad tracking",
-      action: () => onPanelSelect?.('ad-signal-hijack')
+      path: "/ad-signal-hijack"
     },
     { 
       name: "Lead Locator", 
@@ -58,7 +54,7 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
       active: location.pathname === '/lead-locator', 
       badge: leadsCount > 0 ? leadsCount.toString() : null,
       description: "Prospect identification",
-      action: () => window.location.href = '/lead-locator'
+      path: "/lead-locator"
     },
     { 
       name: "Dominance Map", 
@@ -66,7 +62,7 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
       active: location.pathname === '/dominance-map', 
       badge: null,
       description: "Territory analysis",
-      action: () => window.location.href = '/dominance-map'
+      path: "/dominance-map"
     },
     { 
       name: "Task Generator", 
@@ -74,7 +70,7 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
       active: location.pathname === '/task-generator', 
       badge: null,
       description: "Action recommendations",
-      action: () => window.location.href = '/task-generator'
+      path: "/task-generator"
     },
     { 
       name: "Change Alerts", 
@@ -82,7 +78,7 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
       active: location.pathname === '/change-alerts', 
       badge: alertsCount > 0 ? alertsCount.toString() : null,
       description: "Real-time monitoring",
-      action: () => window.location.href = '/change-alerts'
+      path: "/change-alerts"
     },
     { 
       name: "Campaign Manager", 
@@ -90,7 +86,7 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
       active: location.pathname === '/campaign-manager', 
       badge: null,
       description: "Campaign automation",
-      action: () => window.location.href = '/campaign-manager'
+      path: "/campaign-manager"
     },
     { 
       name: "Competitive CRM", 
@@ -98,7 +94,7 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
       active: location.pathname === '/competitive-crm', 
       badge: null,
       description: "Lead management",
-      action: () => window.location.href = '/competitive-crm'
+      path: "/competitive-crm"
     }
   ];
 
@@ -135,7 +131,7 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
         {modules.map((module, index) => (
           <button
             key={index}
-            onClick={module.action}
+            onClick={() => navigate(module.path)}
             className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
               module.active 
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
@@ -171,7 +167,7 @@ const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
       {/* Settings */}
       <div className="p-4 border-t border-border">
         <button 
-          onClick={() => window.location.href = '/settings'}
+          onClick={() => navigate('/settings')}
           className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
             location.pathname === '/settings'
               ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
