@@ -1,8 +1,8 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdSignalHijackDashboard from './AdSignalHijackDashboard';
 import AdSignalDashboard from './AdSignalDashboard';
+import SpecterNetIntegration from '@/components/specter-net/SpecterNetIntegration';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -28,6 +28,16 @@ const Dashboard = ({ activePanel }: DashboardProps) => {
       <div className="h-full w-full overflow-hidden flex flex-col bg-background">
         <div className="flex-1 min-h-0 overflow-hidden">
           <AdSignalHijackDashboard />
+        </div>
+      </div>
+    );
+  }
+
+  if (activePanel === 'specter-net') {
+    return (
+      <div className="h-full w-full overflow-hidden flex flex-col bg-background">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <SpecterNetIntegration />
         </div>
       </div>
     );
