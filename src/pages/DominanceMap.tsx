@@ -39,7 +39,7 @@ export default function DominanceMap() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Navigation />
+      <Navigation activePanel="dominance-map" />
       <div className="flex-1 overflow-auto">
         <div className="p-8 max-w-7xl mx-auto">
           {/* Header */}

@@ -6,7 +6,7 @@ import CampaignDashboard from "@/components/campaign-manager/CampaignDashboard";
 export default function CampaignManager() {
   return (
     <div className="min-h-screen w-full bg-background flex overflow-hidden">
-      <Navigation />
+      <Navigation activePanel="campaign-manager" />
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
         <div className="flex-shrink-0 p-4 border-b border-border">
           <PageHeader 

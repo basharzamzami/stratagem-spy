@@ -6,15 +6,15 @@ import Dashboard from '@/components/Dashboard';
 const Index = () => {
   const [activePanel, setActivePanel] = useState('specter-net');
 
-  const handleModuleSelect = (module: string) => {
-    setActivePanel(module);
+  const handlePanelChange = (panel: string) => {
+    setActivePanel(panel);
   };
 
   return (
     <div className="min-h-screen w-full bg-background flex overflow-hidden">
       <Navigation 
-        onModuleSelect={handleModuleSelect}
-        activeModule={activePanel}
+        activePanel={activePanel}
+        onPanelChange={handlePanelChange}
       />
       <div className="flex-1 min-w-0 overflow-auto">
         <Dashboard 

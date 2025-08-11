@@ -12,7 +12,7 @@ import { Shield, Target, Bell, Zap, Eye, TrendingUp } from "lucide-react";
 export default function SpecterNetDashboard() {
   return (
     <div className="min-h-screen bg-background flex">
-      <Navigation />
+      <Navigation activePanel="specter-net" />
       <div className="flex-1 overflow-auto">
         <div className="p-8 max-w-7xl mx-auto">
           {/* Header */}

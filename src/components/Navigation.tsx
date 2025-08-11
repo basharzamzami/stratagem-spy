@@ -11,11 +11,11 @@ import {
 } from 'lucide-react';
 
 interface NavigationProps {
-  activePanel: string;
-  onPanelChange: (panel: string) => void;
+  activePanel?: string;
+  onPanelChange?: (panel: string) => void;
 }
 
-const Navigation = ({ activePanel, onPanelChange }: NavigationProps) => {
+const Navigation = ({ activePanel = 'specter-net', onPanelChange }: NavigationProps) => {
   const [warmLeadsCount] = useState(247);
   const [hotAdsCount] = useState(18);
 
@@ -25,13 +25,6 @@ const Navigation = ({ activePanel, onPanelChange }: NavigationProps) => {
       label: 'Specter Net',
       description: 'Core intelligence platform',
       icon: Shield,
-      badge: null
-    },
-    {
-      id: 'ad-signal',
-      label: 'Ad Signal',
-      description: 'Live ad monitoring & decoding',
-      icon: Target,
       badge: null
     },
     {
@@ -56,6 +49,12 @@ const Navigation = ({ activePanel, onPanelChange }: NavigationProps) => {
       badge: null
     }
   ];
+
+  const handlePanelChange = (panelId: string) => {
+    if (onPanelChange) {
+      onPanelChange(panelId);
+    }
+  };
 
   return (
     <div className="w-64 bg-background border-r border-border flex flex-col h-full">
@@ -83,7 +82,7 @@ const Navigation = ({ activePanel, onPanelChange }: NavigationProps) => {
                 className={`w-full justify-start h-auto p-3 ${
                   isActive ? 'bg-primary/10 border-primary/20' : ''
                 }`}
-                onClick={() => onPanelChange(feature.id)}
+                onClick={() => handlePanelChange(feature.id)}
               >
                 <div className="flex items-center gap-3 w-full">
                   <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
