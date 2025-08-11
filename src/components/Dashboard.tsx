@@ -26,24 +26,6 @@ const Dashboard = ({ activePanel }: DashboardProps) => {
   if (activePanel === 'ad-signal-hijack') {
     return (
       <div className="h-full w-full overflow-hidden flex flex-col bg-background">
-        <div className="flex-shrink-0 px-6 py-4 border-b border-border bg-background">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-1">
-                Ad Signal Hijack
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Real-time competitive ad intelligence & hijacking system
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge variant="secondary" className="bg-success/20 text-success border-success/30">
-                <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
-                Live Intelligence Active
-              </Badge>
-            </div>
-          </div>
-        </div>
         <div className="flex-1 min-h-0 overflow-hidden">
           <AdSignalHijackDashboard />
         </div>
