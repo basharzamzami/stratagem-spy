@@ -1,7 +1,5 @@
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Database } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ApiClient } from '@/services/api';
 
 interface NavigationProps {
   activeModule?: string;
@@ -11,33 +9,8 @@ interface NavigationProps {
 export default function Navigation({ activeModule, onModuleSelect }: NavigationProps) {
   const location = useLocation();
 
-  const { data: adsCount } = useQuery({
-    queryKey: ['ads-count'],
-    queryFn: async () => {
-      try {
-        const response = await ApiClient.get('/api/ads/count');
-        return response.data?.count || 0;
-      } catch (error) {
-        console.error('Failed to fetch ads count:', error);
-        return 0;
-      }
-    },
-    refetchInterval: 30000,
-  });
-
-  const { data: leadsCount } = useQuery({
-    queryKey: ['leads-count'],
-    queryFn: async () => {
-      try {
-        const response = await ApiClient.get('/api/leads/count');
-        return response.data?.count || 0;
-      } catch (error) {
-        console.error('Failed to fetch leads count:', error);
-        return 0;
-      }
-    },
-    refetchInterval: 30000,
-  });
+  const adsCount = 0;
+  const leadsCount = 0;
 
   const modules = [
     { 

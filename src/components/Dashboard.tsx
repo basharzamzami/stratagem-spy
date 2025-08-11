@@ -11,7 +11,8 @@ import {
   AlertTriangle,
   Activity,
   Shield,
-  Brain
+  Brain,
+  Zap
 } from 'lucide-react';
 
 interface DashboardProps {
