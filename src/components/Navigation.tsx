@@ -1,103 +1,92 @@
-import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
+import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Database } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ApiClient } from '@/services/api';
 
 interface NavigationProps {
-  onModuleSelect?: (module: string) => void;
   activeModule?: string;
+  onModuleSelect?: (module: string) => void;
 }
 
-const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
+export default function Navigation({ activeModule, onModuleSelect }: NavigationProps) {
   const location = useLocation();
 
-  // Fetch data for dynamic badges
-  const { data: adsResponse } = useQuery({
-    queryKey: ['ads'],
-    queryFn: () => ApiClient.getAds(),
+  const { data: adsCount } = useQuery({
+    queryKey: ['ads-count'],
+    queryFn: async () => {
+      try {
+        const response = await ApiClient.get('/api/ads/count');
+        return response.data?.count || 0;
+      } catch (error) {
+        console.error('Failed to fetch ads count:', error);
+        return 0;
+      }
+    },
+    refetchInterval: 30000,
   });
 
-  const { data: leadsResponse } = useQuery({
-    queryKey: ['leads'],
-    queryFn: () => ApiClient.searchLeads({}),
+  const { data: leadsCount } = useQuery({
+    queryKey: ['leads-count'],
+    queryFn: async () => {
+      try {
+        const response = await ApiClient.get('/api/leads/count');
+        return response.data?.count || 0;
+      } catch (error) {
+        console.error('Failed to fetch leads count:', error);
+        return 0;
+      }
+    },
+    refetchInterval: 30000,
   });
-
-  const { data: alertsResponse } = useQuery({
-    queryKey: ['alerts'],
-    queryFn: () => ApiClient.getAlerts(),
-  });
-
-  // Safely extract counts
-  const adsCount = Array.isArray(adsResponse?.data) ? adsResponse.data.length : 0;
-  const leadsCount = Array.isArray(leadsResponse?.data) ? leadsResponse.data.length : 0;
-  const alertsCount = Array.isArray(alertsResponse?.data) 
-    ? alertsResponse.data.filter((alert: any) => !alert.dismissed).length 
-    : 0;
 
   const modules = [
     { 
       name: "Specter Net", 
       icon: Shield, 
       active: location.pathname === '/' && activeModule === 'specter-net', 
-      badge: "NEW",
+      badge: null,
       description: "Intelligence dashboard",
       key: "specter-net"
     },
     { 
-      name: "Ad Signal Hijack", 
-      icon: Zap, 
-      active: location.pathname === '/' && activeModule === 'ad-signal-hijack', 
-      badge: adsCount > 0 ? adsCount.toString() : null,
-      description: "Enhanced hijacking tools",
-      key: "ad-signal-hijack"
-    },
-    { 
       name: "Lead Locator", 
-      icon: Users, 
+      icon: Target, 
       active: location.pathname === '/lead-locator', 
       badge: leadsCount > 0 ? leadsCount.toString() : null,
-      description: "Prospect identification",
-      path: "/lead-locator"
+      description: "Warm prospect detection",
+      key: "lead-locator"
     },
     { 
       name: "Dominance Map", 
       icon: Map, 
       active: location.pathname === '/dominance-map', 
       badge: null,
-      description: "Territory analysis",
-      path: "/dominance-map"
-    },
-    { 
-      name: "Task Generator", 
-      icon: Target, 
-      active: location.pathname === '/task-generator', 
-      badge: null,
-      description: "Action recommendations",
-      path: "/task-generator"
+      description: "Market positioning",
+      key: "dominance-map"
     },
     { 
       name: "Change Alerts", 
       icon: Bell, 
       active: location.pathname === '/change-alerts', 
-      badge: alertsCount > 0 ? alertsCount.toString() : null,
-      description: "Real-time monitoring",
-      path: "/change-alerts"
-    },
-    { 
-      name: "Campaign Manager", 
-      icon: TrendingUp, 
-      active: location.pathname === '/campaign-manager', 
-      badge: null,
-      description: "Campaign automation",
-      path: "/campaign-manager"
+      badge: "12",
+      description: "Competitor updates",
+      key: "change-alerts"
     },
     { 
       name: "Competitive CRM", 
       icon: Database, 
       active: location.pathname === '/competitive-crm', 
       badge: null,
-      description: "Lead management",
-      path: "/competitive-crm"
+      description: "Intelligence database",
+      key: "competitive-crm"
+    },
+    { 
+      name: "Campaign Manager", 
+      icon: TrendingUp, 
+      active: location.pathname === '/campaign-manager', 
+      badge: null,
+      description: "Campaign orchestration",
+      key: "campaign-manager"
     }
   ];
 
@@ -215,6 +204,4 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
       </div>
     </div>
   );
-};
-
-export default Navigation;
+}

@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdSignalDashboard from './AdSignalDashboard';
-import EnhancedAdSignalHijack from '@/pages/EnhancedAdSignalHijack';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Target, 
-  Zap, 
   BarChart3, 
   Users, 
   TrendingUp, 
@@ -56,16 +54,11 @@ const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProp
             <Tabs value={activePanel} onValueChange={handleTabChange} className="h-full flex flex-col">
               {/* Tabs List - Fixed */}
               <div className="flex-shrink-0 px-6 py-3 bg-background border-b border-border">
-                <TabsList className="grid w-full grid-cols-7">
+                <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="specter-net" className="flex items-center gap-2 text-sm">
                     <Shield className="w-4 h-4" />
                     <span className="hidden md:inline">Specter Net</span>
                     <span className="md:hidden">Net</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="ad-signal-hijack" className="flex items-center gap-2 text-sm">
-                    <Zap className="w-4 h-4" />
-                    <span className="hidden md:inline">Ad Signal Hijack</span>
-                    <span className="md:hidden">Hijack</span>
                   </TabsTrigger>
                   <TabsTrigger value="ad-signal" className="flex items-center gap-2 text-sm">
                     <Target className="w-4 h-4" />
@@ -124,14 +117,6 @@ const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProp
                         </div>
                       </CardContent>
                     </Card>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="ad-signal-hijack" className="h-full m-0 p-0">
-                  <div className="h-full overflow-hidden">
-                    <div className="h-full overflow-auto">
-                      <EnhancedAdSignalHijack />
-                    </div>
                   </div>
                 </TabsContent>
 
