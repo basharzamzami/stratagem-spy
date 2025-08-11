@@ -17,7 +17,16 @@ import {
   Brain
 } from 'lucide-react';
 
-const Dashboard = () => {
+interface DashboardProps {
+  activePanel?: string;
+  onPanelChange?: (panel: string) => void;
+}
+
+const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProps) => {
+  const handleTabChange = (value: string) => {
+    onPanelChange?.(value);
+  };
+
   return (
     <div className="h-screen w-full overflow-hidden flex flex-col bg-background">
       {/* Header - Fixed */}
@@ -45,13 +54,18 @@ const Dashboard = () => {
         <div className="h-full flex">
           {/* Main Dashboard Area */}
           <div className="flex-1 min-h-0 overflow-hidden">
-            <Tabs defaultValue="ad-hijack" className="h-full flex flex-col">
+            <Tabs value={activePanel} onValueChange={handleTabChange} className="h-full flex flex-col">
               {/* Tabs List - Fixed */}
               <div className="flex-shrink-0 px-6 py-3 bg-background border-b border-border">
-                <TabsList className="grid w-full grid-cols-6">
-                  <TabsTrigger value="ad-hijack" className="flex items-center gap-2 text-sm">
+                <TabsList className="grid w-full grid-cols-7">
+                  <TabsTrigger value="specter-net" className="flex items-center gap-2 text-sm">
+                    <Shield className="w-4 h-4" />
+                    <span className="hidden md:inline">Specter Net</span>
+                    <span className="md:hidden">Net</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="ad-signal-hijack" className="flex items-center gap-2 text-sm">
                     <Zap className="w-4 h-4" />
-                    <span className="hidden md:inline">Ad Hijack Fusion</span>
+                    <span className="hidden md:inline">Ad Signal Hijack</span>
                     <span className="md:hidden">Hijack</span>
                   </TabsTrigger>
                   <TabsTrigger value="ad-signal" className="flex items-center gap-2 text-sm">
@@ -84,7 +98,37 @@ const Dashboard = () => {
 
               {/* Tab Content - Fills remaining space */}
               <div className="flex-1 min-h-0 overflow-hidden">
-                <TabsContent value="ad-hijack" className="h-full m-0 p-0">
+                <TabsContent value="specter-net" className="h-full m-0 p-0">
+                  <div className="h-full flex items-center justify-center p-6">
+                    <Card className="w-full max-w-2xl">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Shield className="w-5 h-5 text-primary" />
+                          Specter Net Intelligence Dashboard
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-muted-foreground">
+                          Real-time competitive intelligence monitoring and analysis platform.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <Brain className="w-8 h-8 text-primary mb-2" />
+                            <h3 className="font-semibold mb-1">Intelligence Gathering</h3>
+                            <p className="text-sm text-muted-foreground">Real-time competitor monitoring</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <Activity className="w-8 h-8 text-primary mb-2" />
+                            <h3 className="font-semibold mb-1">Analysis Engine</h3>
+                            <p className="text-sm text-muted-foreground">Advanced pattern recognition</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="ad-signal-hijack" className="h-full m-0 p-0">
                   <div className="h-full overflow-hidden">
                     <AdSignalHijackDashboard />
                   </div>

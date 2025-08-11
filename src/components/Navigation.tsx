@@ -1,11 +1,15 @@
 
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ApiClient } from '@/services/api';
 
-const Navigation = () => {
-  const navigate = useNavigate();
+interface NavigationProps {
+  onModuleSelect?: (module: string) => void;
+  activeModule?: string;
+}
+
+const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
   const location = useLocation();
 
   // Fetch data for dynamic badges
@@ -35,18 +39,18 @@ const Navigation = () => {
     { 
       name: "Specter Net", 
       icon: Shield, 
-      active: location.pathname === '/', 
+      active: location.pathname === '/' && activeModule === 'specter-net', 
       badge: "NEW",
       description: "Intelligence dashboard",
-      path: "/"
+      key: "specter-net"
     },
     { 
       name: "Ad Signal Hijack", 
       icon: Zap, 
-      active: location.pathname === '/ad-signal-hijack', 
+      active: location.pathname === '/' && activeModule === 'ad-signal-hijack', 
       badge: adsCount > 0 ? adsCount.toString() : null,
       description: "Competitor ad tracking",
-      path: "/ad-signal-hijack"
+      key: "ad-signal-hijack"
     },
     { 
       name: "Lead Locator", 
@@ -98,6 +102,16 @@ const Navigation = () => {
     }
   ];
 
+  const handleModuleClick = (module: any) => {
+    if (module.key && location.pathname === '/') {
+      // For dashboard modules, use the callback
+      onModuleSelect?.(module.key);
+    } else if (module.path) {
+      // For external pages, navigate normally
+      window.location.href = module.path;
+    }
+  };
+
   return (
     <div className="w-72 h-screen bg-background-secondary border-r border-border flex flex-col">
       {/* Header */}
@@ -131,7 +145,7 @@ const Navigation = () => {
         {modules.map((module, index) => (
           <button
             key={index}
-            onClick={() => navigate(module.path)}
+            onClick={() => handleModuleClick(module)}
             className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
               module.active 
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
@@ -167,7 +181,7 @@ const Navigation = () => {
       {/* Settings */}
       <div className="p-4 border-t border-border">
         <button 
-          onClick={() => navigate('/settings')}
+          onClick={() => window.location.href = '/settings'}
           className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
             location.pathname === '/settings'
               ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
