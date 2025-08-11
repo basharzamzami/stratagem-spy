@@ -1,258 +1,226 @@
 
 import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AdSignalHijackDashboard from './AdSignalHijackDashboard';
+import AdSignalDashboard from './AdSignalDashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { 
-  TrendingUp, 
-  Users, 
   Target, 
-  Activity, 
-  Zap,
-  Eye,
-  BarChart3,
-  Download,
-  Brain,
-  Sword,
-  X
+  Zap, 
+  BarChart3, 
+  Users, 
+  TrendingUp, 
+  AlertTriangle,
+  Activity,
+  Shield,
+  Brain
 } from 'lucide-react';
-import AdSignalHijackDashboard from './AdSignalHijackDashboard';
-import { MockDataProvider } from './ad-signal-hijack/MockDataProvider';
 
-interface DashboardProps {
-  activePanel?: string;
-  onPanelClose?: () => void;
-}
-
-const Dashboard = ({ activePanel, onPanelClose }: DashboardProps) => {
-  const [localActivePanel, setLocalActivePanel] = useState<string | null>(activePanel || null);
-
-  const handlePanelClose = () => {
-    setLocalActivePanel(null);
-    if (onPanelClose) {
-      onPanelClose();
-    }
-  };
-
-  // If Ad Signal Hijack panel is active, show it instead of the default dashboard
-  if (localActivePanel === 'ad-signal-hijack' || activePanel === 'ad-signal-hijack') {
-    return (
-      <div className="h-full flex flex-col overflow-hidden">
-        {/* Panel Header */}
-        <div className="flex-shrink-0 p-4 border-b border-border bg-background">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-orange-500/20 rounded-lg">
-                <Sword className="w-6 h-6 text-orange-500" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Ad Signal Hijack</h1>
-                <p className="text-sm text-muted-foreground">
-                  Real-time competitive intelligence & counter-attack deployment
-                </p>
-              </div>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handlePanelClose}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+const Dashboard = () => {
+  return (
+    <div className="h-screen w-full overflow-hidden flex flex-col bg-background">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 px-6 py-4 border-b border-border bg-background">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-1">
+              Specter Insights Dashboard Nexus
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Competitive intelligence & reverse engineering platform
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="bg-success/20 text-success border-success/30">
+              <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
+              Live Intelligence Active
+            </Badge>
           </div>
         </div>
+      </div>
 
-        {/* Panel Content */}
-        <div className="flex-1 min-h-0 overflow-hidden animate-fade-in">
-          <MockDataProvider>
-            <AdSignalHijackDashboard />
-          </MockDataProvider>
+      {/* Main Content - Scrollable */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="h-full flex">
+          {/* Main Dashboard Area */}
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <Tabs defaultValue="ad-hijack" className="h-full flex flex-col">
+              {/* Tabs List - Fixed */}
+              <div className="flex-shrink-0 px-6 py-3 bg-background border-b border-border">
+                <TabsList className="grid w-full grid-cols-6">
+                  <TabsTrigger value="ad-hijack" className="flex items-center gap-2 text-sm">
+                    <Zap className="w-4 h-4" />
+                    <span className="hidden md:inline">Ad Hijack Fusion</span>
+                    <span className="md:hidden">Hijack</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="ad-signal" className="flex items-center gap-2 text-sm">
+                    <Target className="w-4 h-4" />
+                    <span className="hidden md:inline">Ad Signal</span>
+                    <span className="md:hidden">Signal</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="market-intel" className="flex items-center gap-2 text-sm">
+                    <BarChart3 className="w-4 h-4" />
+                    <span className="hidden md:inline">Market Intel</span>
+                    <span className="md:hidden">Intel</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="leads" className="flex items-center gap-2 text-sm">
+                    <Users className="w-4 h-4" />
+                    <span className="hidden md:inline">Leads</span>
+                    <span className="md:hidden">Leads</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="performance" className="flex items-center gap-2 text-sm">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="hidden md:inline">Performance</span>
+                    <span className="md:hidden">Perf</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="alerts" className="flex items-center gap-2 text-sm">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span className="hidden md:inline">Alerts</span>
+                    <span className="md:hidden">Alerts</span>
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              {/* Tab Content - Fills remaining space */}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <TabsContent value="ad-hijack" className="h-full m-0 p-0">
+                  <div className="h-full overflow-hidden">
+                    <AdSignalHijackDashboard />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="ad-signal" className="h-full m-0 p-0">
+                  <div className="h-full overflow-hidden">
+                    <AdSignalDashboard />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="market-intel" className="h-full m-0 p-0">
+                  <div className="h-full flex items-center justify-center p-6">
+                    <Card className="w-full max-w-2xl">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Shield className="w-5 h-5 text-primary" />
+                          Market Intelligence Hub
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-muted-foreground">
+                          Advanced competitive intelligence and market analysis tools for strategic advantage.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <Brain className="w-8 h-8 text-primary mb-2" />
+                            <h3 className="font-semibold mb-1">Intelligence Gathering</h3>
+                            <p className="text-sm text-muted-foreground">Real-time competitor monitoring</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <BarChart3 className="w-8 h-8 text-primary mb-2" />
+                            <h3 className="font-semibold mb-1">Market Analysis</h3>
+                            <p className="text-sm text-muted-foreground">Deep market insights & trends</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="leads" className="h-full m-0 p-0">
+                  <div className="h-full flex items-center justify-center p-6">
+                    <Card className="w-full max-w-2xl">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Users className="w-5 h-5 text-primary" />
+                          Lead Management System
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-muted-foreground">
+                          Warm lead detection and prospect management with AI-powered insights.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <Target className="w-8 h-8 text-success mb-2" />
+                            <h3 className="font-semibold mb-1">Warm Detection</h3>
+                            <p className="text-sm text-muted-foreground">AI-powered lead scoring</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <Activity className="w-8 h-8 text-success mb-2" />
+                            <h3 className="font-semibold mb-1">Pipeline Management</h3>
+                            <p className="text-sm text-muted-foreground">Automated prospect tracking</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="performance" className="h-full m-0 p-0">
+                  <div className="h-full flex items-center justify-center p-6">
+                    <Card className="w-full max-w-2xl">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Activity className="w-5 h-5 text-primary" />
+                          Performance Operations
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-muted-foreground">
+                          Real-time business KPI dashboard and comprehensive performance tracking.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <TrendingUp className="w-8 h-8 text-blue-500 mb-2" />
+                            <h3 className="font-semibold mb-1">KPI Monitoring</h3>
+                            <p className="text-sm text-muted-foreground">Real-time metrics tracking</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <BarChart3 className="w-8 h-8 text-blue-500 mb-2" />
+                            <h3 className="font-semibold mb-1">Analytics Suite</h3>
+                            <p className="text-sm text-muted-foreground">Performance insights & reports</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="alerts" className="h-full m-0 p-0">
+                  <div className="h-full flex items-center justify-center p-6">
+                    <Card className="w-full max-w-2xl">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5 text-primary" />
+                          Intelligence Alerts
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-muted-foreground">
+                          Real-time competitive intelligence alerts and strategic notifications.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <AlertTriangle className="w-8 h-8 text-orange-500 mb-2" />
+                            <h3 className="font-semibold mb-1">Threat Detection</h3>
+                            <p className="text-sm text-muted-foreground">Competitive threat monitoring</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <Zap className="w-8 h-8 text-orange-500 mb-2" />
+                            <h3 className="font-semibold mb-1">Instant Alerts</h3>
+                            <p className="text-sm text-muted-foreground">Real-time notifications</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+              </div>
+            </Tabs>
+          </div>
         </div>
       </div>
-    );
-  }
-
-  // Default dashboard content
-  return (
-    <ScrollArea className="h-full">
-      <div className="p-8 space-y-8 animate-fade-in">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-            Specter Insights Dashboard
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Advanced competitive intelligence platform for real-time market analysis and strategic advantage
-          </p>
-        </div>
-
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover-scale">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Active Competitors</p>
-                  <p className="text-3xl font-bold text-foreground">127</p>
-                  <p className="text-xs text-success flex items-center gap-1 mt-1">
-                    <TrendingUp className="w-3 h-3" />
-                    +12% this week
-                  </p>
-                </div>
-                <Users className="w-8 h-8 text-primary opacity-60" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-orange-500/5 to-orange-500/10 border-orange-500/20 hover-scale">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Hot Ads Detected</p>
-                  <p className="text-3xl font-bold text-foreground">43</p>
-                  <p className="text-xs text-orange-500 flex items-center gap-1 mt-1">
-                    <Zap className="w-3 h-3" />
-                    Real-time monitoring
-                  </p>
-                </div>
-                <Target className="w-8 h-8 text-orange-500 opacity-60" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20 hover-scale">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Campaigns Generated</p>
-                  <p className="text-3xl font-bold text-foreground">89</p>
-                  <p className="text-xs text-blue-500 flex items-center gap-1 mt-1">
-                    <Brain className="w-3 h-3" />
-                    AI-powered
-                  </p>
-                </div>
-                <Activity className="w-8 h-8 text-blue-500 opacity-60" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-success/5 to-success/10 border-success/20 hover-scale">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">ROI Improvement</p>
-                  <p className="text-3xl font-bold text-foreground">284%</p>
-                  <p className="text-xs text-success flex items-center gap-1 mt-1">
-                    <TrendingUp className="w-3 h-3" />
-                    Average uplift
-                  </p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-success opacity-60" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Button 
-                className="h-24 flex flex-col gap-2 bg-orange-600 hover:bg-orange-700"
-                onClick={() => setLocalActivePanel('ad-signal-hijack')}
-              >
-                <Sword className="w-6 h-6" />
-                <span className="text-sm">Launch Ad Hijack</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2">
-                <Eye className="w-6 h-6" />
-                <span className="text-sm">Monitor Competitors</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2">
-                <BarChart3 className="w-6 h-6" />
-                <span className="text-sm">View Analytics</span>
-              </Button>
-              <Button variant="outline" className="h-24 flex flex-col gap-2">
-                <Download className="w-6 h-6" />
-                <span className="text-sm">Export Reports</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* System Status */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5" />
-                System Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Data Collection</span>
-                <Badge className="bg-success/20 text-success border-success/30">
-                  <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
-                  Active
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">AI Processing</span>
-                <Badge className="bg-success/20 text-success border-success/30">
-                  <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
-                  Online
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Real-time Monitoring</span>
-                <Badge className="bg-success/20 text-success border-success/30">
-                  <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
-                  Operational
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span>New hot ad detected from TechCorp</span>
-                  <span className="text-xs text-muted-foreground ml-auto">2m ago</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  <span>Campaign generated for SaaS vertical</span>
-                  <span className="text-xs text-muted-foreground ml-auto">5m ago</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-success"></div>
-                  <span>Counter-attack deployed successfully</span>
-                  <span className="text-xs text-muted-foreground ml-auto">12m ago</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </ScrollArea>
+    </div>
   );
 };
 
