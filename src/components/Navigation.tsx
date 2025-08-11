@@ -1,7 +1,6 @@
+
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ApiClient } from '@/services/api';
 
 interface NavigationProps {
   onModuleSelect?: (module: string) => void;
@@ -10,29 +9,6 @@ interface NavigationProps {
 
 const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
   const location = useLocation();
-
-  // Fetch data for dynamic badges
-  const { data: adsResponse } = useQuery({
-    queryKey: ['ads'],
-    queryFn: () => ApiClient.getAds(),
-  });
-
-  const { data: leadsResponse } = useQuery({
-    queryKey: ['leads'],
-    queryFn: () => ApiClient.searchLeads({}),
-  });
-
-  const { data: alertsResponse } = useQuery({
-    queryKey: ['alerts'],
-    queryFn: () => ApiClient.getAlerts(),
-  });
-
-  // Safely extract counts
-  const adsCount = Array.isArray(adsResponse?.data) ? adsResponse.data.length : 0;
-  const leadsCount = Array.isArray(leadsResponse?.data) ? leadsResponse.data.length : 0;
-  const alertsCount = Array.isArray(alertsResponse?.data) 
-    ? alertsResponse.data.filter((alert: any) => !alert.dismissed).length 
-    : 0;
 
   const modules = [
     { 
@@ -47,7 +23,7 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
       name: "Ad Signal Hijack", 
       icon: Zap, 
       active: location.pathname === '/' && activeModule === 'ad-signal-hijack', 
-      badge: adsCount > 0 ? adsCount.toString() : null,
+      badge: null,
       description: "Enhanced hijacking tools",
       key: "ad-signal-hijack"
     },
@@ -55,7 +31,7 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
       name: "Lead Locator", 
       icon: Users, 
       active: location.pathname === '/lead-locator', 
-      badge: leadsCount > 0 ? leadsCount.toString() : null,
+      badge: null,
       description: "Prospect identification",
       path: "/lead-locator"
     },
@@ -79,7 +55,7 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
       name: "Change Alerts", 
       icon: Bell, 
       active: location.pathname === '/change-alerts', 
-      badge: alertsCount > 0 ? alertsCount.toString() : null,
+      badge: null,
       description: "Real-time monitoring",
       path: "/change-alerts"
     },
