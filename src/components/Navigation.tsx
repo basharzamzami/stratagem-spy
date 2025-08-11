@@ -1,5 +1,5 @@
 
-import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
+import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database, Brain } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ApiClient } from '@/services/api';
@@ -51,6 +51,14 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
       badge: adsCount > 0 ? adsCount.toString() : null,
       description: "Competitor ad tracking",
       key: "ad-signal-hijack"
+    },
+    { 
+      name: "Enhanced Hijack", 
+      icon: Brain, 
+      active: location.pathname === '/' && activeModule === 'enhanced-hijack', 
+      badge: "BETA",
+      description: "Advanced hijacking tools",
+      key: "enhanced-hijack"
     },
     { 
       name: "Lead Locator", 
@@ -167,7 +175,7 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
               <span className={`text-xs px-2 py-1 rounded-md font-medium ${
                 module.active 
                   ? 'bg-primary-foreground/20 text-primary-foreground' 
-                  : module.badge === 'NEW'
+                  : module.badge === 'NEW' || module.badge === 'BETA'
                   ? 'bg-green-500/20 text-green-400 animate-pulse'
                   : 'bg-primary text-primary-foreground'
               }`}>

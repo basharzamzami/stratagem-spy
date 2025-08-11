@@ -1,8 +1,8 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdSignalHijackDashboard from './AdSignalHijackDashboard';
 import AdSignalDashboard from './AdSignalDashboard';
+import EnhancedAdSignalHijack from '@/pages/EnhancedAdSignalHijack';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -57,7 +57,7 @@ const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProp
             <Tabs value={activePanel} onValueChange={handleTabChange} className="h-full flex flex-col">
               {/* Tabs List - Fixed */}
               <div className="flex-shrink-0 px-6 py-3 bg-background border-b border-border">
-                <TabsList className="grid w-full grid-cols-7">
+                <TabsList className="grid w-full grid-cols-8">
                   <TabsTrigger value="specter-net" className="flex items-center gap-2 text-sm">
                     <Shield className="w-4 h-4" />
                     <span className="hidden md:inline">Specter Net</span>
@@ -67,6 +67,11 @@ const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProp
                     <Zap className="w-4 h-4" />
                     <span className="hidden md:inline">Ad Signal Hijack</span>
                     <span className="md:hidden">Hijack</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="enhanced-hijack" className="flex items-center gap-2 text-sm">
+                    <Brain className="w-4 h-4" />
+                    <span className="hidden md:inline">Enhanced Hijack</span>
+                    <span className="md:hidden">Enhanced</span>
                   </TabsTrigger>
                   <TabsTrigger value="ad-signal" className="flex items-center gap-2 text-sm">
                     <Target className="w-4 h-4" />
@@ -131,6 +136,14 @@ const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProp
                 <TabsContent value="ad-signal-hijack" className="h-full m-0 p-0">
                   <div className="h-full overflow-hidden">
                     <AdSignalHijackDashboard />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="enhanced-hijack" className="h-full m-0 p-0">
+                  <div className="h-full overflow-hidden">
+                    <div className="h-full overflow-auto">
+                      <EnhancedAdSignalHijack />
+                    </div>
                   </div>
                 </TabsContent>
 
