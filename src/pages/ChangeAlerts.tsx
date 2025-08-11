@@ -6,7 +6,7 @@ import { Shield } from "lucide-react";
 export default function ChangeAlerts() {
   return (
     <div className="min-h-screen bg-background flex">
-      <Navigation activePanel="alerts" />
+      <Navigation />
       <div className="flex-1 overflow-auto">
         <div className="p-8 max-w-7xl mx-auto">
           {/* Header */}

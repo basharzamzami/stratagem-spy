@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdSignalDashboard from './AdSignalDashboard';
@@ -12,8 +11,7 @@ import {
   AlertTriangle,
   Activity,
   Shield,
-  Brain,
-  Zap
+  Brain
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -56,7 +54,7 @@ const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProp
             <Tabs value={activePanel} onValueChange={handleTabChange} className="h-full flex flex-col">
               {/* Tabs List - Fixed */}
               <div className="flex-shrink-0 px-6 py-3 bg-background border-b border-border">
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="specter-net" className="flex items-center gap-2 text-sm">
                     <Shield className="w-4 h-4" />
                     <span className="hidden md:inline">Specter Net</span>
@@ -81,6 +79,11 @@ const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProp
                     <TrendingUp className="w-4 h-4" />
                     <span className="hidden md:inline">Performance</span>
                     <span className="md:hidden">Perf</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="alerts" className="flex items-center gap-2 text-sm">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span className="hidden md:inline">Alerts</span>
+                    <span className="md:hidden">Alerts</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -206,6 +209,36 @@ const Dashboard = ({ activePanel = "specter-net", onPanelChange }: DashboardProp
                             <BarChart3 className="w-8 h-8 text-blue-500 mb-2" />
                             <h3 className="font-semibold mb-1">Analytics Suite</h3>
                             <p className="text-sm text-muted-foreground">Performance insights & reports</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="alerts" className="h-full m-0 p-0">
+                  <div className="h-full flex items-center justify-center p-6">
+                    <Card className="w-full max-w-2xl">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5 text-primary" />
+                          Intelligence Alerts
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <p className="text-muted-foreground">
+                          Real-time competitive intelligence alerts and strategic notifications.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <AlertTriangle className="w-8 h-8 text-orange-500 mb-2" />
+                            <h3 className="font-semibold mb-1">Threat Detection</h3>
+                            <p className="text-sm text-muted-foreground">Competitive threat monitoring</p>
+                          </div>
+                          <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                            <Zap className="w-8 h-8 text-orange-500 mb-2" />
+                            <h3 className="font-semibold mb-1">Instant Alerts</h3>
+                            <p className="text-sm text-muted-foreground">Real-time notifications</p>
                           </div>
                         </div>
                       </CardContent>

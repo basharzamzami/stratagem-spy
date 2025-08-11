@@ -6,7 +6,7 @@ import { Zap } from "lucide-react";
 export default function TargetAnalysisPage() {
   return (
     <div className="min-h-screen bg-background flex">
-      <Navigation activePanel="target-analysis" />
+      <Navigation />
       <div className="flex-1 overflow-auto">
         <div className="p-8 max-w-7xl mx-auto">
           {/* Header */}
