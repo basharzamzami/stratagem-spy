@@ -1,65 +1,103 @@
-import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Database } from 'lucide-react';
+import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { ApiClient } from '@/services/api';
 
 interface NavigationProps {
-  activeModule?: string;
   onModuleSelect?: (module: string) => void;
+  activeModule?: string;
 }
 
-export default function Navigation({ activeModule, onModuleSelect }: NavigationProps) {
+const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
   const location = useLocation();
 
-  const adsCount = 0;
-  const leadsCount = 0;
+  // Fetch data for dynamic badges
+  const { data: adsResponse } = useQuery({
+    queryKey: ['ads'],
+    queryFn: () => ApiClient.getAds(),
+  });
+
+  const { data: leadsResponse } = useQuery({
+    queryKey: ['leads'],
+    queryFn: () => ApiClient.searchLeads({}),
+  });
+
+  const { data: alertsResponse } = useQuery({
+    queryKey: ['alerts'],
+    queryFn: () => ApiClient.getAlerts(),
+  });
+
+  // Safely extract counts
+  const adsCount = Array.isArray(adsResponse?.data) ? adsResponse.data.length : 0;
+  const leadsCount = Array.isArray(leadsResponse?.data) ? leadsResponse.data.length : 0;
+  const alertsCount = Array.isArray(alertsResponse?.data) 
+    ? alertsResponse.data.filter((alert: any) => !alert.dismissed).length 
+    : 0;
 
   const modules = [
     { 
       name: "Specter Net", 
       icon: Shield, 
       active: location.pathname === '/' && activeModule === 'specter-net', 
-      badge: null,
+      badge: "NEW",
       description: "Intelligence dashboard",
       key: "specter-net"
     },
     { 
+      name: "Ad Signal Hijack", 
+      icon: Zap, 
+      active: location.pathname === '/' && activeModule === 'ad-signal-hijack', 
+      badge: adsCount > 0 ? adsCount.toString() : null,
+      description: "Enhanced hijacking tools",
+      key: "ad-signal-hijack"
+    },
+    { 
       name: "Lead Locator", 
-      icon: Target, 
+      icon: Users, 
       active: location.pathname === '/lead-locator', 
       badge: leadsCount > 0 ? leadsCount.toString() : null,
-      description: "Warm prospect detection",
-      key: "lead-locator"
+      description: "Prospect identification",
+      path: "/lead-locator"
     },
     { 
       name: "Dominance Map", 
       icon: Map, 
       active: location.pathname === '/dominance-map', 
       badge: null,
-      description: "Market positioning",
-      key: "dominance-map"
+      description: "Territory analysis",
+      path: "/dominance-map"
+    },
+    { 
+      name: "Task Generator", 
+      icon: Target, 
+      active: location.pathname === '/task-generator', 
+      badge: null,
+      description: "Action recommendations",
+      path: "/task-generator"
     },
     { 
       name: "Change Alerts", 
       icon: Bell, 
       active: location.pathname === '/change-alerts', 
-      badge: "12",
-      description: "Competitor updates",
-      key: "change-alerts"
-    },
-    { 
-      name: "Competitive CRM", 
-      icon: Database, 
-      active: location.pathname === '/competitive-crm', 
-      badge: null,
-      description: "Intelligence database",
-      key: "competitive-crm"
+      badge: alertsCount > 0 ? alertsCount.toString() : null,
+      description: "Real-time monitoring",
+      path: "/change-alerts"
     },
     { 
       name: "Campaign Manager", 
       icon: TrendingUp, 
       active: location.pathname === '/campaign-manager', 
       badge: null,
-      description: "Campaign orchestration",
-      key: "campaign-manager"
+      description: "Campaign automation",
+      path: "/campaign-manager"
+    },
+    { 
+      name: "Competitive CRM", 
+      icon: Database, 
+      active: location.pathname === '/competitive-crm', 
+      badge: null,
+      description: "Lead management",
+      path: "/competitive-crm"
     }
   ];
 
@@ -177,4 +215,6 @@ export default function Navigation({ activeModule, onModuleSelect }: NavigationP
       </div>
     </div>
   );
-}
+};
+
+export default Navigation;
