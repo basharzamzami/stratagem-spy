@@ -1,11 +1,15 @@
 
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ApiClient } from '@/services/api';
 
-const Navigation = () => {
-  const navigate = useNavigate();
+interface NavigationProps {
+  onPanelSelect?: (panel: string | null) => void;
+  activePanel?: string;
+}
+
+const Navigation = ({ onPanelSelect, activePanel }: NavigationProps) => {
   const location = useLocation();
 
   // Fetch data for dynamic badges
@@ -35,18 +39,18 @@ const Navigation = () => {
     { 
       name: "Specter Net", 
       icon: Shield, 
-      active: location.pathname === '/', 
+      active: location.pathname === '/' && !activePanel, 
       badge: "NEW",
       description: "Intelligence dashboard",
-      path: "/"
+      action: () => onPanelSelect?.(null)
     },
     { 
       name: "Ad Signal Hijack", 
       icon: Zap, 
-      active: location.pathname === '/ad-signal-hijack', 
+      active: activePanel === 'ad-signal-hijack', 
       badge: adsCount > 0 ? adsCount.toString() : null,
       description: "Competitor ad tracking",
-      path: "/ad-signal-hijack"
+      action: () => onPanelSelect?.('ad-signal-hijack')
     },
     { 
       name: "Lead Locator", 
@@ -54,7 +58,7 @@ const Navigation = () => {
       active: location.pathname === '/lead-locator', 
       badge: leadsCount > 0 ? leadsCount.toString() : null,
       description: "Prospect identification",
-      path: "/lead-locator"
+      action: () => window.location.href = '/lead-locator'
     },
     { 
       name: "Dominance Map", 
@@ -62,7 +66,7 @@ const Navigation = () => {
       active: location.pathname === '/dominance-map', 
       badge: null,
       description: "Territory analysis",
-      path: "/dominance-map"
+      action: () => window.location.href = '/dominance-map'
     },
     { 
       name: "Task Generator", 
@@ -70,7 +74,7 @@ const Navigation = () => {
       active: location.pathname === '/task-generator', 
       badge: null,
       description: "Action recommendations",
-      path: "/task-generator"
+      action: () => window.location.href = '/task-generator'
     },
     { 
       name: "Change Alerts", 
@@ -78,7 +82,7 @@ const Navigation = () => {
       active: location.pathname === '/change-alerts', 
       badge: alertsCount > 0 ? alertsCount.toString() : null,
       description: "Real-time monitoring",
-      path: "/change-alerts"
+      action: () => window.location.href = '/change-alerts'
     },
     { 
       name: "Campaign Manager", 
@@ -86,7 +90,7 @@ const Navigation = () => {
       active: location.pathname === '/campaign-manager', 
       badge: null,
       description: "Campaign automation",
-      path: "/campaign-manager"
+      action: () => window.location.href = '/campaign-manager'
     },
     { 
       name: "Competitive CRM", 
@@ -94,7 +98,7 @@ const Navigation = () => {
       active: location.pathname === '/competitive-crm', 
       badge: null,
       description: "Lead management",
-      path: "/competitive-crm"
+      action: () => window.location.href = '/competitive-crm'
     }
   ];
 
@@ -131,7 +135,7 @@ const Navigation = () => {
         {modules.map((module, index) => (
           <button
             key={index}
-            onClick={() => navigate(module.path)}
+            onClick={module.action}
             className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
               module.active 
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
@@ -167,7 +171,7 @@ const Navigation = () => {
       {/* Settings */}
       <div className="p-4 border-t border-border">
         <button 
-          onClick={() => navigate('/settings')}
+          onClick={() => window.location.href = '/settings'}
           className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
             location.pathname === '/settings'
               ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'

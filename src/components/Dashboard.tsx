@@ -17,7 +17,40 @@ import {
   Brain
 } from 'lucide-react';
 
-const Dashboard = () => {
+interface DashboardProps {
+  activePanel?: string;
+}
+
+const Dashboard = ({ activePanel }: DashboardProps) => {
+  // If there's an active panel, show it instead of the default dashboard
+  if (activePanel === 'ad-signal-hijack') {
+    return (
+      <div className="h-full w-full overflow-hidden flex flex-col bg-background">
+        <div className="flex-shrink-0 px-6 py-4 border-b border-border bg-background">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-1">
+                Ad Signal Hijack
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Real-time competitive ad intelligence & hijacking system
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="bg-success/20 text-success border-success/30">
+                <div className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></div>
+                Live Intelligence Active
+              </Badge>
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <AdSignalHijackDashboard />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen w-full overflow-hidden flex flex-col bg-background">
       {/* Header - Fixed */}
@@ -45,15 +78,10 @@ const Dashboard = () => {
         <div className="h-full flex">
           {/* Main Dashboard Area */}
           <div className="flex-1 min-h-0 overflow-hidden">
-            <Tabs defaultValue="ad-hijack" className="h-full flex flex-col">
+            <Tabs defaultValue="ad-signal" className="h-full flex flex-col">
               {/* Tabs List - Fixed */}
               <div className="flex-shrink-0 px-6 py-3 bg-background border-b border-border">
-                <TabsList className="grid w-full grid-cols-6">
-                  <TabsTrigger value="ad-hijack" className="flex items-center gap-2 text-sm">
-                    <Zap className="w-4 h-4" />
-                    <span className="hidden md:inline">Ad Hijack Fusion</span>
-                    <span className="md:hidden">Hijack</span>
-                  </TabsTrigger>
+                <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="ad-signal" className="flex items-center gap-2 text-sm">
                     <Target className="w-4 h-4" />
                     <span className="hidden md:inline">Ad Signal</span>
@@ -84,12 +112,6 @@ const Dashboard = () => {
 
               {/* Tab Content - Fills remaining space */}
               <div className="flex-1 min-h-0 overflow-hidden">
-                <TabsContent value="ad-hijack" className="h-full m-0 p-0">
-                  <div className="h-full overflow-hidden">
-                    <AdSignalHijackDashboard />
-                  </div>
-                </TabsContent>
-
                 <TabsContent value="ad-signal" className="h-full m-0 p-0">
                   <div className="h-full overflow-hidden">
                     <AdSignalDashboard />
