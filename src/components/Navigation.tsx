@@ -1,6 +1,8 @@
 
 import { Shield, Target, Map, Bell, TrendingUp, Users, Settings, Zap, Database } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/components/auth/AuthProvider';
+import UserMenu from '@/components/UserMenu';
 
 interface NavigationProps {
   onModuleSelect?: (module: string) => void;
@@ -9,14 +11,15 @@ interface NavigationProps {
 
 const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
   const location = useLocation();
+  const { user } = useAuth();
 
   const modules = [
     { 
       name: "Specter Net", 
       icon: Shield, 
       active: location.pathname === '/' && activeModule === 'specter-net', 
-      badge: "NEW",
-      description: "Intelligence dashboard",
+      badge: null,
+      description: "Main intelligence hub",
       key: "specter-net"
     },
     { 
@@ -40,16 +43,16 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
       icon: Map, 
       active: location.pathname === '/dominance-map', 
       badge: null,
-      description: "Territory analysis",
+      description: "Market positioning",
       path: "/dominance-map"
     },
     { 
-      name: "Task Generator", 
+      name: "Target Analysis", 
       icon: Target, 
-      active: location.pathname === '/task-generator', 
+      active: location.pathname === '/target-analysis', 
       badge: null,
-      description: "Action recommendations",
-      path: "/task-generator"
+      description: "Campaign optimization",
+      path: "/target-analysis"
     },
     { 
       name: "Change Alerts", 
@@ -64,7 +67,7 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
       icon: TrendingUp, 
       active: location.pathname === '/campaign-manager', 
       badge: null,
-      description: "Campaign automation",
+      description: "Campaign orchestration",
       path: "/campaign-manager"
     },
     { 
@@ -78,117 +81,78 @@ const Navigation = ({ onModuleSelect, activeModule }: NavigationProps) => {
   ];
 
   const handleModuleClick = (module: any) => {
-    if (module.key && location.pathname === '/') {
-      // For dashboard modules, use the callback
-      onModuleSelect?.(module.key);
-    } else if (module.path) {
-      // For external pages, navigate normally
+    if (module.path) {
       window.location.href = module.path;
+    } else if (module.key && onModuleSelect) {
+      onModuleSelect(module.key);
     }
   };
 
   return (
-    <div className="w-72 h-screen bg-background-secondary border-r border-border flex flex-col">
+    <div className="w-80 min-h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Header */}
-      <div className="p-6 border-b border-border">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <Shield className="w-5 h-5 text-primary-foreground" />
+      <div className="p-6 border-b border-border/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Shield className="w-8 h-8 text-primary" />
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Specter Insights</h1>
+              <p className="text-xs text-muted-foreground">Intelligence Dashboard</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Specter Nexus</h1>
-            <p className="text-xs text-muted-foreground">Intelligence Platform</p>
-          </div>
-        </div>
-        
-        <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-card-foreground/70">Active Targets</span>
-            <span className="font-semibold text-primary">247</span>
-          </div>
+          {user && <UserMenu />}
         </div>
       </div>
-      
-      {/* Navigation */}
+
+      {/* Navigation Items */}
       <div className="flex-1 p-4 space-y-2">
-        <div className="mb-4">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Intelligence Modules
-          </h2>
-        </div>
-        
-        {modules.map((module, index) => (
-          <button
-            key={index}
-            onClick={() => handleModuleClick(module)}
-            className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-              module.active 
-                ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
-                : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-            }`}
-          >
-            <module.icon className="w-5 h-5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{module.name}</div>
-              <div className={`text-xs truncate ${
+        {modules.map((module, index) => {
+          const Icon = module.icon;
+          return (
+            <button
+              key={index}
+              onClick={() => handleModuleClick(module)}
+              className={`w-full p-4 rounded-xl text-left transition-all duration-200 group ${
                 module.active 
-                  ? 'text-primary-foreground/70' 
-                  : 'text-muted-foreground'
-              }`}>
-                {module.description}
+                  ? 'bg-primary/10 border border-primary/20 shadow-sm' 
+                  : 'bg-muted/30 hover:bg-muted/50 border border-transparent hover:border-border/50'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-5 h-5 ${
+                    module.active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+                  }`} />
+                  <div>
+                    <div className={`font-medium text-sm ${
+                      module.active ? 'text-primary' : 'text-foreground'
+                    }`}>
+                      {module.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {module.description}
+                    </div>
+                  </div>
+                </div>
+                {module.badge && (
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full font-medium">
+                    {module.badge}
+                  </span>
+                )}
               </div>
-            </div>
-            {module.badge && (
-              <span className={`text-xs px-2 py-1 rounded-md font-medium ${
-                module.active 
-                  ? 'bg-primary-foreground/20 text-primary-foreground' 
-                  : module.badge === 'NEW'
-                  ? 'bg-green-500/20 text-green-400 animate-pulse'
-                  : 'bg-primary text-primary-foreground'
-              }`}>
-                {module.badge}
-              </span>
-            )}
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
-      
-      {/* Settings */}
-      <div className="p-4 border-t border-border">
-        <button 
-          onClick={() => window.location.href = '/settings'}
-          className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-            location.pathname === '/settings'
-              ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
-              : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-          }`}
-        >
-          <Settings className="w-5 h-5" />
-          <span className="font-medium">Settings</span>
-        </button>
-        
-        <div className="mt-4 bg-card border border-border rounded-xl p-3 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-success animate-pulse"></div>
-            <span className="text-sm font-medium text-card-foreground">System Status</span>
-          </div>
-          
-          <div className="space-y-1 text-xs">
-            <div className="flex justify-between">
-              <span className="text-card-foreground/70">Uptime</span>
-              <span className="text-success font-medium">99.9%</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-card-foreground/70">Last Sync</span>
-              <span className="text-card-foreground">12s ago</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-card-foreground/70">Intelligence</span>
-              <span className="text-primary font-medium">ACTIVE</span>
-            </div>
+
+      {/* User Info */}
+      {user && (
+        <div className="p-4 border-t border-border/50">
+          <div className="text-xs text-muted-foreground">
+            Signed in as {user.email}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
