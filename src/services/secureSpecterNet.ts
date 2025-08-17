@@ -97,7 +97,7 @@ export interface Alert {
 }
 
 // Enhanced Ad Database Operations (shared data, authenticated access only)
-export async function fetchEnhancedAds(limit = 50, offset = 0) {
+export async function fetchEnhancedAds(limit = 50, offset = 0): Promise<EnhancedAdItem[]> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -115,11 +115,11 @@ export async function fetchEnhancedAds(limit = 50, offset = 0) {
     throw error;
   }
 
-  return data as EnhancedAdItem[];
+  return (data || []) as EnhancedAdItem[];
 }
 
 // Competitor Intelligence Operations (user-specific)
-export async function fetchUserCompetitors() {
+export async function fetchUserCompetitors(): Promise<Competitor[]> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -137,10 +137,10 @@ export async function fetchUserCompetitors() {
     throw error;
   }
 
-  return data as Competitor[];
+  return (data || []) as Competitor[];
 }
 
-export async function createUserCompetitor(competitor: Omit<Competitor, 'id' | 'created_at' | 'updated_at' | 'user_id'>) {
+export async function createUserCompetitor(competitor: Omit<Competitor, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<Competitor> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -162,7 +162,7 @@ export async function createUserCompetitor(competitor: Omit<Competitor, 'id' | '
 }
 
 // Lead Intelligence Operations (user-specific)
-export async function fetchUserHighIntentLeads(minIntentScore = 70) {
+export async function fetchUserHighIntentLeads(minIntentScore = 70): Promise<Lead[]> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -181,10 +181,10 @@ export async function fetchUserHighIntentLeads(minIntentScore = 70) {
     throw error;
   }
 
-  return data as Lead[];
+  return (data || []) as Lead[];
 }
 
-export async function createUserLead(lead: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'user_id'>) {
+export async function createUserLead(lead: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<Lead> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -205,7 +205,7 @@ export async function createUserLead(lead: Omit<Lead, 'id' | 'created_at' | 'upd
   return data as Lead;
 }
 
-export async function updateUserLeadStatus(id: string, status: string) {
+export async function updateUserLeadStatus(id: string, status: string): Promise<Lead> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -229,7 +229,7 @@ export async function updateUserLeadStatus(id: string, status: string) {
 }
 
 // Task Generation Operations (user-specific)
-export async function fetchUserTasks(status?: string) {
+export async function fetchUserTasks(status?: string): Promise<Task[]> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -254,10 +254,10 @@ export async function fetchUserTasks(status?: string) {
     throw error;
   }
 
-  return data as Task[];
+  return (data || []) as Task[];
 }
 
-export async function createUserTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'user_id'>) {
+export async function createUserTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<Task> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -279,7 +279,7 @@ export async function createUserTask(task: Omit<Task, 'id' | 'created_at' | 'upd
 }
 
 // Alert System Operations (user-specific)
-export async function fetchUserAlerts(unreadOnly = false) {
+export async function fetchUserAlerts(unreadOnly = false): Promise<Alert[]> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -303,10 +303,10 @@ export async function fetchUserAlerts(unreadOnly = false) {
     throw error;
   }
 
-  return data as Alert[];
+  return (data || []) as Alert[];
 }
 
-export async function createUserAlert(alert: Omit<Alert, 'id' | 'created_at' | 'user_id'>) {
+export async function createUserAlert(alert: Omit<Alert, 'id' | 'created_at' | 'user_id'>): Promise<Alert> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -327,7 +327,7 @@ export async function createUserAlert(alert: Omit<Alert, 'id' | 'created_at' | '
   return data as Alert;
 }
 
-export async function markUserAlertAsRead(id: string) {
+export async function markUserAlertAsRead(id: string): Promise<Alert> {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {

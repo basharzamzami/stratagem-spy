@@ -129,6 +129,13 @@ Offer: ${ad.offer || 'No offer'}
     );
   }
 
+  const safeRenderValue = (value: unknown): string => {
+    if (value === null || value === undefined) return '0';
+    if (typeof value === 'string' || typeof value === 'number') return String(value);
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value);
+  };
+
   return (
     <div className="space-y-4 h-full overflow-auto">
       <div className="text-sm text-muted-foreground mb-4">
@@ -205,7 +212,7 @@ Offer: ${ad.offer || 'No offer'}
                   <div key={key} className="text-center">
                     <div className="text-xs text-muted-foreground capitalize mb-1">{key}</div>
                     <div className="font-semibold text-foreground">
-                      {typeof value === 'number' ? value.toLocaleString() : value}
+                      {safeRenderValue(value)}
                     </div>
                   </div>
                 ))}
@@ -220,7 +227,7 @@ Offer: ${ad.offer || 'No offer'}
                   {Object.entries(ad.detected_patterns).map(([key, value]) => (
                     <div key={key}>
                       <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
-                      <span className="ml-1 font-medium">{value}</span>
+                      <span className="ml-1 font-medium">{safeRenderValue(value)}</span>
                     </div>
                   ))}
                 </div>
