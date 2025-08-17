@@ -9,14 +9,14 @@ export interface EnhancedAdItem {
   ad_creative_url?: string;
   cta?: string;
   offer?: string;
-  engagement?: Record<string, any>;
-  detected_patterns?: Record<string, any>;
+  engagement?: any;
+  detected_patterns?: any;
   fetched_at: string;
   landing_page_url?: string;
   landing_page_snapshot?: string;
   campaign_type?: string;
   estimated_spend_daily?: number;
-  target_audience?: Record<string, any>;
+  target_audience?: any;
   creative_hash?: string;
   status?: string;
   first_seen?: string;
@@ -54,8 +54,8 @@ export interface Lead {
   location_state?: string;
   intent_score: number;
   source?: string;
-  source_data?: Record<string, any>;
-  enrichment_data?: Record<string, any>;
+  source_data?: any;
+  enrichment_data?: any;
   status: string;
   tags?: string[];
   notes?: string;
@@ -73,8 +73,8 @@ export interface Task {
   category?: string;
   status: string;
   estimated_impact?: string;
-  execution_steps?: Record<string, any>;
-  related_entities?: Record<string, any>;
+  execution_steps?: any;
+  related_entities?: any;
   assigned_to?: string;
   due_date?: string;
   created_at: string;
@@ -89,7 +89,7 @@ export interface Alert {
   title: string;
   message?: string;
   severity: string;
-  data?: Record<string, any>;
+  data?: any;
   read: boolean;
   channels?: string[];
   created_at: string;
@@ -98,6 +98,12 @@ export interface Alert {
 
 // Enhanced Ad Database Operations (shared data, authenticated access only)
 export async function fetchEnhancedAds(limit = 50, offset = 0) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('ads')
     .select('*')
@@ -114,9 +120,16 @@ export async function fetchEnhancedAds(limit = 50, offset = 0) {
 
 // Competitor Intelligence Operations (user-specific)
 export async function fetchUserCompetitors() {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('competitors')
     .select('*')
+    .eq('user_id', user.id)
     .order('dominance_score', { ascending: false });
 
   if (error) {
@@ -150,9 +163,16 @@ export async function createUserCompetitor(competitor: Omit<Competitor, 'id' | '
 
 // Lead Intelligence Operations (user-specific)
 export async function fetchUserHighIntentLeads(minIntentScore = 70) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('leads')
     .select('*')
+    .eq('user_id', user.id)
     .gte('intent_score', minIntentScore)
     .order('intent_score', { ascending: false });
 
@@ -186,10 +206,17 @@ export async function createUserLead(lead: Omit<Lead, 'id' | 'created_at' | 'upd
 }
 
 export async function updateUserLeadStatus(id: string, status: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('leads')
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single();
 
@@ -203,9 +230,16 @@ export async function updateUserLeadStatus(id: string, status: string) {
 
 // Task Generation Operations (user-specific)
 export async function fetchUserTasks(status?: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   let query = supabase
     .from('tasks')
     .select('*')
+    .eq('user_id', user.id)
     .order('priority', { ascending: false })
     .order('created_at', { ascending: false });
 
@@ -246,9 +280,16 @@ export async function createUserTask(task: Omit<Task, 'id' | 'created_at' | 'upd
 
 // Alert System Operations (user-specific)
 export async function fetchUserAlerts(unreadOnly = false) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   let query = supabase
     .from('alerts')
     .select('*')
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (unreadOnly) {
@@ -287,10 +328,17 @@ export async function createUserAlert(alert: Omit<Alert, 'id' | 'created_at' | '
 }
 
 export async function markUserAlertAsRead(id: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('alerts')
     .update({ read: true })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single();
 
