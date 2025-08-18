@@ -137,14 +137,20 @@ export async function createManualFollowUpTask(leadId: string, taskData: {
   priority?: number;
   due_date?: string;
 }) {
-  // First create the task
+  // First create the task (with auth check)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data: task, error: taskError } = await supabase
     .from('tasks')
     .insert({
       ...taskData,
       category: 'follow_up',
       status: 'pending',
-      related_entities: { lead_id: leadId, trigger_type: 'manual' }
+      related_entities: { lead_id: leadId, trigger_type: 'manual' },
+      user_id: user.id
     })
     .select()
     .single();
@@ -285,13 +291,17 @@ export async function aggregateLeadsFromSources() {
 
   for (const [sourceType, leads] of Object.entries(mockSourceData)) {
     for (const leadData of leads) {
-      // Create lead
+      // Create lead (with auth check)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) continue; // Skip if no user authenticated
+
       const { data: newLead, error } = await supabase
         .from('leads')
         .insert({
           ...leadData,
           source: sourceType,
-          status: 'new'
+          status: 'new',
+          user_id: user.id
         })
         .select()
         .single();

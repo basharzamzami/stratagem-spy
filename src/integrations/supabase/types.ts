@@ -88,6 +88,7 @@ export type Database = {
           severity: string | null
           title: string
           type: string
+          user_id: string
         }
         Insert: {
           channels?: string[] | null
@@ -99,6 +100,7 @@ export type Database = {
           severity?: string | null
           title: string
           type: string
+          user_id: string
         }
         Update: {
           channels?: string[] | null
@@ -110,6 +112,7 @@ export type Database = {
           severity?: string | null
           title?: string
           type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -128,6 +131,7 @@ export type Database = {
           name: string
           total_ads_count: number | null
           updated_at: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string | null
@@ -143,6 +147,7 @@ export type Database = {
           name: string
           total_ads_count?: number | null
           updated_at?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string | null
@@ -158,6 +163,7 @@ export type Database = {
           name?: string
           total_ads_count?: number | null
           updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -340,6 +346,7 @@ export type Database = {
           tags: string[] | null
           title: string | null
           updated_at: string | null
+          user_id: string
         }
         Insert: {
           company?: string | null
@@ -360,6 +367,7 @@ export type Database = {
           tags?: string[] | null
           title?: string | null
           updated_at?: string | null
+          user_id: string
         }
         Update: {
           company?: string | null
@@ -380,6 +388,7 @@ export type Database = {
           tags?: string[] | null
           title?: string | null
           updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -475,6 +484,7 @@ export type Database = {
           status: string | null
           title: string
           updated_at: string | null
+          user_id: string
         }
         Insert: {
           assigned_to?: string | null
@@ -490,6 +500,7 @@ export type Database = {
           status?: string | null
           title: string
           updated_at?: string | null
+          user_id: string
         }
         Update: {
           assigned_to?: string | null
@@ -505,6 +516,7 @@ export type Database = {
           status?: string | null
           title?: string
           updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

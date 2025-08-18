@@ -92,16 +92,20 @@ class CounterAdJobManager {
     // Store in mock data store
     mockCounterAdJobs[job.job_id] = job;
 
-    // Log creation to alerts table for tracking
-    await supabase
-      .from('alerts')
-      .insert({
-        type: 'counter_ad_job_created',
-        title: 'Counter Ad Job Created',
-        message: `New counter-ad job created for ad ${originalAdId}`,
-        severity: 'info',
-        data: { job_id: job.job_id, original_ad_id: originalAdId }
-      });
+    // Log creation to alerts table for tracking (with auth check)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('alerts')
+        .insert({
+          type: 'counter_ad_job_created',
+          title: 'Counter Ad Job Created',
+          message: `New counter-ad job created for ad ${originalAdId}`,
+          severity: 'info',
+          data: { job_id: job.job_id, original_ad_id: originalAdId },
+          user_id: user.id
+        });
+    }
 
     return job;
   }
@@ -284,16 +288,20 @@ class CounterAdJobManager {
 
     mockCounterAdJobs[jobId] = job;
 
-    // Log to alerts
-    await supabase
-      .from('alerts')
-      .insert({
-        type: 'counter_ad_job_approved',
-        title: 'Counter Ad Job Approved',
-        message: `Job ${jobId} has been approved and scheduled`,
-        severity: 'info',
-        data: { job_id: jobId }
-      });
+    // Log to alerts (with auth check)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('alerts')
+        .insert({
+          type: 'counter_ad_job_approved',
+          title: 'Counter Ad Job Approved',
+          message: `Job ${jobId} has been approved and scheduled`,
+          severity: 'info',
+          data: { job_id: jobId },
+          user_id: user.id
+        });
+    }
   }
 
   async deployJob(jobId: string): Promise<{ success: boolean; platformJobIds?: Record<string, string> }> {
@@ -313,16 +321,20 @@ class CounterAdJobManager {
     job.deployed_time = new Date().toISOString();
     mockCounterAdJobs[jobId] = job;
 
-    // Log to alerts
-    await supabase
-      .from('alerts')
-      .insert({
-        type: 'counter_ad_job_deployed',
-        title: 'Counter Ad Job Deployed',
-        message: `Job ${jobId} has been successfully deployed`,
-        severity: 'info',
-        data: { job_id: jobId, platform_job_ids: mockPlatformIds }
-      });
+    // Log to alerts (with auth check)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('alerts')
+        .insert({
+          type: 'counter_ad_job_deployed',
+          title: 'Counter Ad Job Deployed',
+          message: `Job ${jobId} has been successfully deployed`,
+          severity: 'info',
+          data: { job_id: jobId, platform_job_ids: mockPlatformIds },
+          user_id: user.id
+        });
+    }
 
     return { success: true, platformJobIds: mockPlatformIds };
   }

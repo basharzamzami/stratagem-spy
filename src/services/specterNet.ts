@@ -152,10 +152,16 @@ export async function fetchCompetitors() {
   return data as Competitor[];
 }
 
-export async function createCompetitor(competitor: Omit<Competitor, 'id' | 'created_at' | 'updated_at'>) {
+export async function createCompetitor(competitor: Omit<Competitor, 'id' | 'created_at' | 'updated_at' | 'user_id'>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('competitors')
-    .insert(competitor)
+    .insert({ ...competitor, user_id: user.id })
     .select()
     .single();
 
@@ -199,10 +205,16 @@ export async function fetchHighIntentLeads(minIntentScore = 70) {
   return data as Lead[];
 }
 
-export async function createLead(lead: Omit<Lead, 'id' | 'created_at' | 'updated_at'>) {
+export async function createLead(lead: Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'user_id'>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('leads')
-    .insert(lead)
+    .insert({ ...lead, user_id: user.id })
     .select()
     .single();
 
@@ -273,10 +285,16 @@ export async function fetchTasks(status?: string) {
   return data as Task[];
 }
 
-export async function createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) {
+export async function createTask(task: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'user_id'>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('tasks')
-    .insert(task)
+    .insert({ ...task, user_id: user.id })
     .select()
     .single();
 
@@ -309,10 +327,16 @@ export async function fetchAlerts(unreadOnly = false) {
   return data as Alert[];
 }
 
-export async function createAlert(alert: Omit<Alert, 'id' | 'created_at'>) {
+export async function createAlert(alert: Omit<Alert, 'id' | 'created_at' | 'user_id'>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('alerts')
-    .insert(alert)
+    .insert({ ...alert, user_id: user.id })
     .select()
     .single();
 

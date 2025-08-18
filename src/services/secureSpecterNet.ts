@@ -130,7 +130,7 @@ export async function fetchUserCompetitors(): Promise<Competitor[]> {
     .from('competitors')
     .select('*')
     .eq('user_id', user.id)
-    .order('dominance_score', { ascending: false });
+    .order('dominance_score', { ascending: false }) as { data: Competitor[] | null; error: any }
 
   if (error) {
     console.error('Error fetching competitors:', error);
@@ -174,7 +174,7 @@ export async function fetchUserHighIntentLeads(minIntentScore = 70): Promise<Lea
     .select('*')
     .eq('user_id', user.id)
     .gte('intent_score', minIntentScore)
-    .order('intent_score', { ascending: false });
+    .order('intent_score', { ascending: false }) as { data: Lead[] | null; error: any }
 
   if (error) {
     console.error('Error fetching high-intent leads:', error);
@@ -247,7 +247,7 @@ export async function fetchUserTasks(status?: string): Promise<Task[]> {
     query = query.eq('status', status);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query as { data: Task[] | null; error: any }
 
   if (error) {
     console.error('Error fetching tasks:', error);
@@ -296,7 +296,7 @@ export async function fetchUserAlerts(unreadOnly = false): Promise<Alert[]> {
     query = query.eq('read', false);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query as { data: Alert[] | null; error: any }
 
   if (error) {
     console.error('Error fetching alerts:', error);

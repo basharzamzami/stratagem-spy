@@ -765,6 +765,13 @@ export function recordPredictionOutcome(predictionId: string, converted: boolean
 
 // Integration with CRM and monitoring systems
 export async function syncStrikeWindowsToCRM(predictions: StrikeWindowPrediction[]) {
+  // Get authenticated user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    console.error('User not authenticated, skipping CRM sync');
+    return;
+  }
+
   for (const prediction of predictions) {
     try {
       const { error } = await supabase
@@ -782,7 +789,8 @@ export async function syncStrikeWindowsToCRM(predictions: StrikeWindowPrediction
             model_version: prediction.model_version,
             confidence_interval: prediction.confidence_interval,
             optimal_channels: prediction.optimal_channels
-          }
+          },
+          user_id: user.id
         });
       
       if (error) console.error('Error creating strike window task:', error);

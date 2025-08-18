@@ -297,14 +297,18 @@ export class SpecterDataCollector {
           break;
 
         case 'seo_data':
-          // Store in competitors table with SEO metrics
-          for (const seoItem of job.results) {
-            await supabase.from('competitors').upsert({
-              name: seoItem.competitor,
-              domain: `${seoItem.competitor.toLowerCase().replace(/\s+/g, '')}.com`,
-              industry: 'unknown',
-              last_activity: new Date().toISOString()
-            });
+          // Store in competitors table with SEO metrics (with auth check)
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            for (const seoItem of job.results) {
+              await supabase.from('competitors').upsert({
+                name: seoItem.competitor,
+                domain: `${seoItem.competitor.toLowerCase().replace(/\s+/g, '')}.com`,
+                industry: 'unknown',
+                last_activity: new Date().toISOString(),
+                user_id: user.id
+              });
+            }
           }
           break;
 

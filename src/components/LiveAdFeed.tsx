@@ -310,7 +310,7 @@ Offer: ${ad.offer || 'No offer'}
                                   <div key={key} className="text-center">
                                     <div className="text-xs text-muted-foreground capitalize mb-1">{key}</div>
                                     <div className="font-semibold text-foreground">
-                                      {typeof value === 'number' ? value.toLocaleString() : value}
+                                      {typeof value === 'number' ? value.toLocaleString() : String(value || '')}
                                     </div>
                                   </div>
                                 ))}
@@ -325,7 +325,7 @@ Offer: ${ad.offer || 'No offer'}
                                   {Object.entries(ad.detected_patterns).map(([key, value]) => (
                                     <div key={key}>
                                       <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
-                                      <span className="ml-1 font-medium">{value}</span>
+                                      <span className="ml-1 font-medium">{String(value || '')}</span>
                                     </div>
                                   ))}
                                 </div>
