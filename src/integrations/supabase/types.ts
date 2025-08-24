@@ -34,6 +34,7 @@ export type Database = {
           platform: string
           status: string | null
           target_audience: Json | null
+          user_id: string
         }
         Insert: {
           ad_creative_url?: string | null
@@ -54,6 +55,7 @@ export type Database = {
           platform: string
           status?: string | null
           target_audience?: Json | null
+          user_id: string
         }
         Update: {
           ad_creative_url?: string | null
@@ -74,6 +76,7 @@ export type Database = {
           platform?: string
           status?: string | null
           target_audience?: Json | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -178,6 +181,7 @@ export type Database = {
           lead_id: string | null
           sync_data: Json | null
           sync_status: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string | null
@@ -189,6 +193,7 @@ export type Database = {
           lead_id?: string | null
           sync_data?: Json | null
           sync_status?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string | null
@@ -200,6 +205,7 @@ export type Database = {
           lead_id?: string | null
           sync_data?: Json | null
           sync_status?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -220,6 +226,7 @@ export type Database = {
           task_id: string | null
           trigger_condition: Json | null
           trigger_type: string
+          user_id: string
         }
         Insert: {
           auto_generated?: boolean | null
@@ -229,6 +236,7 @@ export type Database = {
           task_id?: string | null
           trigger_condition?: Json | null
           trigger_type: string
+          user_id: string
         }
         Update: {
           auto_generated?: boolean | null
@@ -238,6 +246,7 @@ export type Database = {
           task_id?: string | null
           trigger_condition?: Json | null
           trigger_type?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -264,6 +273,7 @@ export type Database = {
           stage: string
           stage_data: Json
           timestamp: string | null
+          user_id: string
         }
         Insert: {
           id?: string
@@ -272,6 +282,7 @@ export type Database = {
           stage: string
           stage_data: Json
           timestamp?: string | null
+          user_id: string
         }
         Update: {
           id?: string
@@ -280,6 +291,7 @@ export type Database = {
           stage?: string
           stage_data?: Json
           timestamp?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -299,6 +311,7 @@ export type Database = {
           source_data: Json | null
           source_id: string
           source_type: string
+          user_id: string
         }
         Insert: {
           created_at?: string | null
@@ -307,6 +320,7 @@ export type Database = {
           source_data?: Json | null
           source_id: string
           source_type: string
+          user_id: string
         }
         Update: {
           created_at?: string | null
@@ -315,6 +329,7 @@ export type Database = {
           source_data?: Json | null
           source_id?: string
           source_type?: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -403,6 +418,7 @@ export type Database = {
           review_score: number | null
           seo_rank_average: number | null
           state: string | null
+          user_id: string
           zip_code: string
         }
         Insert: {
@@ -415,6 +431,7 @@ export type Database = {
           review_score?: number | null
           seo_rank_average?: number | null
           state?: string | null
+          user_id: string
           zip_code: string
         }
         Update: {
@@ -427,6 +444,7 @@ export type Database = {
           review_score?: number | null
           seo_rank_average?: number | null
           state?: string | null
+          user_id?: string
           zip_code?: string
         }
         Relationships: [
@@ -448,6 +466,7 @@ export type Database = {
           job_id: string
           source: string
           type: string
+          user_id: string
         }
         Insert: {
           collected_at?: string | null
@@ -457,6 +476,7 @@ export type Database = {
           job_id: string
           source: string
           type: string
+          user_id: string
         }
         Update: {
           collected_at?: string | null
@@ -466,6 +486,7 @@ export type Database = {
           job_id?: string
           source?: string
           type?: string
+          user_id?: string
         }
         Relationships: []
       }

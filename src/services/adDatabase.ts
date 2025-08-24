@@ -8,18 +8,19 @@ export interface DatabaseAdItem {
   ad_creative_url?: string;
   cta?: string;
   offer?: string;
-  engagement?: any; // Changed from Record<string, any> to any to match Supabase Json type
-  detected_patterns?: any; // Changed from Record<string, any> to any to match Supabase Json type
+  engagement?: any;
+  detected_patterns?: any;
   fetched_at: string;
   landing_page_url?: string;
   landing_page_snapshot?: string;
   campaign_type?: string;
   estimated_spend_daily?: number;
-  target_audience?: any; // Changed from Record<string, any> to any to match Supabase Json type
+  target_audience?: any;
   creative_hash?: string;
   status?: string;
   first_seen?: string;
   last_seen?: string;
+  user_id: string;
   // Add missing fields that components are expecting
   headline?: string;
   primary_text?: string;
@@ -30,6 +31,13 @@ export async function fetchAdsFromDatabase(limit = 50, offset = 0): Promise<Data
   console.log('fetchAdsFromDatabase: Starting fetch with limit:', limit, 'offset:', offset);
   
   try {
+    // Check authentication first
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.log('fetchAdsFromDatabase: User not authenticated');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('ads')
       .select('*')
@@ -62,6 +70,13 @@ export async function searchAds(query: string): Promise<DatabaseAdItem[]> {
   console.log('searchAds: Searching for:', query);
   
   try {
+    // Check authentication first
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.log('searchAds: User not authenticated');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('ads')
       .select('*')
@@ -91,13 +106,19 @@ export async function searchAds(query: string): Promise<DatabaseAdItem[]> {
   }
 }
 
-export async function insertAd(ad: Omit<DatabaseAdItem, 'id' | 'fetched_at'>): Promise<DatabaseAdItem> {
+export async function insertAd(ad: Omit<DatabaseAdItem, 'id' | 'fetched_at' | 'user_id'>): Promise<DatabaseAdItem> {
   console.log('insertAd: Inserting ad for competitor:', ad.competitor);
   
   try {
+    // Check authentication and get user ID
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
     const { data, error } = await supabase
       .from('ads')
-      .insert(ad)
+      .insert({ ...ad, user_id: user.id })
       .select()
       .single();
 

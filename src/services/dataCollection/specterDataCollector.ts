@@ -1,346 +1,368 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
-export interface DataCollectionJob {
+export interface CollectionJob {
   id: string;
-  type: 'api' | 'crawler';
+  type: 'ad_scraping' | 'competitor_analysis' | 'lead_enrichment' | 'market_intelligence';
   source: string;
-  target: string;
+  config: {
+    target_url?: string;
+    keywords?: string[];
+    competitors?: string[];
+    location?: {
+      city?: string;
+      state?: string;
+      zip?: string;
+    };
+    depth?: number;
+    frequency?: string;
+  };
   status: 'pending' | 'running' | 'completed' | 'failed';
-  config: Record<string, any>;
+  results_count?: number;
+  error_message?: string;
   created_at: string;
-  completed_at?: string;
-  results?: any;
-  error?: string;
+  updated_at: string;
+  user_id: string;
 }
 
-export interface CollectionConfig {
-  competitors: string[];
-  keywords: string[];
-  geoTargets: string[];
-  sources: {
-    metaAds: boolean;
-    googleAds: boolean;
-    youtubeAds: boolean;
-    seoData: boolean;
-    reviews: boolean;
-    socialListening: boolean;
-  };
-  scheduleInterval: number; // minutes
+export interface CollectionResult {
+  id: string;
+  job_id: string;
+  type: string;
+  source: string;
+  data: Record<string, any>;
+  collected_at: string;
+  user_id: string;
 }
 
 export class SpecterDataCollector {
   private static instance: SpecterDataCollector;
-  private activeJobs: Map<string, DataCollectionJob> = new Map();
 
-  public static getInstance(): SpecterDataCollector {
+  static getInstance(): SpecterDataCollector {
     if (!SpecterDataCollector.instance) {
       SpecterDataCollector.instance = new SpecterDataCollector();
     }
     return SpecterDataCollector.instance;
   }
 
-  async startCollection(config: CollectionConfig): Promise<string[]> {
-    console.log('🚀 Starting Specter Net data collection...');
-    const jobIds: string[] = [];
-
-    // Create collection jobs for each enabled source
-    if (config.sources.metaAds) {
-      const metaJob = await this.createJob('api', 'meta_ads', config);
-      jobIds.push(metaJob.id);
+  async createCollectionJob(job: Omit<CollectionJob, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<CollectionJob> {
+    console.log('Creating collection job:', job);
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
     }
 
-    if (config.sources.googleAds) {
-      const googleJob = await this.createJob('api', 'google_ads', config);
-      jobIds.push(googleJob.id);
-    }
-
-    if (config.sources.youtubeAds) {
-      const youtubeJob = await this.createJob('api', 'youtube_ads', config);
-      jobIds.push(youtubeJob.id);
-    }
-
-    if (config.sources.seoData) {
-      const seoJob = await this.createJob('crawler', 'seo_data', config);
-      jobIds.push(seoJob.id);
-    }
-
-    if (config.sources.reviews) {
-      const reviewsJob = await this.createJob('api', 'reviews', config);
-      jobIds.push(reviewsJob.id);
-    }
-
-    if (config.sources.socialListening) {
-      const socialJob = await this.createJob('api', 'social_listening', config);
-      jobIds.push(socialJob.id);
-    }
-
-    // Execute jobs asynchronously
-    jobIds.forEach(jobId => {
-      this.executeJob(jobId);
-    });
-
-    return jobIds;
-  }
-
-  private async createJob(type: 'api' | 'crawler', source: string, config: CollectionConfig): Promise<DataCollectionJob> {
-    const job: DataCollectionJob = {
-      id: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      type,
-      source,
-      target: config.competitors.join(','),
-      status: 'pending',
-      config: {
-        competitors: config.competitors,
-        keywords: config.keywords,
-        geoTargets: config.geoTargets
-      },
-      created_at: new Date().toISOString()
+    const newJob: CollectionJob = {
+      id: crypto.randomUUID(),
+      ...job,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: user.id
     };
 
-    this.activeJobs.set(job.id, job);
-    return job;
-  }
-
-  private async executeJob(jobId: string): Promise<void> {
-    const job = this.activeJobs.get(jobId);
-    if (!job) return;
-
-    try {
-      console.log(`🔄 Executing job: ${job.source}`);
-      job.status = 'running';
-
-      let results;
-      switch (job.source) {
-        case 'meta_ads':
-          results = await this.collectMetaAds(job.config);
-          break;
-        case 'google_ads':
-          results = await this.collectGoogleAds(job.config);
-          break;
-        case 'youtube_ads':
-          results = await this.collectYouTubeAds(job.config);
-          break;
-        case 'seo_data':
-          results = await this.collectSEOData(job.config);
-          break;
-        case 'reviews':
-          results = await this.collectReviews(job.config);
-          break;
-        case 'social_listening':
-          results = await this.collectSocialListening(job.config);
-          break;
-        default:
-          throw new Error(`Unknown source: ${job.source}`);
-      }
-
-      job.status = 'completed';
-      job.completed_at = new Date().toISOString();
-      job.results = results;
-
-      // Store results in Supabase
-      await this.storeResults(job);
-
-      console.log(`✅ Job completed: ${job.source} - ${results.length} items collected`);
-
-    } catch (error) {
-      console.error(`❌ Job failed: ${job.source}`, error);
-      job.status = 'failed';
-      job.error = error instanceof Error ? error.message : 'Unknown error';
-      job.completed_at = new Date().toISOString();
-    }
-
-    this.activeJobs.set(jobId, job);
-  }
-
-  private async collectMetaAds(config: any): Promise<any[]> {
-    // Use existing Meta Ads integration from supabase functions
-    const { data, error } = await supabase.functions.invoke('ad-signal-search', {
-      body: {
-        filters: {
-          platforms: ['meta'],
-          business: config.competitors[0],
-          location: { city: config.geoTargets[0]?.split(',')[0] }
-        }
-      }
+    // Store in raw_collection_data table
+    await this.storeCollectionResult({
+      job_id: newJob.id,
+      type: 'job_config',
+      source: job.source,
+      data: newJob,
+      collected_at: new Date().toISOString(),
+      user_id: user.id
     });
 
-    if (error) throw error;
-    return data?.ads || [];
+    // Start the collection process
+    this.processJob(newJob);
+
+    return newJob;
   }
 
-  private async collectGoogleAds(config: any): Promise<any[]> {
-    // Mock Google Ads collection - in production would use Google Ads API
-    console.log('Collecting Google Ads data...');
-    return this.generateMockData('google_ads', config.competitors, 10);
-  }
-
-  private async collectYouTubeAds(config: any): Promise<any[]> {
-    // Mock YouTube Ads collection - in production would use YouTube Data API
-    console.log('Collecting YouTube Ads data...');
-    return this.generateMockData('youtube_ads', config.competitors, 5);
-  }
-
-  private async collectSEOData(config: any): Promise<any[]> {
-    // Mock SEO data collection - in production would use Ahrefs/SEMrush APIs or crawlers
-    console.log('Collecting SEO data...');
-    const seoData = [];
+  async getCollectionJobs(): Promise<CollectionJob[]> {
+    console.log('Fetching collection jobs');
     
-    for (const competitor of config.competitors) {
-      for (const keyword of config.keywords.slice(0, 5)) {
-        seoData.push({
-          competitor,
-          keyword,
-          rank: Math.floor(Math.random() * 20) + 1,
-          volume: Math.floor(Math.random() * 10000) + 1000,
-          difficulty: Math.floor(Math.random() * 100),
-          collected_at: new Date().toISOString()
-        });
-      }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
     }
-    
-    return seoData;
-  }
 
-  private async collectReviews(config: any): Promise<any[]> {
-    // Mock reviews collection - in production would use Google My Business, Yelp APIs
-    console.log('Collecting reviews data...');
-    const reviews = [];
-    
-    for (const competitor of config.competitors) {
-      for (let i = 0; i < 10; i++) {
-        reviews.push({
-          competitor,
-          platform: ['google', 'yelp', 'trustpilot'][Math.floor(Math.random() * 3)],
-          rating: Math.floor(Math.random() * 5) + 1,
-          sentiment: ['positive', 'neutral', 'negative'][Math.floor(Math.random() * 3)],
-          text: `Sample review text for ${competitor}...`,
-          collected_at: new Date().toISOString()
-        });
-      }
+    const { data, error } = await supabase
+      .from('raw_collection_data')
+      .select('*')
+      .eq('type', 'job_config')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching collection jobs:', error);
+      return [];
     }
+
+    return (data || []).map(row => row.data as CollectionJob);
+  }
+
+  private async storeCollectionResult(result: Omit<CollectionResult, 'id'>): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const { error } = await supabase
+      .from('raw_collection_data')
+      .insert({
+        job_id: result.job_id,
+        type: result.type,
+        source: result.source,
+        data: result.data,
+        collected_at: result.collected_at,
+        user_id: user.id
+      });
+
+    if (error) {
+      console.error('Error storing collection result:', error);
+      throw error;
+    }
+  }
+
+  private async processJob(job: CollectionJob): Promise<void> {
+    console.log(`Processing job ${job.id} of type ${job.type}`);
+
+    switch (job.type) {
+      case 'ad_scraping':
+        await this.collectAdsData(job);
+        break;
+      case 'competitor_analysis':
+        await this.collectCompetitorData(job);
+        break;
+      case 'lead_enrichment':
+        await this.collectLeadData(job);
+        break;
+      case 'market_intelligence':
+        await this.collectMarketData(job);
+        break;
+      default:
+        console.warn(`Unknown job type: ${job.type}`);
+    }
+  }
+
+  private async collectAdsData(job: CollectionJob): Promise<void> {
+    console.log(`Collecting ads data for job ${job.id}`);
     
-    return reviews;
-  }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
-  private async collectSocialListening(config: any): Promise<any[]> {
-    // Mock social listening - in production would use Twitter API, Reddit API
-    console.log('Collecting social listening data...');
-    return this.generateMockData('social_mentions', config.competitors, 15);
-  }
+    // Mock ad data collection
+    const mockAdsData = [
+      {
+        platform: 'Facebook',
+        competitor: 'Competitor A',
+        ad_creative_url: 'https://example.com/ad1.png',
+        cta: 'Shop Now',
+        offer: '50% off',
+        engagement: { likes: 120, comments: 30 },
+        detected_patterns: { keyword: 'sale', discount: '50%' },
+        landing_page_url: 'https://example.com/landing1',
+        campaign_type: 'Discount Campaign',
+        estimated_spend_daily: 50,
+        target_audience: { age: '25-34', location: 'USA' },
+        creative_hash: 'hash123',
+        status: 'active',
+        first_seen: new Date().toISOString(),
+        last_seen: new Date().toISOString()
+      },
+      {
+        platform: 'Google',
+        competitor: 'Competitor B',
+        ad_creative_url: 'https://example.com/ad2.png',
+        cta: 'Learn More',
+        offer: 'Free Trial',
+        engagement: { clicks: 250, impressions: 5000 },
+        detected_patterns: { keyword: 'free', trial: '30 days' },
+        landing_page_url: 'https://example.com/landing2',
+        campaign_type: 'Free Trial Campaign',
+        estimated_spend_daily: 75,
+        target_audience: { age: '35-44', location: 'Canada' },
+        creative_hash: 'hash456',
+        status: 'active',
+        first_seen: new Date().toISOString(),
+        last_seen: new Date().toISOString()
+      }
+    ];
 
-  private generateMockData(type: string, competitors: string[], count: number): any[] {
-    const data = [];
-    for (let i = 0; i < count; i++) {
-      data.push({
-        id: `${type}_${Date.now()}_${i}`,
-        competitor: competitors[i % competitors.length],
-        type,
-        content: `Mock ${type} data for competitive intelligence`,
-        engagement: Math.floor(Math.random() * 1000),
-        collected_at: new Date().toISOString()
+    for (const adData of mockAdsData) {
+      await this.storeCollectionResult({
+        job_id: job.id,
+        type: 'ad_data',
+        source: job.source,
+        data: adData,
+        collected_at: new Date().toISOString(),
+        user_id: user.id
       });
     }
-    return data;
+
+    // Update job status
+    await supabase
+      .from('raw_collection_data')
+      .update({ data: { ...job, status: 'completed', results_count: mockAdsData.length } })
+      .eq('type', 'job_config')
+      .eq('data.id', job.id);
   }
 
-  private async storeResults(job: DataCollectionJob): Promise<void> {
-    try {
-      // Store in raw_data table for audit trail - now the table exists
-      const { error: rawDataError } = await supabase
-        .from('raw_collection_data')
-        .insert({
-          job_id: job.id,
-          source: job.source,
-          type: job.type,
-          data: job.results,
-          collected_at: job.completed_at
-        });
+  private async collectCompetitorData(job: CollectionJob): Promise<void> {
+    console.log(`Collecting competitor data for job ${job.id}`);
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
-      if (rawDataError) {
-        console.error('Error storing raw data:', rawDataError);
-        throw rawDataError;
+    // Mock competitor data collection
+    const mockCompetitorData = [
+      {
+        name: 'Competitor A',
+        domain: 'https://competitorA.com',
+        industry: 'E-commerce',
+        location_city: 'New York',
+        location_state: 'NY',
+        dominance_score: 85,
+        total_ads_count: 500,
+        estimated_monthly_spend: 10000,
+        last_activity: new Date().toISOString()
+      },
+      {
+        name: 'Competitor B',
+        domain: 'https://competitorB.com',
+        industry: 'Software',
+        location_city: 'San Francisco',
+        location_state: 'CA',
+        dominance_score: 92,
+        total_ads_count: 750,
+        estimated_monthly_spend: 15000,
+        last_activity: new Date().toISOString()
       }
+    ];
 
-      // Process and store in appropriate structured tables
-      await this.processAndStoreStructuredData(job);
-
-    } catch (error) {
-      console.error('Error storing results:', error);
+    for (const competitorData of mockCompetitorData) {
+      await this.storeCollectionResult({
+        job_id: job.id,
+        type: 'competitor_data',
+        source: job.source,
+        data: competitorData,
+        collected_at: new Date().toISOString(),
+        user_id: user.id
+      });
     }
+
+    // Update job status
+    await supabase
+      .from('raw_collection_data')
+      .update({ data: { ...job, status: 'completed', results_count: mockCompetitorData.length } })
+      .eq('type', 'job_config')
+      .eq('data.id', job.id);
   }
 
-  private async processAndStoreStructuredData(job: DataCollectionJob): Promise<void> {
-    if (!job.results) return;
+  private async collectLeadData(job: CollectionJob): Promise<void> {
+    console.log(`Collecting lead data for job ${job.id}`);
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
-    try {
-      switch (job.source) {
-        case 'meta_ads':
-          // Store in ads table
-          for (const ad of job.results) {
-            const { error } = await supabase.from('ads').upsert({
-              id: ad.id,
-              platform: 'meta',
-              competitor: ad.competitor_name || ad.competitor,
-              ad_creative_url: ad.creative_url,
-              cta: ad.cta,
-              first_seen: ad.first_seen,
-              last_seen: ad.last_seen,
-              status: ad.active ? 'active' : 'inactive',
-              fetched_at: new Date().toISOString()
-            });
-            
-            if (error) {
-              console.error('Error storing ad:', error);
-            }
-          }
-          break;
-
-        case 'seo_data':
-          // Store in competitors table with SEO metrics (with auth check)
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            for (const seoItem of job.results) {
-              await supabase.from('competitors').upsert({
-                name: seoItem.competitor,
-                domain: `${seoItem.competitor.toLowerCase().replace(/\s+/g, '')}.com`,
-                industry: 'unknown',
-                last_activity: new Date().toISOString(),
-                user_id: user.id
-              });
-            }
-          }
-          break;
-
-        case 'reviews':
-          // Could create a reviews table or store in competitors table
-          console.log('Processing reviews data...');
-          break;
-
-        default:
-          console.log(`No structured storage defined for: ${job.source}`);
+    // Mock lead data collection
+    const mockLeadData = [
+      {
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        company: 'Example Inc',
+        title: 'CEO',
+        phone: '123-456-7890',
+        location_city: 'Los Angeles',
+        location_state: 'CA',
+        intent_score: 90,
+        source_data: { linkedin_profile: 'https://linkedin.com/john.doe' }
+      },
+      {
+        name: 'Jane Smith',
+        email: 'jane.smith@example.com',
+        company: 'Sample Corp',
+        title: 'Marketing Manager',
+        phone: '987-654-3210',
+        location_city: 'Chicago',
+        location_state: 'IL',
+        intent_score: 80,
+        source_data: { website_activity: 'Visited pricing page' }
       }
-    } catch (error) {
-      console.error('Error processing structured data:', error);
+    ];
+
+    for (const leadData of mockLeadData) {
+      await this.storeCollectionResult({
+        job_id: job.id,
+        type: 'lead_data',
+        source: job.source,
+        data: leadData,
+        collected_at: new Date().toISOString(),
+        user_id: user.id
+      });
     }
+
+    // Update job status
+    await supabase
+      .from('raw_collection_data')
+      .update({ data: { ...job, status: 'completed', results_count: mockLeadData.length } })
+      .eq('type', 'job_config')
+      .eq('data.id', job.id);
   }
 
-  async getJobStatus(jobId: string): Promise<DataCollectionJob | null> {
-    return this.activeJobs.get(jobId) || null;
-  }
-
-  async getAllJobs(): Promise<DataCollectionJob[]> {
-    return Array.from(this.activeJobs.values());
-  }
-
-  async cancelJob(jobId: string): Promise<boolean> {
-    const job = this.activeJobs.get(jobId);
-    if (job && job.status === 'running') {
-      job.status = 'failed';
-      job.error = 'Cancelled by user';
-      job.completed_at = new Date().toISOString();
-      return true;
+  private async collectMarketData(job: CollectionJob): Promise<void> {
+    console.log(`Collecting market data for job ${job.id}`);
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
     }
-    return false;
+
+    // Mock market data collection
+    const mockMarketData = [
+      {
+        zip_code: '90210',
+        city: 'Beverly Hills',
+        state: 'CA',
+        competitor_id: 'competitor123',
+        dominance_score: 75,
+        seo_rank_average: 3,
+        ad_presence_score: 80,
+        review_score: 90
+      },
+      {
+        zip_code: '10001',
+        city: 'New York',
+        state: 'NY',
+        competitor_id: 'competitor456',
+        dominance_score: 80,
+        seo_rank_average: 2,
+        ad_presence_score: 85,
+        review_score: 85
+      }
+    ];
+
+    for (const marketData of mockMarketData) {
+      await this.storeCollectionResult({
+        job_id: job.id,
+        type: 'market_data',
+        source: job.source,
+        data: marketData,
+        collected_at: new Date().toISOString(),
+        user_id: user.id
+      });
+    }
+
+    // Update job status
+    await supabase
+      .from('raw_collection_data')
+      .update({ data: { ...job, status: 'completed', results_count: mockMarketData.length } })
+      .eq('type', 'job_config')
+      .eq('data.id', job.id);
   }
 }
+
+export const specterDataCollector = SpecterDataCollector.getInstance();

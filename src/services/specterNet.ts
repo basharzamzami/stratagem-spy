@@ -21,6 +21,7 @@ export interface EnhancedAdItem {
   status?: string;
   first_seen?: string;
   last_seen?: string;
+  user_id: string;
 }
 
 // Competitor Profile
@@ -38,6 +39,7 @@ export interface Competitor {
   last_activity: string;
   created_at: string;
   updated_at: string;
+  user_id: string;
 }
 
 // High-Intent Lead
@@ -60,6 +62,7 @@ export interface Lead {
   notes?: string;
   created_at: string;
   updated_at: string;
+  user_id: string;
 }
 
 // Market Dominance Data
@@ -74,6 +77,7 @@ export interface MarketDominance {
   ad_presence_score?: number;
   review_score?: number;
   last_calculated: string;
+  user_id: string;
 }
 
 // AI-Generated Tasks
@@ -91,6 +95,7 @@ export interface Task {
   due_date?: string;
   created_at: string;
   updated_at: string;
+  user_id: string;
 }
 
 // Real-time Alerts
@@ -104,10 +109,17 @@ export interface Alert {
   read: boolean;
   channels?: string[];
   created_at: string;
+  user_id: string;
 }
 
 // Enhanced Ad Database Operations
 export async function fetchEnhancedAds(limit = 50, offset = 0) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('ads')
     .select('*')
@@ -122,10 +134,16 @@ export async function fetchEnhancedAds(limit = 50, offset = 0) {
   return data as EnhancedAdItem[];
 }
 
-export async function insertEnhancedAd(ad: Omit<EnhancedAdItem, 'id' | 'fetched_at'>) {
+export async function insertEnhancedAd(ad: Omit<EnhancedAdItem, 'id' | 'fetched_at' | 'user_id'>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('ads')
-    .insert(ad)
+    .insert({ ...ad, user_id: user.id })
     .select()
     .single();
 
@@ -139,6 +157,12 @@ export async function insertEnhancedAd(ad: Omit<EnhancedAdItem, 'id' | 'fetched_
 
 // Competitor Intelligence Operations
 export async function fetchCompetitors() {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('competitors')
     .select('*')
@@ -191,6 +215,12 @@ export async function updateCompetitorDominanceScore(id: string, score: number) 
 
 // Lead Intelligence Operations
 export async function fetchHighIntentLeads(minIntentScore = 70) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('leads')
     .select('*')
@@ -244,6 +274,12 @@ export async function updateLeadStatus(id: string, status: string) {
 
 // Market Dominance Operations
 export async function fetchMarketDominance(zipCodes?: string[]) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   let query = supabase
     .from('market_dominance')
     .select('*')
@@ -265,6 +301,12 @@ export async function fetchMarketDominance(zipCodes?: string[]) {
 
 // Task Generation Operations
 export async function fetchTasks(status?: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   let query = supabase
     .from('tasks')
     .select('*')
@@ -308,6 +350,12 @@ export async function createTask(task: Omit<Task, 'id' | 'created_at' | 'updated
 
 // Alert System Operations
 export async function fetchAlerts(unreadOnly = false) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   let query = supabase
     .from('alerts')
     .select('*')
