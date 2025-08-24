@@ -9,6 +9,7 @@ export interface LeadSource {
   source_id: string;
   source_data: Record<string, any>;
   created_at: string;
+  user_id: string;
 }
 
 export interface LeadJourneyStage {
@@ -18,6 +19,7 @@ export interface LeadJourneyStage {
   stage_data: Record<string, any>;
   timestamp: string;
   sequence_order: number;
+  user_id: string;
 }
 
 export interface FollowUpTask {
@@ -28,6 +30,7 @@ export interface FollowUpTask {
   trigger_condition: Record<string, any>;
   auto_generated: boolean;
   created_at: string;
+  user_id: string;
 }
 
 export interface ExternalCRMSync {
@@ -40,14 +43,21 @@ export interface ExternalCRMSync {
   sync_data?: Record<string, any>;
   error_message?: string;
   created_at: string;
+  user_id: string;
 }
 
 // Lead Aggregation from multiple sources
 export async function aggregateLeadSources(leadId: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('lead_sources')
     .select('*')
     .eq('lead_id', leadId)
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -58,10 +68,15 @@ export async function aggregateLeadSources(leadId: string) {
   return data as LeadSource[];
 }
 
-export async function createLeadSource(source: Omit<LeadSource, 'id' | 'created_at'>) {
+export async function createLeadSource(source: Omit<LeadSource, 'id' | 'created_at' | 'user_id'>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('lead_sources')
-    .insert(source)
+    .insert({ ...source, user_id: user.id })
     .select()
     .single();
 
@@ -75,10 +90,16 @@ export async function createLeadSource(source: Omit<LeadSource, 'id' | 'created_
 
 // Lead Journey Mapping
 export async function getLeadJourney(leadId: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('lead_journey')
     .select('*')
     .eq('lead_id', leadId)
+    .eq('user_id', user.id)
     .order('sequence_order', { ascending: true });
 
   if (error) {
@@ -89,10 +110,15 @@ export async function getLeadJourney(leadId: string) {
   return data as LeadJourneyStage[];
 }
 
-export async function addJourneyStage(stage: Omit<LeadJourneyStage, 'id' | 'timestamp'>) {
+export async function addJourneyStage(stage: Omit<LeadJourneyStage, 'id' | 'timestamp' | 'user_id'>) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('lead_journey')
-    .insert(stage)
+    .insert({ ...stage, user_id: user.id })
     .select()
     .single();
 
@@ -106,6 +132,11 @@ export async function addJourneyStage(stage: Omit<LeadJourneyStage, 'id' | 'time
 
 // Follow-up Tasks
 export async function getLeadFollowUpTasks(leadId: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('follow_up_tasks')
     .select(`
@@ -121,6 +152,7 @@ export async function getLeadFollowUpTasks(leadId: string) {
       )
     `)
     .eq('lead_id', leadId)
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -168,7 +200,8 @@ export async function createManualFollowUpTask(leadId: string, taskData: {
       task_id: task.id,
       trigger_type: 'manual' as const,
       auto_generated: false,
-      trigger_condition: { created_manually: true }
+      trigger_condition: { created_manually: true },
+      user_id: user.id
     })
     .select()
     .single();
@@ -183,10 +216,16 @@ export async function createManualFollowUpTask(leadId: string, taskData: {
 
 // External CRM Sync
 export async function getLeadCRMSyncStatus(leadId: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('external_crm_sync')
     .select('*')
     .eq('lead_id', leadId)
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -198,11 +237,17 @@ export async function getLeadCRMSyncStatus(leadId: string) {
 }
 
 export async function syncLeadToExternalCRM(leadId: string, crmType: 'hubspot' | 'pipedrive') {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   // Get lead data
   const { data: lead, error: leadError } = await supabase
     .from('leads')
     .select('*')
     .eq('id', leadId)
+    .eq('user_id', user.id)
     .single();
 
   if (leadError || !lead) {
@@ -218,7 +263,8 @@ export async function syncLeadToExternalCRM(leadId: string, crmType: 'hubspot' |
     sync_data: {
       lead_data: lead,
       sync_initiated_at: new Date().toISOString()
-    }
+    },
+    user_id: user.id
   };
 
   const { data, error } = await supabase
@@ -337,9 +383,14 @@ export async function aggregateLeadsFromSources() {
 
 // Enhanced lead analytics
 export async function getLeadAnalytics() {
-  const { data: leads } = await supabase.from('leads').select('*');
-  const { data: sources } = await supabase.from('lead_sources').select('*');
-  const { data: journey } = await supabase.from('lead_journey').select('*');
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { data: leads } = await supabase.from('leads').select('*').eq('user_id', user.id);
+  const { data: sources } = await supabase.from('lead_sources').select('*').eq('user_id', user.id);
+  const { data: journey } = await supabase.from('lead_journey').select('*').eq('user_id', user.id);
 
   const analytics = {
     total_leads: leads?.length || 0,

@@ -42,7 +42,7 @@ export interface Competitor {
   user_id: string;
 }
 
-// High-Intent Lead
+// High-Intent Lead - Add user_id
 export interface Lead {
   id: string;
   name?: string;
@@ -62,6 +62,11 @@ export interface Lead {
   notes?: string;
   created_at: string;
   updated_at: string;
+  user_id: string;
+}
+
+// Add EnhancedLead interface for components that expect it
+export interface EnhancedLead extends Lead {
   user_id: string;
 }
 
@@ -123,6 +128,7 @@ export async function fetchEnhancedAds(limit = 50, offset = 0) {
   const { data, error } = await supabase
     .from('ads')
     .select('*')
+    .eq('user_id', user.id)
     .order('last_seen', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -166,6 +172,7 @@ export async function fetchCompetitors() {
   const { data, error } = await supabase
     .from('competitors')
     .select('*')
+    .eq('user_id', user.id)
     .order('dominance_score', { ascending: false });
 
   if (error) {
@@ -198,10 +205,17 @@ export async function createCompetitor(competitor: Omit<Competitor, 'id' | 'crea
 }
 
 export async function updateCompetitorDominanceScore(id: string, score: number) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('competitors')
     .update({ dominance_score: score, updated_at: new Date().toISOString() })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single();
 
@@ -224,6 +238,7 @@ export async function fetchHighIntentLeads(minIntentScore = 70) {
   const { data, error } = await supabase
     .from('leads')
     .select('*')
+    .eq('user_id', user.id)
     .gte('intent_score', minIntentScore)
     .order('intent_score', { ascending: false });
 
@@ -257,10 +272,17 @@ export async function createLead(lead: Omit<Lead, 'id' | 'created_at' | 'updated
 }
 
 export async function updateLeadStatus(id: string, status: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('leads')
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single();
 
@@ -283,6 +305,7 @@ export async function fetchMarketDominance(zipCodes?: string[]) {
   let query = supabase
     .from('market_dominance')
     .select('*')
+    .eq('user_id', user.id)
     .order('dominance_score', { ascending: false });
 
   if (zipCodes && zipCodes.length > 0) {
@@ -310,6 +333,7 @@ export async function fetchTasks(status?: string) {
   let query = supabase
     .from('tasks')
     .select('*')
+    .eq('user_id', user.id)
     .order('priority', { ascending: false })
     .order('created_at', { ascending: false });
 
@@ -359,6 +383,7 @@ export async function fetchAlerts(unreadOnly = false) {
   let query = supabase
     .from('alerts')
     .select('*')
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false });
 
   if (unreadOnly) {
@@ -397,10 +422,17 @@ export async function createAlert(alert: Omit<Alert, 'id' | 'created_at' | 'user
 }
 
 export async function markAlertAsRead(id: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
   const { data, error } = await supabase
     .from('alerts')
     .update({ read: true })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single();
 

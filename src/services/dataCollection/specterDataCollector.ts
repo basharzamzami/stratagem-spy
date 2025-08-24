@@ -34,6 +34,14 @@ export interface CollectionResult {
   user_id: string;
 }
 
+export interface CollectionConfig {
+  type: 'ad_scraping' | 'competitor_analysis' | 'lead_enrichment' | 'market_intelligence';
+  source: string;
+  config: CollectionJob['config'];
+}
+
+export type DataCollectionJob = CollectionJob; // Alias for backward compatibility
+
 export class SpecterDataCollector {
   private static instance: SpecterDataCollector;
 
@@ -42,6 +50,33 @@ export class SpecterDataCollector {
       SpecterDataCollector.instance = new SpecterDataCollector();
     }
     return SpecterDataCollector.instance;
+  }
+
+  async startCollection(config: CollectionConfig): Promise<CollectionJob> {
+    return this.createCollectionJob(config);
+  }
+
+  async getAllJobs(): Promise<CollectionJob[]> {
+    return this.getCollectionJobs();
+  }
+
+  async cancelJob(jobId: string): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    await supabase
+      .from('raw_collection_data')
+      .update({ 
+        data: { 
+          status: 'failed', 
+          error_message: 'Cancelled by user',
+          updated_at: new Date().toISOString() 
+        } 
+      })
+      .eq('type', 'job_config')
+      .match({ 'data->>id': jobId, user_id: user.id });
   }
 
   async createCollectionJob(job: Omit<CollectionJob, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<CollectionJob> {
@@ -88,6 +123,7 @@ export class SpecterDataCollector {
       .from('raw_collection_data')
       .select('*')
       .eq('type', 'job_config')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -204,7 +240,7 @@ export class SpecterDataCollector {
       .from('raw_collection_data')
       .update({ data: { ...job, status: 'completed', results_count: mockAdsData.length } })
       .eq('type', 'job_config')
-      .eq('data.id', job.id);
+      .match({ 'data->>id': job.id, user_id: user.id });
   }
 
   private async collectCompetitorData(job: CollectionJob): Promise<void> {
@@ -257,7 +293,7 @@ export class SpecterDataCollector {
       .from('raw_collection_data')
       .update({ data: { ...job, status: 'completed', results_count: mockCompetitorData.length } })
       .eq('type', 'job_config')
-      .eq('data.id', job.id);
+      .match({ 'data->>id': job.id, user_id: user.id });
   }
 
   private async collectLeadData(job: CollectionJob): Promise<void> {
@@ -310,7 +346,7 @@ export class SpecterDataCollector {
       .from('raw_collection_data')
       .update({ data: { ...job, status: 'completed', results_count: mockLeadData.length } })
       .eq('type', 'job_config')
-      .eq('data.id', job.id);
+      .match({ 'data->>id': job.id, user_id: user.id });
   }
 
   private async collectMarketData(job: CollectionJob): Promise<void> {
@@ -361,7 +397,7 @@ export class SpecterDataCollector {
       .from('raw_collection_data')
       .update({ data: { ...job, status: 'completed', results_count: mockMarketData.length } })
       .eq('type', 'job_config')
-      .eq('data.id', job.id);
+      .match({ 'data->>id': job.id, user_id: user.id });
   }
 }
 
