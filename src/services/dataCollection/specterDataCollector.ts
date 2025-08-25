@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface RawData {
@@ -25,13 +24,14 @@ export interface CollectionConfig {
   };
   depth?: number;
   frequency?: string;
+  config?: Record<string, any>;
 }
 
 export interface CollectionJob {
   id: string;
   type: string;
   source: string;
-  config: Record<string, any>;
+  config: CollectionConfig;
   status: 'pending' | 'running' | 'completed' | 'failed';
   results?: any;
   results_count?: number;
@@ -52,6 +52,7 @@ export const submitDataCollectionJob = async (config: CollectionConfig): Promise
     const { data, error } = await supabase
       .from('raw_collection_data')
       .insert({
+        job_id: crypto.randomUUID(),
         type: 'collection_job',
         source: config.source,
         data: config as any,
@@ -103,7 +104,7 @@ export const processCollectionJobs = async (): Promise<CollectionJob[]> => {
         id: item.id,
         type: jobData?.type || 'unknown',
         source: item.source,
-        config: jobData || {},
+        config: jobData || {} as CollectionConfig,
         status: jobData?.status || 'pending',
         results: jobData?.results,
         results_count: jobData?.results_count || 0,
@@ -197,7 +198,7 @@ export class SpecterDataCollector {
       id: jobData?.id || 'mock-job-1',
       type: config.type,
       source: config.source,
-      config: config as any,
+      config: config,
       status: 'running',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()

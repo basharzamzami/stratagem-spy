@@ -1,130 +1,137 @@
 
-import { EnhancedLead } from './specterNetIntegration';
+import type { EnhancedLead } from './specterNetIntegration';
 
-const baseMockEnhancedLeads = [
+export const getMockEnhancedLeadsWithUserId = (userId: string): EnhancedLead[] => [
   {
-    id: '1',
+    id: 'lead-1',
     name: 'Sarah Chen',
     email: 'sarah.chen@techstartup.com',
     company: 'TechStartup Inc',
-    title: 'VP of Marketing',
+    title: 'Marketing Director',
     phone: '+1-555-0123',
-    location_city: 'Miami',
-    location_state: 'FL',
-    location_zip: '33101',
-    intent_score: 87,
-    source: 'organic_search',
+    location_city: 'San Francisco',
+    location_state: 'CA',
+    location_zip: '94105',
+    intent_score: 85,
+    source: 'website_form',
     source_data: {
-      search_queries: ['marketing automation tools', 'competitor analysis software'],
-      pages_visited: ['/pricing', '/features', '/competitors'],
-      time_on_site: 420
+      utm_source: 'google',
+      utm_medium: 'cpc',
+      landing_page: '/competitive-analysis'
     },
     enrichment_data: {
       company_size: '50-200',
       industry: 'SaaS',
-      tech_stack: ['HubSpot', 'Salesforce', 'Google Analytics']
+      funding_stage: 'Series A'
     },
     status: 'qualified',
-    tags: ['high-intent', 'decision-maker', 'budget-confirmed'],
-    notes: 'Interested in competitive intelligence features',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    intent_keywords: ['marketing automation', 'competitor analysis'],
+    tags: ['high-intent', 'competitor-research'],
+    notes: 'Actively researching competitive intelligence tools',
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    user_id: userId,
+    intent_keywords: ['competitive analysis', 'market research'],
     geo_context: {
       market_size: 'Large',
       competition_level: 'High',
-      local_trends: ['SaaS growth', 'Digital transformation'],
-      city: 'Miami',
-      state: 'FL'
+      local_trends: ['AI/ML adoption', 'Remote work tools'],
+      city: 'San Francisco',
+      state: 'CA',
+      zip: '94105'
     },
-    urgency_score: 85,
-    last_search_activity: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    search_patterns: ['pricing comparison', 'feature analysis', 'competitor research']
+    urgency_score: 92,
+    last_search_activity: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    search_patterns: ['competitor pricing', 'feature comparison', 'user reviews']
   },
   {
-    id: '2',
+    id: 'lead-2',
     name: 'Michael Rodriguez',
-    email: 'mrodriguez@growthco.io',
-    company: 'GrowthCo',
-    title: 'Growth Manager',
+    email: 'mike@growthagency.co',
+    company: 'Growth Agency Co',
+    title: 'Head of Growth',
     phone: '+1-555-0124',
     location_city: 'Austin',
     location_state: 'TX',
     location_zip: '78701',
-    intent_score: 92,
-    source: 'paid_search',
+    intent_score: 78,
+    source: 'linkedin_outreach',
     source_data: {
-      ad_clicked: 'competitive-intelligence-ad',
-      campaign: 'SaaS-Tools-Q4',
-      keyword: 'competitor tracking software'
+      campaign_id: 'linkedin_001',
+      message_thread: 'thread_456'
     },
     enrichment_data: {
-      company_size: '200-500',
-      industry: 'E-commerce',
-      annual_revenue: '$10M-50M'
+      company_size: '10-50',
+      industry: 'Digital Marketing',
+      annual_revenue: '$1M-5M'
     },
-    status: 'hot',
-    tags: ['high-intent', 'competitor-mentioned', 'demo-requested'],
-    notes: 'Actively comparing solutions, mentioned HubSpot in demo request',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    intent_keywords: ['competitor tracking', 'market intelligence'],
+    status: 'nurturing',
+    tags: ['warm-lead', 'agency'],
+    notes: 'Interested in white-label solutions',
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    user_id: userId,
+    intent_keywords: ['white label', 'agency tools'],
     geo_context: {
       market_size: 'Medium',
       competition_level: 'Medium',
-      local_trends: ['E-commerce growth', 'Tech adoption'],
+      local_trends: ['Tech hub growth', 'Startup ecosystem'],
       city: 'Austin',
-      state: 'TX'
-    },
-    urgency_score: 92,
-    last_search_activity: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    search_patterns: ['solution comparison', 'pricing research', 'vendor evaluation']
-  },
-  {
-    id: '3',
-    name: 'Jessica Thompson',
-    email: 'jthompson@marketingpro.com',
-    company: 'MarketingPro Agency',
-    title: 'Director of Client Services',
-    phone: '+1-555-0125',
-    location_city: 'Seattle',
-    location_state: 'WA',
-    location_zip: '98101',
-    intent_score: 78,
-    source: 'referral',
-    source_data: {
-      referrer: 'industry_partner',
-      referral_code: 'PARTNER2024'
-    },
-    enrichment_data: {
-      company_size: '20-50',
-      industry: 'Marketing Agency',
-      client_count: '15-25'
-    },
-    status: 'nurturing',
-    tags: ['agency', 'multi-client', 'white-label-interest'],
-    notes: 'Looking for white-label competitive intelligence solution',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    intent_keywords: ['white-label', 'agency solutions'],
-    geo_context: {
-      market_size: 'Large',
-      competition_level: 'High',
-      local_trends: ['Agency consolidation', 'Tech integration'],
-      city: 'Seattle',
-      state: 'WA'
+      state: 'TX',
+      zip: '78701'
     },
     urgency_score: 65,
-    last_search_activity: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    search_patterns: ['white-label solutions', 'agency tools', 'client reporting']
+    last_search_activity: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    search_patterns: ['white label solutions', 'API documentation', 'pricing tiers']
   }
 ];
 
-export const getMockEnhancedLeadsWithUserId = (userId: string): EnhancedLead[] => {
-  return baseMockEnhancedLeads.map(lead => ({
-    ...lead,
-    user_id: userId
-  }));
-};
+// Auto-pitch interface to match component expectations
+export interface AutoPitch {
+  id: string;
+  lead_id: string;
+  created_at: string;
+  subject_line: string;
+  opening_hook: string;
+  pain_point_reference: string;
+  solution_positioning: string;
+  social_proof: string;
+  cta: string;
+  personalization_tokens: {
+    company_name: string;
+    industry: string;
+    pain_points: string[];
+    competitors: string[];
+  };
+  engagement_score: number;
+  // Legacy plural versions for backwards compatibility
+  subject_lines?: string[];
+  opening_hooks?: string[];
+  pain_point_references?: string[];
+  value_propositions?: string[];
+  cta_options?: string[];
+}
 
-export const mockEnhancedLeads = baseMockEnhancedLeads;
+export const getMockAutoPitchWithUserId = (leadId: string, userId: string): AutoPitch => ({
+  id: `pitch-${leadId}`,
+  lead_id: leadId,
+  created_at: new Date().toISOString(),
+  subject_line: 'Quick question about your competitive analysis workflow',
+  opening_hook: 'Hi {company_name}, I noticed you\'ve been researching competitive intelligence tools...',
+  pain_point_reference: 'Most marketing teams struggle with getting real-time competitor insights',
+  solution_positioning: 'Our platform provides live competitor tracking that updates every hour',
+  social_proof: 'Companies like TechCorp increased their market share by 23% using our intel',
+  cta: 'Would you be interested in a 15-minute demo this week?',
+  personalization_tokens: {
+    company_name: 'TechStartup Inc',
+    industry: 'SaaS',
+    pain_points: ['Manual competitor research', 'Outdated data', 'Time-consuming analysis'],
+    competitors: ['SimilarWeb', 'SEMrush', 'Ahrefs']
+  },
+  engagement_score: 87,
+  // Legacy plural versions for backwards compatibility
+  subject_lines: ['Quick question about your competitive analysis workflow'],
+  opening_hooks: ['Hi {company_name}, I noticed you\'ve been researching competitive intelligence tools...'],
+  pain_point_references: ['Most marketing teams struggle with getting real-time competitor insights'],
+  value_propositions: ['Our platform provides live competitor tracking that updates every hour'],
+  cta_options: ['Would you be interested in a 15-minute demo this week?']
+});

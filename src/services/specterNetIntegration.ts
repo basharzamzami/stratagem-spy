@@ -28,6 +28,7 @@ export interface EnhancedLead {
     local_trends: string[];
     city?: string;
     state?: string;
+    zip?: string;
   };
   urgency_score?: number;
   last_search_activity?: string;
@@ -80,6 +81,16 @@ export interface AdVariant {
   competitor_source: string;
   hijack_strategy: 'direct_comparison' | 'feature_superiority' | 'price_advantage' | 'social_proof';
   expected_ctr: number;
+}
+
+// Updated interface for integration results
+export interface SpecterNetIntegrationResult {
+  intel: CompetitorAdIntel[];
+  campaigns: GeneratedCampaign[];
+  leads: EnhancedLead[];
+  warmLeads?: EnhancedLead[];
+  competitorIntel?: CompetitorAdIntel[];
+  generatedCampaigns?: GeneratedCampaign[];
 }
 
 export const getLeads = async (): Promise<EnhancedLead[]> => {
@@ -265,7 +276,8 @@ export const getEnhancedLeads = async (): Promise<EnhancedLead[]> => {
       competition_level: 'High',
       local_trends: ['SaaS growth', 'Digital transformation'],
       city: lead.location_city,
-      state: lead.location_state
+      state: lead.location_state,
+      zip: lead.location_zip
     },
     urgency_score: Math.floor(Math.random() * 100),
     last_search_activity: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -273,16 +285,12 @@ export const getEnhancedLeads = async (): Promise<EnhancedLead[]> => {
   }));
 };
 
-// Mock Specter Net Integration Functions - Updated function signature
+// Updated function signature to match component expectations
 export const runSpecterNetIntegration = async (config: {
   geo_targets: string[];
   business_goals: string[];
   competitor_focus: string[];
-}): Promise<{
-  intel: CompetitorAdIntel[];
-  campaigns: GeneratedCampaign[];
-  leads: EnhancedLead[];
-}> => {
+}): Promise<SpecterNetIntegrationResult> => {
   console.log('Running Specter Net integration with config:', config);
   
   // Simulate integration process
@@ -345,5 +353,12 @@ export const runSpecterNetIntegration = async (config: {
   
   const leads = await getEnhancedLeads();
   
-  return { intel, campaigns, leads };
+  return { 
+    intel, 
+    campaigns, 
+    leads,
+    warmLeads: leads,
+    competitorIntel: intel,
+    generatedCampaigns: campaigns
+  };
 };
