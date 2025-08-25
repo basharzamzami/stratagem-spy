@@ -1,45 +1,55 @@
 
-// Configuration for backend API endpoints
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// API configuration
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-// Note: This backend integration is currently unused in favor of Supabase direct integration
-// The hardcoded localhost URL is development-only and poses no production security risk
-
-export const api = {
-  // Ad Signal endpoints
-  adSignal: {
-    getHotAds: () => `${API_BASE_URL}/ad-signal/hot-ads`,
-    searchAds: () => `${API_BASE_URL}/ad-signal/search`,
-    getEngagement: () => `${API_BASE_URL}/ad-signal/engagement`,
-  },
-  
-  // Lead Locator endpoints  
-  leadLocator: {
-    search: () => `${API_BASE_URL}/lead-locator/search`,
-    analyze: () => `${API_BASE_URL}/lead-locator/analyze`,
-  }
-};
-
-// Mock ApiClient class for backwards compatibility
 export class ApiClient {
-  static async get(endpoint: string) {
-    throw new Error('ApiClient is deprecated. Use Supabase integration instead.');
-  }
-  
-  static async post(endpoint: string, data: any) {
-    throw new Error('ApiClient is deprecated. Use Supabase integration instead.');
+  private baseUrl: string;
+
+  constructor(baseUrl: string = API_BASE_URL) {
+    this.baseUrl = baseUrl;
   }
 
-  // Add missing methods that are being used in components
-  static async getCampaigns() {
-    throw new Error('getCampaigns is deprecated. Use Supabase integration instead.');
+  private async request<T>(endpoint: string, options?: RequestInit): Promise<{ data: T }> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const response = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+      ...options,
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return { data };
   }
 
-  static async createCampaign(data: any) {
-    throw new Error('createCampaign is deprecated. Use Supabase integration instead.');
+  async getCampaigns() {
+    return this.request('/campaigns');
   }
 
-  static async updateCampaign(id: string, data: any) {
-    throw new Error('updateCampaign is deprecated. Use Supabase integration instead.');
+  async createCampaign(campaign: any) {
+    return this.request('/campaigns', {
+      method: 'POST',
+      body: JSON.stringify(campaign),
+    });
+  }
+
+  async updateCampaign(id: string, campaign: any) {
+    return this.request(`/campaigns/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(campaign),
+    });
+  }
+
+  async deleteCampaign(id: string) {
+    return this.request(`/campaigns/${id}`, {
+      method: 'DELETE',
+    });
   }
 }
+
+export const apiClient = new ApiClient();

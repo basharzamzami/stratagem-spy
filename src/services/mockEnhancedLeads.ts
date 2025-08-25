@@ -85,7 +85,7 @@ export const getMockEnhancedLeadsWithUserId = (userId: string): EnhancedLead[] =
   }
 ];
 
-// Auto-pitch interface to match component expectations
+// Updated AutoPitch interface to match component usage
 export interface AutoPitch {
   id: string;
   lead_id: string;
@@ -104,11 +104,11 @@ export interface AutoPitch {
   };
   engagement_score: number;
   // Legacy plural versions for backwards compatibility
-  subject_lines?: string[];
-  opening_hooks?: string[];
-  pain_point_references?: string[];
-  value_propositions?: string[];
-  cta_options?: string[];
+  subject_lines: string[];
+  opening_hooks: string[];
+  pain_point_references: string[];
+  value_propositions: string[];
+  cta_options: string[];
 }
 
 export const getMockAutoPitchWithUserId = (leadId: string, userId: string): AutoPitch => ({

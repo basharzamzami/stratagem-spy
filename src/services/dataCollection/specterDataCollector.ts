@@ -24,7 +24,7 @@ export interface CollectionConfig {
   };
   depth?: number;
   frequency?: string;
-  config?: Record<string, any>;
+  target_url?: string;
 }
 
 export interface CollectionJob {

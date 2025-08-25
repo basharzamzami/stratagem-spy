@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -67,12 +66,16 @@ export default function RefinedAutoPitchGenerator() {
       notes: 'Strong buying signals detected',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      user_id: 'mock-user-id',
       intent_keywords: ['competitive analysis', 'market intelligence', 'growth strategies'],
       search_patterns: ['pricing comparison', 'competitor research', 'market analysis tools'],
       competitor_references: ['SimilarWeb', 'SEMrush'],
       urgency_score: 88,
       last_search_activity: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       geo_context: {
+        market_size: 'Large',
+        competition_level: 'High',
+        local_trends: ['AI/ML adoption', 'Remote work tools'],
         city: 'San Francisco',
         state: 'CA',
         zip: '94105'
@@ -181,7 +184,7 @@ export default function RefinedAutoPitchGenerator() {
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <MapPin className="w-3 h-3" />
-                    {selectedLeadData.geo_context.city}, {selectedLeadData.geo_context.state}
+                    {selectedLeadData.geo_context?.city || selectedLeadData.location_city}, {selectedLeadData.geo_context?.state || selectedLeadData.location_state}
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <TrendingUp className="w-3 h-3" />

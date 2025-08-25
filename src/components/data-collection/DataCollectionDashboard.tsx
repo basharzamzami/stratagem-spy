@@ -34,19 +34,18 @@ export default function DataCollectionDashboard() {
   const { toast } = useToast();
 
   const defaultConfig: CollectionConfig = {
-    type: 'market_intelligence' as const,
+    type: 'market_intelligence',
     source: 'multi_source',
-    config: {
-      competitors: ['hubspot.com', 'salesforce.com', 'marketo.com'],
-      keywords: ['marketing automation', 'lead generation', 'CRM software'],
-      location: {
-        city: 'Miami',
-        state: 'FL',
-        zip: '33101'
-      },
-      depth: 3,
-      frequency: 'hourly'
-    }
+    query: 'competitive intelligence tools',
+    competitors: ['hubspot.com', 'salesforce.com', 'marketo.com'],
+    keywords: ['marketing automation', 'lead generation', 'CRM software'],
+    location: {
+      city: 'Miami',
+      state: 'FL',
+      zip: '33101'
+    },
+    depth: 3,
+    frequency: 'hourly'
   };
 
   const startCollection = async () => {
@@ -143,14 +142,13 @@ export default function DataCollectionDashboard() {
   };
 
   const getJobTarget = (job: CollectionJob) => {
-    if (job.config.target_url) return job.config.target_url;
     if (job.config.competitors && job.config.competitors.length > 0) {
       return job.config.competitors[0];
     }
     if (job.config.location) {
       return `${job.config.location.city || ''}, ${job.config.location.state || ''}`.trim();
     }
-    return 'Multiple targets';
+    return job.config.query || 'Multiple targets';
   };
 
   return (
@@ -170,7 +168,7 @@ export default function DataCollectionDashboard() {
                 Collect competitive intelligence from multiple sources
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Monitoring: {defaultConfig.config.competitors?.join(', ') || 'Various targets'}
+                Monitoring: {defaultConfig.competitors?.join(', ') || 'Various targets'}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -325,7 +323,7 @@ export default function DataCollectionDashboard() {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-400">
-                    {defaultConfig.config.competitors?.length || 0}
+                    {defaultConfig.competitors?.length || 0}
                   </div>
                   <div className="text-sm text-muted-foreground">Competitors Tracked</div>
                 </div>

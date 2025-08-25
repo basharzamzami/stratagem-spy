@@ -286,12 +286,13 @@ export const getEnhancedLeads = async (): Promise<EnhancedLead[]> => {
 };
 
 // Updated function signature to match component expectations
-export const runSpecterNetIntegration = async (config: {
-  geo_targets: string[];
-  business_goals: string[];
-  competitor_focus: string[];
-}): Promise<SpecterNetIntegrationResult> => {
-  console.log('Running Specter Net integration with config:', config);
+export const runSpecterNetIntegration = async (
+  targetKeywords: string[],
+  geoTargets: string[],
+  competitors: string[],
+  budget: number
+): Promise<SpecterNetIntegrationResult> => {
+  console.log('Running Specter Net integration with params:', { targetKeywords, geoTargets, competitors, budget });
   
   // Simulate integration process
   await new Promise(resolve => setTimeout(resolve, 2000));
@@ -331,13 +332,13 @@ export const runSpecterNetIntegration = async (config: {
         }
       ],
       targeting_config: {
-        geo_targets: config.geo_targets,
-        intent_keywords: ['competitive intelligence', 'market analysis'],
+        geo_targets: geoTargets,
+        intent_keywords: targetKeywords,
         audience_segments: ['B2B marketers', 'Growth teams']
       },
       budget_allocation: {
-        total_budget: 5000,
-        daily_budget: 200,
+        total_budget: budget,
+        daily_budget: Math.floor(budget / 30),
         platform_distribution: { 'Google': 60, 'Facebook': 40 }
       },
       performance_metrics: {

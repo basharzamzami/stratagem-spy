@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, MapPin, Phone, Mail, TrendingUp, Clock, Target } from 'lucide-react';
 import { EnhancedLead } from '@/services/specterNetIntegration';
 import { LeadEnrichmentData } from '@/services/warmLeadProspector';
+import { useMockLeads } from './MockLeadsProvider';
 
 interface WarmLeadsTableProps {
   leads: EnhancedLead[];
@@ -21,103 +21,8 @@ const WarmLeadsTable: React.FC<WarmLeadsTableProps> = ({ leads, onSelectLead, en
   const [sortBy, setSortBy] = useState('urgency_score');
   const [filterBy, setFilterBy] = useState('all');
 
-  // Mock warm leads data if none provided
-  const mockLeads: EnhancedLead[] = useMemo(() => {
-    if (leads.length > 0) return leads;
-    
-    return [
-      {
-        id: 'lead_1',
-        name: 'Sarah Chen',
-        email: 'sarah.chen@techcorp.com',
-        company: 'TechCorp Solutions',
-        title: 'VP of Marketing',
-        phone: '(555) 123-4567',
-        location_city: 'San Francisco',
-        location_state: 'CA',
-        location_zip: '94105',
-        intent_score: 92,
-        source: 'intent_detection',
-        source_data: { detection_method: 'keyword_scanning', confidence_score: 0.89 },
-        enrichment_data: {},
-        status: 'active',
-        tags: ['warm_lead', 'high_intent'],
-        notes: 'Actively researching marketing automation tools',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        intent_keywords: ['marketing automation', 'lead scoring', 'crm integration'],
-        search_patterns: ['vs competitor', 'pricing comparison', 'free trial'],
-        competitor_references: ['HubSpot', 'Marketo'],
-        urgency_score: 88,
-        last_search_activity: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        geo_context: {
-          city: 'San Francisco',
-          state: 'CA',
-          zip: '94105'
-        }
-      },
-      {
-        id: 'lead_2',
-        name: 'Michael Rodriguez',
-        email: 'm.rodriguez@healthplus.com',
-        company: 'HealthPlus Medical',
-        title: 'Director of Operations',
-        phone: '(555) 987-6543',
-        location_city: 'Austin',
-        location_state: 'TX',
-        location_zip: '78701',
-        intent_score: 85,
-        source: 'intent_detection',
-        source_data: { detection_method: 'social_listening', confidence_score: 0.82 },
-        enrichment_data: {},
-        status: 'active',
-        tags: ['warm_lead', 'healthcare'],
-        notes: 'Looking for patient management solutions',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        intent_keywords: ['patient management', 'healthcare crm', 'appointment scheduling'],
-        search_patterns: ['best healthcare software', 'patient engagement tools'],
-        competitor_references: ['Epic'],
-        urgency_score: 79,
-        last_search_activity: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-        geo_context: {
-          city: 'Austin',
-          state: 'TX',
-          zip: '78701'
-        }
-      },
-      {
-        id: 'lead_3',
-        name: 'Amanda Foster',
-        email: 'a.foster@realestatepro.com',
-        company: 'RealEstate Pro',
-        title: 'Sales Manager',
-        phone: '(555) 456-7890',
-        location_city: 'Miami',
-        location_state: 'FL',
-        location_zip: '33101',
-        intent_score: 78,
-        source: 'intent_detection',
-        source_data: { detection_method: 'web_tracking', confidence_score: 0.75 },
-        enrichment_data: {},
-        status: 'active',
-        tags: ['warm_lead', 'real_estate'],
-        notes: 'Researching lead generation tools for real estate',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        intent_keywords: ['real estate leads', 'property management', 'client tracking'],
-        search_patterns: ['real estate crm', 'lead generation'],
-        competitor_references: ['Zillow'],
-        urgency_score: 72,
-        last_search_activity: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-        geo_context: {
-          city: 'Miami',
-          state: 'FL',
-          zip: '33101'
-        }
-      }
-    ];
-  }, [leads]);
+  // Use the mock leads hook
+  const mockLeads = useMockLeads(leads);
 
   const filteredLeads = useMemo(() => {
     let filtered = mockLeads;
@@ -127,7 +32,7 @@ const WarmLeadsTable: React.FC<WarmLeadsTableProps> = ({ leads, onSelectLead, en
       filtered = filtered.filter(lead => 
         lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         lead.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.intent_keywords.some(keyword => 
+        (lead.intent_keywords || []).some(keyword => 
           keyword.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
@@ -142,7 +47,7 @@ const WarmLeadsTable: React.FC<WarmLeadsTableProps> = ({ leads, onSelectLead, en
           case 'medium_intent':
             return lead.intent_score >= 70 && lead.intent_score < 85;
           case 'recent':
-            return new Date(lead.last_search_activity) > new Date(Date.now() - 24 * 60 * 60 * 1000);
+            return new Date(lead.last_search_activity || lead.updated_at) > new Date(Date.now() - 24 * 60 * 60 * 1000);
           default:
             return true;
         }
@@ -153,15 +58,15 @@ const WarmLeadsTable: React.FC<WarmLeadsTableProps> = ({ leads, onSelectLead, en
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'urgency_score':
-          return b.urgency_score - a.urgency_score;
+          return (b.urgency_score || 0) - (a.urgency_score || 0);
         case 'intent_score':
           return b.intent_score - a.intent_score;
         case 'recent':
-          return new Date(b.last_search_activity).getTime() - new Date(a.last_search_activity).getTime();
+          return new Date(b.last_search_activity || b.updated_at).getTime() - new Date(a.last_search_activity || a.updated_at).getTime();
         case 'company':
           return a.company.localeCompare(b.company);
         default:
-          return b.urgency_score - a.urgency_score;
+          return (b.urgency_score || 0) - (a.urgency_score || 0);
       }
     });
 
@@ -263,20 +168,20 @@ const WarmLeadsTable: React.FC<WarmLeadsTableProps> = ({ leads, onSelectLead, en
                   <TableCell>
                     <div className="space-y-2">
                       <div className="flex flex-wrap gap-1">
-                        {lead.intent_keywords.slice(0, 2).map((keyword, index) => (
+                        {(lead.intent_keywords || []).slice(0, 2).map((keyword, index) => (
                           <Badge key={index} variant="secondary" className="text-xs">
                             {keyword}
                           </Badge>
                         ))}
-                        {lead.intent_keywords.length > 2 && (
+                        {(lead.intent_keywords || []).length > 2 && (
                           <Badge variant="secondary" className="text-xs">
-                            +{lead.intent_keywords.length - 2}
+                            +{(lead.intent_keywords || []).length - 2}
                           </Badge>
                         )}
                       </div>
-                      {lead.search_patterns.length > 0 && (
+                      {(lead.search_patterns || []).length > 0 && (
                         <div className="text-xs text-muted-foreground">
-                          Pattern: {lead.search_patterns[0]}
+                          Pattern: {lead.search_patterns![0]}
                         </div>
                       )}
                     </div>
@@ -286,7 +191,7 @@ const WarmLeadsTable: React.FC<WarmLeadsTableProps> = ({ leads, onSelectLead, en
                     <div className="flex items-center gap-1 text-sm">
                       <MapPin className="w-3 h-3 text-muted-foreground" />
                       <span className="text-muted-foreground">
-                        {lead.geo_context.city}, {lead.geo_context.state}
+                        {lead.geo_context?.city || lead.location_city}, {lead.geo_context?.state || lead.location_state}
                       </span>
                     </div>
                   </TableCell>
@@ -298,7 +203,7 @@ const WarmLeadsTable: React.FC<WarmLeadsTableProps> = ({ leads, onSelectLead, en
                         {lead.intent_score}%
                       </Badge>
                       <div className="text-xs text-muted-foreground">
-                        Urgency: {lead.urgency_score}%
+                        Urgency: {lead.urgency_score || 0}%
                       </div>
                     </div>
                   </TableCell>
@@ -306,7 +211,7 @@ const WarmLeadsTable: React.FC<WarmLeadsTableProps> = ({ leads, onSelectLead, en
                   <TableCell>
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                       <Clock className="w-3 h-3" />
-                      {getTimeAgo(lead.last_search_activity)}
+                      {getTimeAgo(lead.last_search_activity || lead.updated_at)}
                     </div>
                   </TableCell>
                   
