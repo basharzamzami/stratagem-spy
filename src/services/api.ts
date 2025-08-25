@@ -19,3 +19,14 @@ export const api = {
     analyze: () => `${API_BASE_URL}/lead-locator/analyze`,
   }
 };
+
+// Mock ApiClient class for backwards compatibility
+export class ApiClient {
+  static async get(endpoint: string) {
+    throw new Error('ApiClient is deprecated. Use Supabase integration instead.');
+  }
+  
+  static async post(endpoint: string, data: any) {
+    throw new Error('ApiClient is deprecated. Use Supabase integration instead.');
+  }
+}

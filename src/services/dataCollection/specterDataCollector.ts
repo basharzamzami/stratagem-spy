@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export interface RawData {
@@ -15,15 +16,26 @@ export interface CollectionConfig {
   query: string;
   limit?: number;
   fields?: string[];
+  competitors?: string[];
+  keywords?: string[];
+  location?: {
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
+  depth?: number;
+  frequency?: string;
 }
 
-interface CollectionJob {
+export interface CollectionJob {
   id: string;
   type: string;
   source: string;
   config: Record<string, any>;
   status: 'pending' | 'running' | 'completed' | 'failed';
   results?: any;
+  results_count?: number;
+  error_message?: string;
   created_at: string;
   updated_at: string;
 }
@@ -42,7 +54,7 @@ export const submitDataCollectionJob = async (config: CollectionConfig): Promise
       .insert({
         type: 'collection_job',
         source: config.source,
-        data: config,
+        data: config as any,
         user_id: user.id
       })
       .select()
@@ -53,7 +65,10 @@ export const submitDataCollectionJob = async (config: CollectionConfig): Promise
       return null;
     }
 
-    return data || null;
+    return data ? {
+      ...data,
+      data: data.data as Record<string, any>
+    } : null;
   } catch (error) {
     console.error('Error submitting data collection job:', error);
     return null;
@@ -88,9 +103,11 @@ export const processCollectionJobs = async (): Promise<CollectionJob[]> => {
         id: item.id,
         type: jobData?.type || 'unknown',
         source: item.source,
-        config: jobData?.config || {},
+        config: jobData || {},
         status: jobData?.status || 'pending',
         results: jobData?.results,
+        results_count: jobData?.results_count || 0,
+        error_message: jobData?.error_message,
         created_at: item.created_at,
         updated_at: item.created_at
       } as CollectionJob;
@@ -152,9 +169,46 @@ export const getRawData = async (source: string, query: string, limit: number = 
       return [];
     }
 
-    return data || [];
+    return (data || []).map(item => ({
+      ...item,
+      data: item.data as Record<string, any>
+    }));
   } catch (error) {
     console.error(`Error fetching raw data from source ${source}:`, error);
     return [];
   }
 };
+
+// Mock SpecterDataCollector class for the DataCollectionDashboard component
+export class SpecterDataCollector {
+  private static instance: SpecterDataCollector;
+
+  static getInstance(): SpecterDataCollector {
+    if (!SpecterDataCollector.instance) {
+      SpecterDataCollector.instance = new SpecterDataCollector();
+    }
+    return SpecterDataCollector.instance;
+  }
+
+  async startCollection(config: CollectionConfig): Promise<CollectionJob> {
+    const jobData = await submitDataCollectionJob(config);
+    
+    return {
+      id: jobData?.id || 'mock-job-1',
+      type: config.type,
+      source: config.source,
+      config: config as any,
+      status: 'running',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+  }
+
+  async getAllJobs(): Promise<CollectionJob[]> {
+    return await processCollectionJobs();
+  }
+
+  async cancelJob(jobId: string): Promise<boolean> {
+    return await updateCollectionJobStatus(jobId, 'failed');
+  }
+}

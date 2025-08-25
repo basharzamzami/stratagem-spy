@@ -1,90 +1,130 @@
 
-import type { EnhancedLead } from './specterNetIntegration';
+import { EnhancedLead } from './specterNetIntegration';
 
-export const getMockEnhancedLeads = (): EnhancedLead[] => [
+const baseMockEnhancedLeads = [
   {
     id: '1',
     name: 'Sarah Chen',
-    email: 'sarah.chen@techcorp.com',
-    company: 'TechCorp Solutions',
-    title: 'VP Marketing',
-    phone: '+1 (555) 123-4567',
-    location_city: 'San Francisco',
-    location_state: 'CA',
-    location_zip: '94105',
-    intent_score: 92,
-    source: 'ad_signal_hijack',
+    email: 'sarah.chen@techstartup.com',
+    company: 'TechStartup Inc',
+    title: 'VP of Marketing',
+    phone: '+1-555-0123',
+    location_city: 'Miami',
+    location_state: 'FL',
+    location_zip: '33101',
+    intent_score: 87,
+    source: 'organic_search',
     source_data: {
-      competitor_ad_engagement: 'high',
-      ad_platform: 'Facebook',
-      engagement_type: 'click_through'
+      search_queries: ['marketing automation tools', 'competitor analysis software'],
+      pages_visited: ['/pricing', '/features', '/competitors'],
+      time_on_site: 420
     },
     enrichment_data: {
-      company_size: '500-1000',
-      industry: 'Technology',
-      annual_revenue: '$50M-$100M',
-      technologies_used: ['HubSpot', 'Salesforce', 'Google Analytics']
+      company_size: '50-200',
+      industry: 'SaaS',
+      tech_stack: ['HubSpot', 'Salesforce', 'Google Analytics']
     },
     status: 'qualified',
-    tags: ['high-intent', 'enterprise', 'competitor-engaged'],
-    notes: 'Engaged with competitor Facebook ad, showing strong buying signals',
-    created_at: '2025-01-15T10:30:00Z',
-    updated_at: '2025-01-15T14:45:00Z',
-    user_id: 'system-user-id',
-    intent_keywords: ['competitive intelligence', 'ad tracking', 'market analysis'],
+    tags: ['high-intent', 'decision-maker', 'budget-confirmed'],
+    notes: 'Interested in competitive intelligence features',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    intent_keywords: ['marketing automation', 'competitor analysis'],
     geo_context: {
       market_size: 'Large',
       competition_level: 'High',
-      local_trends: ['Tech innovation', 'Digital marketing growth']
+      local_trends: ['SaaS growth', 'Digital transformation'],
+      city: 'Miami',
+      state: 'FL'
     },
     urgency_score: 85,
-    last_search_activity: '2025-01-15T09:30:00Z',
-    search_patterns: ['competitor pricing', 'feature comparison', 'market intelligence']
+    last_search_activity: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    search_patterns: ['pricing comparison', 'feature analysis', 'competitor research']
   },
   {
     id: '2',
     name: 'Michael Rodriguez',
-    email: 'mrodriguez@growthstartup.io',
-    company: 'GrowthStartup Inc',
-    title: 'CEO & Founder',
-    phone: '+1 (555) 987-6543',
+    email: 'mrodriguez@growthco.io',
+    company: 'GrowthCo',
+    title: 'Growth Manager',
+    phone: '+1-555-0124',
     location_city: 'Austin',
     location_state: 'TX',
     location_zip: '78701',
-    intent_score: 87,
-    source: 'lead_locator',
+    intent_score: 92,
+    source: 'paid_search',
     source_data: {
-      search_keywords: ['competitive intelligence', 'market analysis'],
-      website_behavior: 'pricing_page_visit',
-      session_duration: '8m 32s'
+      ad_clicked: 'competitive-intelligence-ad',
+      campaign: 'SaaS-Tools-Q4',
+      keyword: 'competitor tracking software'
     },
     enrichment_data: {
-      company_size: '50-100',
-      industry: 'SaaS',
-      annual_revenue: '$5M-$10M',
-      technologies_used: ['Stripe', 'Intercom', 'Mixpanel']
+      company_size: '200-500',
+      industry: 'E-commerce',
+      annual_revenue: '$10M-50M'
     },
-    status: 'contacted',
-    tags: ['startup', 'saas', 'high-growth'],
-    notes: 'Visited pricing page multiple times, requested demo',
-    created_at: '2025-01-14T16:20:00Z',
-    updated_at: '2025-01-15T09:15:00Z',
-    user_id: 'system-user-id',
-    intent_keywords: ['saas analytics', 'growth tools', 'competitive tracking'],
+    status: 'hot',
+    tags: ['high-intent', 'competitor-mentioned', 'demo-requested'],
+    notes: 'Actively comparing solutions, mentioned HubSpot in demo request',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    intent_keywords: ['competitor tracking', 'market intelligence'],
     geo_context: {
       market_size: 'Medium',
       competition_level: 'Medium',
-      local_trends: ['Startup ecosystem growth', 'SaaS adoption']
+      local_trends: ['E-commerce growth', 'Tech adoption'],
+      city: 'Austin',
+      state: 'TX'
     },
-    urgency_score: 72,
-    last_search_activity: '2025-01-14T18:45:00Z',
-    search_patterns: ['pricing research', 'tool evaluation', 'demo requests']
+    urgency_score: 92,
+    last_search_activity: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    search_patterns: ['solution comparison', 'pricing research', 'vendor evaluation']
+  },
+  {
+    id: '3',
+    name: 'Jessica Thompson',
+    email: 'jthompson@marketingpro.com',
+    company: 'MarketingPro Agency',
+    title: 'Director of Client Services',
+    phone: '+1-555-0125',
+    location_city: 'Seattle',
+    location_state: 'WA',
+    location_zip: '98101',
+    intent_score: 78,
+    source: 'referral',
+    source_data: {
+      referrer: 'industry_partner',
+      referral_code: 'PARTNER2024'
+    },
+    enrichment_data: {
+      company_size: '20-50',
+      industry: 'Marketing Agency',
+      client_count: '15-25'
+    },
+    status: 'nurturing',
+    tags: ['agency', 'multi-client', 'white-label-interest'],
+    notes: 'Looking for white-label competitive intelligence solution',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    intent_keywords: ['white-label', 'agency solutions'],
+    geo_context: {
+      market_size: 'Large',
+      competition_level: 'High',
+      local_trends: ['Agency consolidation', 'Tech integration'],
+      city: 'Seattle',
+      state: 'WA'
+    },
+    urgency_score: 65,
+    last_search_activity: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    search_patterns: ['white-label solutions', 'agency tools', 'client reporting']
   }
 ];
 
 export const getMockEnhancedLeadsWithUserId = (userId: string): EnhancedLead[] => {
-  return getMockEnhancedLeads().map(lead => ({
+  return baseMockEnhancedLeads.map(lead => ({
     ...lead,
     user_id: userId
   }));
 };
+
+export const mockEnhancedLeads = baseMockEnhancedLeads;

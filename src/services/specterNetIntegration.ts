@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface EnhancedLead {
@@ -27,6 +26,8 @@ export interface EnhancedLead {
     market_size: string;
     competition_level: string;
     local_trends: string[];
+    city?: string;
+    state?: string;
   };
   urgency_score?: number;
   last_search_activity?: string;
@@ -262,7 +263,9 @@ export const getEnhancedLeads = async (): Promise<EnhancedLead[]> => {
     geo_context: {
       market_size: 'Large',
       competition_level: 'High',
-      local_trends: ['SaaS growth', 'Digital transformation']
+      local_trends: ['SaaS growth', 'Digital transformation'],
+      city: lead.location_city,
+      state: lead.location_state
     },
     urgency_score: Math.floor(Math.random() * 100),
     last_search_activity: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -270,7 +273,7 @@ export const getEnhancedLeads = async (): Promise<EnhancedLead[]> => {
   }));
 };
 
-// Mock Specter Net Integration Functions
+// Mock Specter Net Integration Functions - Updated function signature
 export const runSpecterNetIntegration = async (config: {
   geo_targets: string[];
   business_goals: string[];
