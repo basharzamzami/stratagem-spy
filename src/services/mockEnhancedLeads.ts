@@ -1,5 +1,5 @@
 
-import type { EnhancedLead } from './specterNet';
+import type { EnhancedLead } from './specterNetIntegration';
 
 export const getMockEnhancedLeads = (): EnhancedLead[] => [
   {
@@ -30,7 +30,16 @@ export const getMockEnhancedLeads = (): EnhancedLead[] => [
     notes: 'Engaged with competitor Facebook ad, showing strong buying signals',
     created_at: '2025-01-15T10:30:00Z',
     updated_at: '2025-01-15T14:45:00Z',
-    user_id: 'system-user-id'
+    user_id: 'system-user-id',
+    intent_keywords: ['competitive intelligence', 'ad tracking', 'market analysis'],
+    geo_context: {
+      market_size: 'Large',
+      competition_level: 'High',
+      local_trends: ['Tech innovation', 'Digital marketing growth']
+    },
+    urgency_score: 85,
+    last_search_activity: '2025-01-15T09:30:00Z',
+    search_patterns: ['competitor pricing', 'feature comparison', 'market intelligence']
   },
   {
     id: '2',
@@ -60,7 +69,16 @@ export const getMockEnhancedLeads = (): EnhancedLead[] => [
     notes: 'Visited pricing page multiple times, requested demo',
     created_at: '2025-01-14T16:20:00Z',
     updated_at: '2025-01-15T09:15:00Z',
-    user_id: 'system-user-id'
+    user_id: 'system-user-id',
+    intent_keywords: ['saas analytics', 'growth tools', 'competitive tracking'],
+    geo_context: {
+      market_size: 'Medium',
+      competition_level: 'Medium',
+      local_trends: ['Startup ecosystem growth', 'SaaS adoption']
+    },
+    urgency_score: 72,
+    last_search_activity: '2025-01-14T18:45:00Z',
+    search_patterns: ['pricing research', 'tool evaluation', 'demo requests']
   }
 ];
 
