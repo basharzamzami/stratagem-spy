@@ -24,29 +24,29 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   SpecterDataCollector, 
   CollectionConfig, 
-  DataCollectionJob 
+  CollectionJob 
 } from '@/services/dataCollection/specterDataCollector';
-import { WebCrawler } from '@/services/dataCollection/webCrawler';
 
 export default function DataCollectionDashboard() {
   const [isCollecting, setIsCollecting] = useState(false);
-  const [jobs, setJobs] = useState<DataCollectionJob[]>([]);
+  const [jobs, setJobs] = useState<CollectionJob[]>([]);
   const [collectionProgress, setCollectionProgress] = useState(0);
   const { toast } = useToast();
 
   const defaultConfig: CollectionConfig = {
-    competitors: ['hubspot.com', 'salesforce.com', 'marketo.com'],
-    keywords: ['marketing automation', 'lead generation', 'CRM software'],
-    geoTargets: ['Miami, FL', 'Austin, TX', 'Seattle, WA'],
-    sources: {
-      metaAds: true,
-      googleAds: true,
-      youtubeAds: false,
-      seoData: true,
-      reviews: true,
-      socialListening: false
-    },
-    scheduleInterval: 60
+    type: 'market_intelligence' as const,
+    source: 'multi_source',
+    config: {
+      competitors: ['hubspot.com', 'salesforce.com', 'marketo.com'],
+      keywords: ['marketing automation', 'lead generation', 'CRM software'],
+      location: {
+        city: 'Miami',
+        state: 'FL',
+        zip: '33101'
+      },
+      depth: 3,
+      frequency: 'hourly'
+    }
   };
 
   const startCollection = async () => {
@@ -55,11 +55,11 @@ export default function DataCollectionDashboard() {
     
     try {
       const collector = SpecterDataCollector.getInstance();
-      const jobIds = await collector.startCollection(defaultConfig);
+      const job = await collector.startCollection(defaultConfig);
       
       toast({
         title: "🚀 Data Collection Started",
-        description: `Launched ${jobIds.length} collection jobs`
+        description: `Launched collection job for ${defaultConfig.source}`
       });
 
       // Poll for job updates
@@ -142,6 +142,17 @@ export default function DataCollectionDashboard() {
     }
   };
 
+  const getJobTarget = (job: CollectionJob) => {
+    if (job.config.target_url) return job.config.target_url;
+    if (job.config.competitors && job.config.competitors.length > 0) {
+      return job.config.competitors[0];
+    }
+    if (job.config.location) {
+      return `${job.config.location.city || ''}, ${job.config.location.state || ''}`.trim();
+    }
+    return 'Multiple targets';
+  };
+
   return (
     <div className="space-y-6">
       {/* Control Panel */}
@@ -156,10 +167,10 @@ export default function DataCollectionDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">
-                Collect competitive intelligence from {Object.values(defaultConfig.sources).filter(Boolean).length} sources
+                Collect competitive intelligence from multiple sources
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Monitoring: {defaultConfig.competitors.join(', ')}
+                Monitoring: {defaultConfig.config.competitors?.join(', ') || 'Various targets'}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -221,7 +232,7 @@ export default function DataCollectionDashboard() {
                             {job.source.replace('_', ' ').toUpperCase()}
                           </h4>
                           <p className="text-sm text-muted-foreground">
-                            Target: {job.target}
+                            Target: {getJobTarget(job)}
                           </p>
                         </div>
                       </div>
@@ -237,23 +248,23 @@ export default function DataCollectionDashboard() {
                           <p className="text-xs text-muted-foreground">
                             Started: {new Date(job.created_at).toLocaleTimeString()}
                           </p>
-                          {job.completed_at && (
+                          {job.updated_at && job.status === 'completed' && (
                             <p className="text-xs text-muted-foreground">
-                              Completed: {new Date(job.completed_at).toLocaleTimeString()}
+                              Completed: {new Date(job.updated_at).toLocaleTimeString()}
                             </p>
                           )}
                         </div>
                       </div>
                     </div>
-                    {job.error && (
+                    {job.error_message && (
                       <div className="mt-3 p-2 bg-destructive/10 border border-destructive/20 rounded">
-                        <p className="text-sm text-destructive">{job.error}</p>
+                        <p className="text-sm text-destructive">{job.error_message}</p>
                       </div>
                     )}
-                    {job.results && (
+                    {job.results_count && job.results_count > 0 && (
                       <div className="mt-3 p-2 bg-success/10 border border-success/20 rounded">
                         <p className="text-sm text-success">
-                          Collected {Array.isArray(job.results) ? job.results.length : 'N/A'} items
+                          Collected {job.results_count} items
                         </p>
                       </div>
                     )}
@@ -266,8 +277,8 @@ export default function DataCollectionDashboard() {
 
         <TabsContent value="sources">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {Object.entries(defaultConfig.sources).map(([source, enabled]) => (
-              <Card key={source} className={enabled ? "border-primary/20" : "border-muted"}>
+            {['meta_ads', 'google_ads', 'seo_data', 'reviews', 'social_listening'].map((source) => (
+              <Card key={source} className="border-primary/20">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -277,18 +288,15 @@ export default function DataCollectionDashboard() {
                           {source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {source === 'metaAds' && 'Facebook & Instagram ads transparency'}
-                          {source === 'googleAds' && 'Google Ads transparency center'}
-                          {source === 'youtubeAds' && 'YouTube video ads metadata'}
-                          {source === 'seoData' && 'Keyword rankings & backlinks'}
+                          {source === 'meta_ads' && 'Facebook & Instagram ads transparency'}
+                          {source === 'google_ads' && 'Google Ads transparency center'}
+                          {source === 'seo_data' && 'Keyword rankings & backlinks'}
                           {source === 'reviews' && 'Customer reviews & ratings'}
-                          {source === 'socialListening' && 'Social mentions & sentiment'}
+                          {source === 'social_listening' && 'Social mentions & sentiment'}
                         </p>
                       </div>
                     </div>
-                    <Badge variant={enabled ? "default" : "secondary"}>
-                      {enabled ? "Enabled" : "Disabled"}
-                    </Badge>
+                    <Badge variant="secondary">Available</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -311,15 +319,13 @@ export default function DataCollectionDashboard() {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-success">
-                    {jobs.reduce((sum, job) => 
-                      sum + (Array.isArray(job.results) ? job.results.length : 0), 0
-                    )}
+                    {jobs.reduce((sum, job) => sum + (job.results_count || 0), 0)}
                   </div>
                   <div className="text-sm text-muted-foreground">Items Collected</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-400">
-                    {defaultConfig.competitors.length}
+                    {defaultConfig.config.competitors?.length || 0}
                   </div>
                   <div className="text-sm text-muted-foreground">Competitors Tracked</div>
                 </div>

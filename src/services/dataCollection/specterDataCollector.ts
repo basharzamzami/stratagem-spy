@@ -40,8 +40,6 @@ export interface CollectionConfig {
   config: CollectionJob['config'];
 }
 
-export type DataCollectionJob = CollectionJob; // Alias for backward compatibility
-
 export class SpecterDataCollector {
   private static instance: SpecterDataCollector;
 
@@ -53,7 +51,14 @@ export class SpecterDataCollector {
   }
 
   async startCollection(config: CollectionConfig): Promise<CollectionJob> {
-    return this.createCollectionJob(config);
+    const jobData: Omit<CollectionJob, 'id' | 'user_id' | 'created_at' | 'updated_at'> = {
+      type: config.type,
+      source: config.source,
+      config: config.config,
+      status: 'pending'
+    };
+    
+    return this.createCollectionJob(jobData);
   }
 
   async getAllJobs(): Promise<CollectionJob[]> {
@@ -131,7 +136,12 @@ export class SpecterDataCollector {
       return [];
     }
 
-    return (data || []).map(row => row.data as CollectionJob);
+    return (data || []).map(row => {
+      if (typeof row.data === 'object' && row.data !== null) {
+        return row.data as CollectionJob;
+      }
+      throw new Error('Invalid job data format');
+    });
   }
 
   private async storeCollectionResult(result: Omit<CollectionResult, 'id'>): Promise<void> {

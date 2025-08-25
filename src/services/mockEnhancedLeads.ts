@@ -63,3 +63,10 @@ export const getMockEnhancedLeads = (): EnhancedLead[] => [
     user_id: 'system-user-id'
   }
 ];
+
+export const getMockEnhancedLeadsWithUserId = (userId: string): EnhancedLead[] => {
+  return getMockEnhancedLeads().map(lead => ({
+    ...lead,
+    user_id: userId
+  }));
+};
